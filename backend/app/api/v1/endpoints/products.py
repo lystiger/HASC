@@ -51,7 +51,7 @@ async def create_product(
     )
 
     db_product = DBProduct(
-        **product_in.dict(),
+        **product_in.model_dump(), # Use model_dump()
         status=ProductStatus.DRAFT # Initial status is DRAFT
     )
     
@@ -72,7 +72,7 @@ async def create_product(
     # Refresh the product after image processing has updated its status and images
     await db.refresh(db_product)
 
-    return Product.from_orm(db_product)
+    return Product.model_validate(db_product) # Use model_validate
 
 
 @router.get("/", response_model=List[Product])
@@ -80,4 +80,4 @@ async def get_products(db: AsyncSession = Depends(get_db)):
     from sqlalchemy import select
     result = await db.execute(select(DBProduct))
     products = result.scalars().all()
-    return [Product.from_orm(product) for product in products]
+    return [Product.model_validate(product) for product in products] # Use model_validate

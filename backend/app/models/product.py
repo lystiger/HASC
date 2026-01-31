@@ -7,8 +7,7 @@ from sqlalchemy import (
     DateTime,
     func,
 )
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.types import Enum
+from sqlalchemy.types import Enum, JSON # Changed import and added JSON type
 
 from app.db.base import Base
 
@@ -37,8 +36,8 @@ class Product(Base):
     category = Column(Enum(ProductCategory), nullable=False)
     status = Column(Enum(ProductStatus), nullable=False, default=ProductStatus.DRAFT)
 
-    images = Column(JSONB)  # List of image URLs
-    specific_attributes = Column(JSONB)  # Category-specific attributes
+    images = Column(JSON)  # Changed to JSON
+    specific_attributes = Column(JSON)  # Changed to JSON
 
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

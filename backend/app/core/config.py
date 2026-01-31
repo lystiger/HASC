@@ -1,5 +1,6 @@
 import os
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict # Import ConfigDict
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "HASC Backend"
@@ -11,7 +12,6 @@ class Settings(BaseSettings):
     # Uploads
     UPLOAD_DIR: str = "uploads"
 
-    class Config:
-        case_sensitive = True
+    model_config = ConfigDict(case_sensitive=True) # Use ConfigDict
 
 settings = Settings()

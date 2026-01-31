@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict # Import ConfigDict
 from app.models.product import ProductCategory, ProductStatus
 
 
@@ -24,7 +24,7 @@ class ProductCreate(ProductBase):
     pass
 
 
-class ProductUpdate(ProductBase):
+class ProductUpdate(BaseModel):
     sku: Optional[str] = None
     name: Optional[str] = None
     category: Optional[ProductCategory] = None
@@ -39,8 +39,7 @@ class ProductInDBBase(ProductBase):
     updated_at: datetime
     status: ProductStatus = ProductStatus.DRAFT
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True) # Use ConfigDict
 
 
 class Product(ProductInDBBase):

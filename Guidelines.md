@@ -293,6 +293,9 @@ The following diagrams will be created and maintained by a human and provided se
    - Ownership and lifecycle of data
    - Constraints and invariants
 
+4. Where?
+   - All diagrams were stored in the root/Diagram folder
+
 ---
 
 ## AI Usage Rules

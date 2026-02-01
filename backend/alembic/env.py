@@ -21,6 +21,7 @@ if config.config_file_name is not None:
 from app.db.base import Base
 from app.models.product import Product  # noqa
 from app.models.task import Task # noqa
+from app.models.user import User # noqa
 from app.core.config import settings
 
 target_metadata = Base.metadata

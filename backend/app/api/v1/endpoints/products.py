@@ -9,13 +9,15 @@ from app.db.session import AsyncSessionLocal
 from app.schemas.product import ProductCreate, Product, ProductCategory, ProductStatus, ProductUpdate # Import ProductUpdate
 from app.models.product import Product as DBProduct # Keep this import for the DBProduct instance
 from app.services.image_processing import process_images_async
+from app.api.deps import get_db, get_current_user
+from app.models.user import User
 
 router = APIRouter()
 
 # Dependency to get the database session
-async def get_db() -> AsyncSession:
-    async with AsyncSessionLocal() as session:
-        yield session
+# async def get_db() -> AsyncSession: # This is already defined in deps.py
+#     async with AsyncSessionLocal() as session:
+#         yield session
 
 @router.post("/", response_model=Product, status_code=status.HTTP_202_ACCEPTED)
 async def create_product(
@@ -78,7 +80,10 @@ async def create_product(
 
 
 @router.get("/", response_model=List[Product])
-async def get_products(db: AsyncSession = Depends(get_db)):
+async def get_products(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     result = await db.execute(select(DBProduct))
     products = result.scalars().all()
     return [Product.model_validate(product) for product in products] # Use model_validate

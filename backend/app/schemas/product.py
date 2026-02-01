@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict # Import ConfigDict
+from pydantic import BaseModel, ConfigDict, Field # Import ConfigDict and Field
 from app.models.product import ProductCategory, ProductStatus
 
 
@@ -27,6 +27,7 @@ class ProductCreate(ProductBase):
 class ProductUpdate(BaseModel):
     sku: Optional[str] = None
     name: Optional[str] = None
+    description: str | None = Field(None) # Corrected description field
     category: Optional[ProductCategory] = None
     status: Optional[ProductStatus] = None
     images: Optional[List[ImageInfo]] = None  # Updated to Optional[List[ImageInfo]]
@@ -44,3 +45,4 @@ class ProductInDBBase(ProductBase):
 
 class Product(ProductInDBBase):
     pass
+

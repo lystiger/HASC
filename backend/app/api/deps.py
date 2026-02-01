@@ -33,7 +33,8 @@ async def get_current_user(
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    user = await crud_user.get_user_by_email(db, email=token_data.username)
+    user_id = int(token_data.username)
+    user = await crud_user.get_user_by_id(db, user_id=user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user

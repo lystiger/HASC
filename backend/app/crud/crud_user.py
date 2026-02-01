@@ -10,6 +10,9 @@ async def get_user_by_email(db: AsyncSession, *, email: str) -> User | None:
     result = await db.execute(select(User).filter(User.email == email))
     return result.scalars().first()
 
+async def get_user_by_id(db: AsyncSession, *, user_id: int) -> User | None:
+    result = await db.execute(select(User).filter(User.id == user_id))
+    return result.scalars().first()
 
 async def create_user(db: AsyncSession, *, obj_in: UserCreate) -> User:
     db_obj = User(

@@ -7,7 +7,9 @@ from sqlalchemy import (
     DateTime,
     func,
 )
-from sqlalchemy.types import Enum, JSON # Changed import and added JSON type
+from sqlalchemy.orm import relationship
+from sqlalchemy.types import Enum, JSON
+
 
 from app.db.base import Base
 
@@ -36,8 +38,10 @@ class Product(Base):
     category = Column(Enum(ProductCategory), nullable=False)
     status = Column(Enum(ProductStatus), nullable=False, default=ProductStatus.DRAFT)
 
-    images = Column(JSON)  # Changed to JSON
-    specific_attributes = Column(JSON)  # Changed to JSON
+    images = Column(JSON)
+    specific_attributes = Column(JSON)
 
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    tasks = relationship("Task", back_populates="product")

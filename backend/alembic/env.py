@@ -20,6 +20,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 from app.db.base import Base
 from app.models.product import Product  # noqa
+from app.models.task import Task # noqa
 from app.core.config import settings
 
 target_metadata = Base.metadata
@@ -80,3 +81,4 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     asyncio.run(run_migrations_online())
+    

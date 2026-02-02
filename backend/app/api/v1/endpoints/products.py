@@ -19,10 +19,10 @@ from app.schemas.task import TaskCreate as TaskSchemaCreate
 
 router = APIRouter()
 
-# Define a temporary directory for raw image uploads relative to /app inside container
-TEMP_UPLOAD_DIR = "temp_uploads"
-# Ensure the temporary upload directory exists (this will create /app/temp_uploads inside the container)
-os.makedirs(os.path.join("/app", TEMP_UPLOAD_DIR), exist_ok=True)
+# Define a temporary directory for raw image uploads relative to the project root
+TEMP_UPLOAD_DIR = "backend/temp_uploads"
+# Ensure the temporary upload directory exists
+os.makedirs(TEMP_UPLOAD_DIR, exist_ok=True)
 
 @router.post("/", response_model=Dict[str, Any], status_code=status.HTTP_202_ACCEPTED)
 async def create_product(
@@ -89,8 +89,8 @@ async def create_product(
         file_extension = image.filename.split(".")[-1] if "." in image.filename else "tmp"
         temp_filename = f"temp_original_{uuid.uuid4().hex}_{new_product_id}.{file_extension}"
         
-        # This is the full path inside the Docker container where the file will be written
-        container_full_temp_file_path = os.path.join("/app", TEMP_UPLOAD_DIR, temp_filename)
+        # This is the full path inside the container where the file will be written
+        container_full_temp_file_path = os.path.join(TEMP_UPLOAD_DIR, temp_filename)
 
 
         with open(container_full_temp_file_path, "wb") as buffer:

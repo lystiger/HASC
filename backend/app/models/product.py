@@ -25,6 +25,7 @@ class ProductStatus(str, enum.Enum):
     DRAFT = "DRAFT"
     PUBLISHED = "PUBLISHED"
     ARCHIVED = "ARCHIVED"
+    FAILED = "FAILED"
 
 
 class Product(Base):

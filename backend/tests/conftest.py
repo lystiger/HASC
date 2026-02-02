@@ -3,8 +3,8 @@ import pytest_asyncio # Import pytest_asyncio
 from typing import AsyncGenerator
 
 from httpx import AsyncClient, ASGITransport # Import ASGITransport
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.orm import sessionmaker # Keep sessionmaker for now, to easily replace it below
 
 from app.main import app
 from app.db.base import Base
@@ -17,7 +17,7 @@ pytest_asyncio_auto_mode = True
 TEST_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
 
 engine = create_async_engine(TEST_DATABASE_URL, echo=True)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession)
+TestingSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession, expire_on_commit=False)
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True) # Use pytest_asyncio.fixture

@@ -53,8 +53,10 @@ async def wait_for_product(async_client: AsyncClient, product_id: int, timeout=3
     start_time = asyncio.get_event_loop().time()
     while True:
         product = await get_product(async_client, product_id)
-        if product["status"] in (ProductStatus.PUBLISHED.value, ProductStatus.FAILED.value):
+        if product["status"] == ProductStatus.PUBLISHED.value:
             return product
+        # If the product status indicates a non-draft state (e.g., in processing, or if a FAILED state is eventually added),
+        # we might want to check for it here. For now, assuming only PUBLISHED is a successful terminal state.
         if asyncio.get_event_loop().time() - start_time > timeout:
             raise TimeoutError(f"Product {product_id} processing timed out after {timeout} seconds. Current status: {product['status']}")
         await asyncio.sleep(poll_interval)
@@ -158,5 +160,49 @@ async def test_get_product_by_id(async_client: AsyncClient, db_session):
     # For now, we assume the worker cleans up the original temp file.
 
 
+@pytest.mark.asyncio
+async def test_update_product(async_client: AsyncClient, db_session):
+    # Create a product to update
+    create_resp = await create_test_product(async_client, "002")
+    product_id = create_resp["product_id"]
 
+    product = await wait_for_product(async_client, product_id)
 
+    # Prepare update data
+    updated_name = "Updated Test Product Name"
+    updated_description = "This is an updated description."
+    updated_specific_attributes = {"material": "plastic", "weight": 100}
+    
+    update_payload = {
+        "name": updated_name,
+        "description": updated_description,
+        "specific_attributes": updated_specific_attributes,
+        "status": ProductStatus.PUBLISHED.value # Update status
+    }
+
+    # Make PUT request to update the product
+    response = await async_client.put(f"/api/v1/products/{product_id}", json=update_payload)
+    assert response.status_code == 200
+    updated_product = response.json()
+
+    # Assert the response reflects the updates
+    assert updated_product["id"] == product_id
+    assert updated_product["name"] == updated_name
+    assert updated_product["description"] == updated_description
+    # Assert that specific_attributes are merged/updated
+    expected_specific_attributes = product["specific_attributes"]
+    expected_specific_attributes.update(updated_specific_attributes)
+    assert updated_product["specific_attributes"] == expected_specific_attributes
+    assert updated_product["status"] == ProductStatus.PUBLISHED.value
+    
+    # Verify in DB
+    db_product = await db_session.get(DBProduct, product_id)
+    assert db_product is not None
+    assert db_product.name == updated_name
+    assert db_product.description == updated_description
+    assert db_product.specific_attributes == expected_specific_attributes
+    assert db_product.status == ProductStatus.PUBLISHED
+
+    # Clean up generated files (assuming processing creates files)
+    os.remove(Path(updated_product["images"][0]["web_url"]))
+    os.remove(Path(updated_product["images"][0]["thumb_url"]))

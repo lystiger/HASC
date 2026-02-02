@@ -22,5 +22,18 @@ services:
     depends_on:
       - db
 
+  worker:
+    build: ./backend
+    command: python -m app.worker
+    volumes:
+      - ./backend:/app
+      - ./backend/uploads:/app/backend/uploads # Mount for processed images
+      - ./backend/temp_uploads:/app/backend/temp_uploads # Mount for temporary uploads
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://user:password@db/hasc_db
+    depends_on:
+      - db
+      - backend # Depend on backend to ensure migrations might have run if that's how it's setup
+
 volumes:
   postgres_data:

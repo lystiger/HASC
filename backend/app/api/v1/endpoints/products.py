@@ -1,25 +1,30 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 import json
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
+import uuid
+import os
+from sqlalchemy.exc import IntegrityError
+from asyncpg.exceptions import UniqueViolationError # Import UniqueViolationError
 
 from app.db.session import AsyncSessionLocal
 from app.schemas.product import ProductCreate, Product, ProductCategory, ProductStatus, ProductUpdate # Import ProductUpdate
 from app.models.product import Product as DBProduct # Keep this import for the DBProduct instance
-from app.services.image_processing import process_images_async
 from app.api.deps import get_db, get_current_user
 from app.models.user import User
+from app.models.task import Task as DBTask, TaskStatus, TaskType
+from app.schemas.task import TaskCreate as TaskSchemaCreate
 
 router = APIRouter()
 
-# Dependency to get the database session
-# async def get_db() -> AsyncSession: # This is already defined in deps.py
-#     async with AsyncSessionLocal() as session:
-#         yield session
+# Define a temporary directory for raw image uploads relative to /app inside container
+TEMP_UPLOAD_DIR = "temp_uploads"
+# Ensure the temporary upload directory exists (this will create /app/temp_uploads inside the container)
+os.makedirs(os.path.join("/app", TEMP_UPLOAD_DIR), exist_ok=True)
 
-@router.post("/", response_model=Product, status_code=status.HTTP_202_ACCEPTED)
+@router.post("/", response_model=Dict[str, Any], status_code=status.HTTP_202_ACCEPTED)
 async def create_product(
     sku: str = Form(...),
     name: str = Form(...),
@@ -59,24 +64,61 @@ async def create_product(
         status=ProductStatus.DRAFT # Initial status is DRAFT
     )
     
-    db.add(db_product)
-    await db.commit()
-    await db.refresh(db_product)
+    try:
+        db.add(db_product)
+        await db.commit()
+        await db.refresh(db_product)
+        new_product_id = db_product.id # Capture the ID here
+    except IntegrityError as e:
+        await db.rollback()
+        if isinstance(e.orig, UniqueViolationError):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Product with SKU '{sku}' already exists."
+            ) from e
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected database error occurred."
+        ) from e
 
-    # Prepare image data for async processing
-    image_contents = []
-    original_filenames = []
+
+    task_ids = []
+    # Save original images to a temporary location and create tasks
     for image in images:
-        image_contents.append(await image.read())
-        original_filenames.append(image.filename)
+        # Save raw image to a temporary file
+        file_extension = image.filename.split(".")[-1] if "." in image.filename else "tmp"
+        temp_filename = f"temp_original_{uuid.uuid4().hex}_{new_product_id}.{file_extension}"
+        
+        # This is the full path inside the Docker container where the file will be written
+        container_full_temp_file_path = os.path.join("/app", TEMP_UPLOAD_DIR, temp_filename)
 
-    # Call the async image processing function
-    await process_images_async(db_product.id, image_contents, original_filenames, db)
 
-    # Refresh the product after image processing has updated its status and images
-    await db.refresh(db_product)
+        with open(container_full_temp_file_path, "wb") as buffer:
+            buffer.write(await image.read())
 
-    return Product.model_validate(db_product) # Use model_validate
+        # The path stored in metadata should be the path accessible by the worker,
+        # which is the absolute path within the container.
+        task_metadata = {
+            "product_id": new_product_id,
+            "original_image_path": container_full_temp_file_path, # Store the full container path
+            "original_filename": image.filename,
+            "content_type": image.content_type
+        }
+        task_in = TaskSchemaCreate(
+            product_id=new_product_id,
+            task_type=TaskType.IMAGE_PROCESSING,
+            status=TaskStatus.PENDING,
+            metadata_=task_metadata
+        )
+        db_task = DBTask(**task_in.model_dump())
+        db.add(db_task)
+        await db.commit()
+        await db.refresh(db_task)
+        task_ids.append(db_task.id)
+
+    return {"product_id": new_product_id, "task_ids": task_ids, "message": "Product created and image processing tasks initiated."}
+
+
 
 
 @router.get("/", response_model=List[Product])

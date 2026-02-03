@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_db, get_current_user, get_current_admin_user
+from app.api.deps import get_db, get_current_user, get_current_admin_user, get_optional_user
 from app.models.category import Category as DBCategory
 from app.models.product import Product as DBProduct
 from app.models.user import User
@@ -18,7 +18,7 @@ router = APIRouter()
 @router.get("/", response_model=List[Category])
 async def list_categories(
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User | None = Depends(get_optional_user),
 ):
     result = await db.execute(select(DBCategory).order_by(DBCategory.name))
     categories = result.scalars().all()
@@ -51,7 +51,7 @@ async def create_category(
 async def get_category(
     category_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User | None = Depends(get_optional_user),
 ):
     result = await db.execute(select(DBCategory).where(DBCategory.id == category_id))
     category = result.scalars().first()

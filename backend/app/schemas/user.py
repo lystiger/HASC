@@ -36,3 +36,4 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: str | None = None
+    role: str | None = None

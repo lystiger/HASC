@@ -5,16 +5,35 @@ from pathlib import Path
 import asyncio
 import json # Added import
 
-from app.models.product import Product as DBProduct, ProductCategory, ProductStatus
+from app.models.category import Category as DBCategory
+from app.models.product import Product as DBProduct, ProductStatus
 from app.core.config import settings
 
 # Helper function to create a product for testing
-async def create_test_product(async_client: AsyncClient, sku_suffix: str):
+async def _ensure_categories(db_session):
+    existing = await db_session.execute(
+        DBCategory.__table__.select().limit(1)
+    )
+    if existing.first():
+        return
+    db_session.add_all(
+        [
+            DBCategory(name="PACKAGING"),
+            DBCategory(name="FILTERS"),
+            DBCategory(name="CHEMICALS"),
+            DBCategory(name="EQUIPMENT"),
+        ]
+    )
+    await db_session.commit()
+
+
+async def create_test_product(async_client: AsyncClient, db_session, sku_suffix: str):
+    await _ensure_categories(db_session)
     test_image_path = Path(__file__).parent / "real_image.png"
 
     test_sku = f"TEST-SKU-{sku_suffix}"
     test_name = f"Test Product {sku_suffix}"
-    test_category = ProductCategory.FILTERS.value
+    test_category = "FILTERS"
     test_description = f"A product created for test {sku_suffix}."
     test_specific_attributes = {"length": 10, "height": 20}
 
@@ -64,11 +83,12 @@ async def wait_for_product(async_client: AsyncClient, product_id: int, timeout=3
 
 @pytest.mark.asyncio
 async def test_create_product(async_client: AsyncClient, db_session):
+    await _ensure_categories(db_session)
     test_image_path = Path(__file__).parent / "real_image.png"
     
     test_sku = "TEST-SKU-005"
     test_name = "Test Product from Test"
-    test_category = ProductCategory.PACKAGING.value
+    test_category = "PACKAGING"
     test_description = "A product created from a test."
     test_specific_attributes = {"thickness": 100, "width": 500}
 
@@ -142,7 +162,7 @@ async def test_create_product(async_client: AsyncClient, db_session):
 @pytest.mark.asyncio
 async def test_get_product_by_id(async_client: AsyncClient, db_session):
     # Create a product to fetch
-    create_resp = await create_test_product(async_client, "001")
+    create_resp = await create_test_product(async_client, db_session, "001")
     product_id = create_resp["product_id"]
 
     product_data = await wait_for_product(async_client, product_id)
@@ -163,7 +183,7 @@ async def test_get_product_by_id(async_client: AsyncClient, db_session):
 @pytest.mark.asyncio
 async def test_update_product(async_client: AsyncClient, db_session):
     # Create a product to update
-    create_resp = await create_test_product(async_client, "002")
+    create_resp = await create_test_product(async_client, db_session, "002")
     product_id = create_resp["product_id"]
 
     product = await wait_for_product(async_client, product_id)

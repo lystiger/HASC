@@ -6,19 +6,13 @@ from sqlalchemy import (
     Text,
     DateTime,
     func,
+    ForeignKey,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import Enum, JSON
 
 
 from app.db.base import Base
-
-
-class ProductCategory(str, enum.Enum):
-    PACKAGING = "PACKAGING"
-    FILTERS = "FILTERS"
-    CHEMICALS = "CHEMICALS"
-    EQUIPMENT = "EQUIPMENT"
 
 
 class ProductStatus(str, enum.Enum):
@@ -35,8 +29,8 @@ class Product(Base):
     sku = Column(String, unique=True, index=True, nullable=False)
     name = Column(String, nullable=False)
     description = Column(Text)
-    
-    category = Column(Enum(ProductCategory), nullable=False)
+
+    category_id = Column(Integer, ForeignKey("categories.id"), nullable=False)
     status = Column(Enum(ProductStatus), nullable=False, default=ProductStatus.DRAFT)
 
     images = Column(JSON)
@@ -46,3 +40,10 @@ class Product(Base):
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     tasks = relationship("Task", back_populates="product")
+    category_rel = relationship("Category", back_populates="products")
+
+    @property
+    def category(self) -> str | None:
+        if self.category_rel is None:
+            return None
+        return self.category_rel.name

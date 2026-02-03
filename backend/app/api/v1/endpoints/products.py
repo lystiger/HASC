@@ -10,9 +10,10 @@ from sqlalchemy.exc import IntegrityError
 from asyncpg.exceptions import UniqueViolationError # Import UniqueViolationError
 
 from app.db.session import AsyncSessionLocal
-from app.schemas.product import ProductCreate, Product, ProductCategory, ProductStatus, ProductUpdate # Import ProductUpdate
+from app.schemas.product import ProductCreate, Product, ProductStatus, ProductUpdate
+from app.models.category import Category as DBCategory
 from app.models.product import Product as DBProduct # Keep this import for the DBProduct instance
-from app.api.deps import get_db, get_current_user
+from app.api.deps import get_db, get_current_user, get_current_admin_user
 from app.models.user import User
 from app.models.task import Task as DBTask, TaskStatus, TaskType
 from app.schemas.task import TaskCreate as TaskSchemaCreate
@@ -28,17 +29,21 @@ os.makedirs(TEMP_UPLOAD_DIR, exist_ok=True)
 async def create_product(
     sku: str = Form(...),
     name: str = Form(...),
-    category: ProductCategory = Form(...),
+    category: str = Form(...),
     description: Optional[str] = Form(None),
     specific_attributes: str = Form("{}"), # JSON string
     images: List[UploadFile] = File([]),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_admin_user),
 ):
-    # Basic validation for category
-    if category not in [pc.value for pc in ProductCategory]:
+    category_result = await db.execute(
+        select(DBCategory).where(DBCategory.name == category)
+    )
+    db_category = category_result.scalars().first()
+    if not db_category:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid category. Must be one of: {[pc.value for pc in ProductCategory]}"
+            detail=f"Invalid category. '{category}' does not exist.",
         )
 
     # Parse specific_attributes from JSON string
@@ -60,7 +65,8 @@ async def create_product(
     )
 
     db_product = DBProduct(
-        **product_in.model_dump(), # Use model_dump()
+        **product_in.model_dump(exclude={"category"}), # Use model_dump()
+        category_id=db_category.id,
         status=ProductStatus.DRAFT # Initial status is DRAFT
     )
     
@@ -124,16 +130,16 @@ async def create_product(
 @router.get("", response_model=List[Product])
 @router.get("/", response_model=List[Product])
 async def get_products(
-    category: Optional[ProductCategory] = None,
+    category: Optional[str] = None,
     status: Optional[ProductStatus] = None,
     sku: Optional[str] = None,
     name: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    stmt = select(DBProduct)
+    stmt = select(DBProduct).options(selectinload(DBProduct.category_rel))
     if category is not None:
-        stmt = stmt.where(DBProduct.category == category)
+        stmt = stmt.join(DBCategory).where(DBCategory.name == category)
     if status is not None:
         stmt = stmt.where(DBProduct.status == status)
     if sku:
@@ -146,9 +152,14 @@ async def get_products(
     return [Product.model_validate(product) for product in products] # Use model_validate
 
 @router.get("/{product_id}", response_model=Product)
-async def get_product_by_id(product_id: int, db: AsyncSession = Depends(get_db)):
+async def get_product_by_id(
+    product_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     result = await db.execute(
         select(DBProduct)
+        .options(selectinload(DBProduct.category_rel))
         .where(DBProduct.id == product_id)
     )
     product = result.scalars().first()
@@ -160,10 +171,12 @@ async def get_product_by_id(product_id: int, db: AsyncSession = Depends(get_db))
 async def update_product(
     product_id: int,
     product_update: ProductUpdate,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_admin_user),
 ):
     result = await db.execute(
         select(DBProduct)
+        .options(selectinload(DBProduct.category_rel))
         .where(DBProduct.id == product_id)
     )
     product = result.scalars().first()
@@ -178,7 +191,16 @@ async def update_product(
     if "description" in update_data:
         product.description = update_data["description"]
     if "category" in update_data:
-        product.category = update_data["category"] # Already a ProductCategory enum
+        category_result = await db.execute(
+            select(DBCategory).where(DBCategory.name == update_data["category"])
+        )
+        db_category = category_result.scalars().first()
+        if not db_category:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid category. '{update_data['category']}' does not exist.",
+            )
+        product.category_id = db_category.id
     if "status" in update_data:
         product.status = update_data["status"]     # Already a ProductStatus enum
     if "specific_attributes" in update_data:
@@ -196,7 +218,11 @@ async def update_product(
     return Product.model_validate(product)
 
 @router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_product(product_id: int, db: AsyncSession = Depends(get_db)):
+async def delete_product(
+    product_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_admin_user),
+):
     from sqlalchemy import select, delete
     # First, check if the product exists
     result = await db.execute(

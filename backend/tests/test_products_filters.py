@@ -5,7 +5,8 @@ from sqlalchemy import delete
 
 from app.main import app
 from app.api.deps import get_db, get_current_user
-from app.models.product import Product as DBProduct, ProductCategory, ProductStatus
+from app.models.category import Category as DBCategory
+from app.models.product import Product as DBProduct, ProductStatus
 from app.models.user import User, UserRole
 
 @pytest_asyncio.fixture
@@ -48,12 +49,22 @@ async def async_client_auth(db_session) -> AsyncClient:
 async def _seed_products(db_session):
     # Clean slate
     await db_session.execute(delete(DBProduct))
+    await db_session.execute(delete(DBCategory))
     await db_session.commit()
+
+    c1 = DBCategory(name="PACKAGING")
+    c2 = DBCategory(name="FILTERS")
+    c3 = DBCategory(name="CHEMICALS")
+    db_session.add_all([c1, c2, c3])
+    await db_session.commit()
+    await db_session.refresh(c1)
+    await db_session.refresh(c2)
+    await db_session.refresh(c3)
 
     p1 = DBProduct(
         sku="SKU-001",
         name="Packaging Film",
-        category=ProductCategory.PACKAGING,
+        category_id=c1.id,
         status=ProductStatus.PUBLISHED,
         images=[],
         specific_attributes={"thickness": 100},
@@ -61,7 +72,7 @@ async def _seed_products(db_session):
     p2 = DBProduct(
         sku="SKU-002",
         name="Filter Paper",
-        category=ProductCategory.FILTERS,
+        category_id=c2.id,
         status=ProductStatus.DRAFT,
         images=[],
         specific_attributes={"efficiency": 95},
@@ -69,7 +80,7 @@ async def _seed_products(db_session):
     p3 = DBProduct(
         sku="SKU-003",
         name="Chemical Solvent",
-        category=ProductCategory.CHEMICALS,
+        category_id=c3.id,
         status=ProductStatus.PUBLISHED,
         images=[],
         specific_attributes={"volume": 5},
@@ -148,10 +159,12 @@ async def test_filter_unknown_returns_empty(async_client_auth, db_session):
 
 
 @pytest.mark.asyncio
-async def test_invalid_category_returns_422(async_client_auth, db_session):
+async def test_unknown_category_returns_empty(async_client_auth, db_session):
     await _seed_products(db_session)
     resp = await async_client_auth.get("/api/v1/products?category=NOT_A_CATEGORY")
-    assert resp.status_code == 422
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data == []
 
 
 @pytest.mark.asyncio

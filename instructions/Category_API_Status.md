@@ -4,10 +4,10 @@ This document summarizes the current implementation status of the "Category API"
 
 ## Structured categories matching current site taxonomy
 
-*   **Status:** Not Implemented (as a dynamic API)
+*   **Status:** Implemented (dynamic API)
 *   **Details:**
-    *   Categories are currently defined as a static `enum.Enum` (`ProductCategory`) within `backend/app/models/product.py`.
-    *   This enum contains a fixed set of values: `PACKAGING`, `FILTERS`, `CHEMICALS`, `EQUIPMENT`.
-    *   There are no dedicated API endpoints (`backend/app/api/v1/endpoints/`) for managing categories (e.g., creating, retrieving, updating, or deleting categories).
-    *   Categories are directly used as a field type in the `Product` model and are validated against the hardcoded enum values in the product creation/update API.
-    *   **Implication:** While the existing `ProductCategory` enum defines a taxonomy, it is static. It does not provide a dynamic "Category API" that would allow for programmatic management or retrieval of categories from a database, which is typically implied by "Structured categories matching current site taxonomy" in a dynamic system. Any changes to the category list would require code modification and redeployment.
+    *   Categories are stored in a dedicated `categories` table and managed through CRUD endpoints.
+    *   Product records reference categories by `category_id`, and the API exposes category names via the product response.
+    *   Category changes can be managed without code changes or redeployments.
+    *   The API enforces authentication for category management endpoints.
+    *   Deletion is blocked when categories are referenced by products.

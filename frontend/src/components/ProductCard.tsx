@@ -2,6 +2,7 @@
 import React from 'react';
 import type { Product, ProductStatus } from '../types/product';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
+import { Link } from 'react-router-dom';
 
 interface ProductCardProps {
   product: Product;
@@ -48,12 +49,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {product.description}
         </p>
         <div className="flex justify-end items-center mt-auto">
-          <button
-            className="px-3 py-1 bg-blue-600 text-white text-sm rounded transition-colors duration-200 group-hover:bg-blue-700"
-            disabled={!isPubliclyVisible}
-          >
-            {t('common.view_details')} {/* Translate button text */}
-          </button>
+          {isPubliclyVisible ? (
+            <Link
+              to={`/products/${product.id}`}
+              className="px-3 py-1 bg-blue-600 text-white text-sm rounded transition-colors duration-200 group-hover:bg-blue-700"
+            >
+              {t('common.view_details')}
+            </Link>
+          ) : (
+            <button
+              className="px-3 py-1 bg-blue-600 text-white text-sm rounded opacity-60 cursor-not-allowed"
+              disabled
+            >
+              {t('common.view_details')}
+            </button>
+          )}
         </div>
       </div>
     </div>

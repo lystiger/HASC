@@ -6,6 +6,7 @@ import ContactPage from './pages/ContactPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
 import ShippingReturnsPage from './pages/ShippingReturnsPage';
+import ProductDetailPage from './pages/ProductDetailPage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TaskMonitoringProvider } from './context/TaskMonitoringContext';
 import TaskMonitoringNotification from './components/TaskMonitoringNotification';
@@ -59,6 +60,7 @@ function App() {
             <main className="flex-grow">
               <Routes>
                 <Route path="/" element={<PublicCatalogPage />} />
+                <Route path="/products/:id" element={<ProductDetailPage />} />
                 <Route path="/admin" element={<AdminDashboardPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/privacy" element={<PrivacyPolicyPage />} />

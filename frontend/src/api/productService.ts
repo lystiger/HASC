@@ -23,9 +23,25 @@ const fetchProducts = async (params: FetchProductsParams): Promise<Product[]> =>
   throw new Error(response.message || 'Failed to fetch products');
 };
 
+export const fetchProductById = async (productId: string): Promise<Product> => {
+  const response = await apiClient<Product>(`/api/v1/products/${productId}`);
+  if (response.data) {
+    return response.data;
+  }
+  throw new Error(response.message || 'Failed to fetch product');
+};
+
 export const useProducts = (params: FetchProductsParams) => {
   return useQuery<Product[], Error>({
     queryKey: ['products', params], // Query key includes params for re-fetching when params change
     queryFn: () => fetchProducts(params),
+  });
+};
+
+export const useProduct = (productId?: string) => {
+  return useQuery<Product, Error>({
+    queryKey: ['product', productId],
+    queryFn: () => fetchProductById(productId ?? ''),
+    enabled: Boolean(productId),
   });
 };

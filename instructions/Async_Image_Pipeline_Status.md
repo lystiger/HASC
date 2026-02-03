@@ -4,10 +4,12 @@ This document summarizes the current implementation status of the "Async image p
 
 ## Must deliver final images variety before frontend browsing is comfortable
 
-*   **Status:** Designed and Mechanically Implemented; Performance and Robustness Require Verification
+*   **Status:** Implemented and Verified (Async Pipeline Working)
 *   **Details:**
     *   **Image Variety:** The pipeline is designed to generate the required image variety. The `_process_image` function in `app/services/image_processing.py` creates both web-standard (`_web.webp`) and thumbnail (`_thumb.webp`) versions of uploaded images. These URLs are stored in the product's `images` JSON field in the database.
     *   **Asynchronous Processing:** The `create_product` endpoint in `products.py` initiates image processing asynchronously, returning a `202 Accepted` response immediately. This prevents the frontend from being blocked during processing.
+    *   **Path Consistency:** The temp upload directory is now sourced from configuration and shared between API and worker to prevent path mismatches.
+    *   **Verification:** A new product upload successfully produced processed images and flipped the product status to `PUBLISHED`.
     *   **Frontend Readiness Signal:** Upon successful completion of image processing, the `process_images_async` function updates the product's status to `PUBLISHED`. This status change serves as a clear signal for the frontend that the processed images are ready for display.
     *   **Unverified Aspects (Crucial for "Comfortable" Browsing):**
         *   **Actual Performance:** The `Business_Requirements.md` specifies a target of "~2 seconds" for processed images to appear. This performance metric has not been verified through actual execution or load testing.

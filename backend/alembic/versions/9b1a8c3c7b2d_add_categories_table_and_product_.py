@@ -50,7 +50,7 @@ def upgrade() -> None:
         UPDATE products
         SET category_id = categories.id
         FROM categories
-        WHERE products.category = categories.name
+        WHERE products.category::text = categories.name
         """
     )
 

@@ -11,6 +11,7 @@ from asyncpg.exceptions import UniqueViolationError # Import UniqueViolationErro
 
 from app.db.session import AsyncSessionLocal
 from app.schemas.product import ProductCreate, Product, ProductStatus, ProductUpdate
+from app.core.config import settings
 from app.models.category import Category as DBCategory
 from app.models.product import Product as DBProduct # Keep this import for the DBProduct instance
 from app.api.deps import get_db, get_current_user, get_current_admin_user
@@ -20,8 +21,8 @@ from app.schemas.task import TaskCreate as TaskSchemaCreate
 
 router = APIRouter()
 
-# Define a temporary directory for raw image uploads relative to the project root
-TEMP_UPLOAD_DIR = "backend/temp_uploads"
+# Define a temporary directory for raw image uploads
+TEMP_UPLOAD_DIR = settings.TEMP_UPLOAD_DIR
 # Ensure the temporary upload directory exists
 os.makedirs(TEMP_UPLOAD_DIR, exist_ok=True)
 

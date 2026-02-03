@@ -15,10 +15,14 @@ services:
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./backend:/app
+      - ./backend/uploads:/app/uploads
+      - ./backend/temp_uploads:/app/temp_uploads
     ports:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql+asyncpg://user:password@db/hasc_db
+      - UPLOAD_DIR=/app/uploads
+      - TEMP_UPLOAD_DIR=/app/temp_uploads
     depends_on:
       - db
 
@@ -27,10 +31,12 @@ services:
     command: python -m app.worker
     volumes:
       - ./backend:/app
-      - ./backend/uploads:/app/backend/uploads # Mount for processed images
-      - ./backend/temp_uploads:/app/backend/temp_uploads # Mount for temporary uploads
+      - ./backend/uploads:/app/uploads # Mount for processed images
+      - ./backend/temp_uploads:/app/temp_uploads # Mount for temporary uploads
     environment:
       - DATABASE_URL=postgresql+asyncpg://user:password@db/hasc_db
+      - UPLOAD_DIR=/app/uploads
+      - TEMP_UPLOAD_DIR=/app/temp_uploads
     depends_on:
       - db
       - backend # Depend on backend to ensure migrations might have run if that's how it's setup

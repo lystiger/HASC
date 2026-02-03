@@ -15,7 +15,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql+asyncpg://user:password@localhost/hasc_db")
 
     # Uploads
-    UPLOAD_DIR: str = "backend/uploads"
+    UPLOAD_DIR: str = os.getenv("UPLOAD_DIR", "backend/uploads")
+    TEMP_UPLOAD_DIR: str = os.getenv("TEMP_UPLOAD_DIR", "backend/temp_uploads")
     WORKER_POLL_INTERVAL: int = 5 # seconds
 
     model_config = ConfigDict(case_sensitive=True) # Use ConfigDict

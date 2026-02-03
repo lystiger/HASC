@@ -26,12 +26,13 @@ THUMBNAIL_SIZE = (300, 300)
 WEBP_QUALITY = 85
 
 # Temporary upload directory (must match the one in products.py)
-TEMP_UPLOAD_DIR = "backend/temp_uploads"
+TEMP_UPLOAD_DIR = settings.TEMP_UPLOAD_DIR
 # Permanent upload directory (from settings)
 PERMANENT_UPLOAD_DIR = settings.UPLOAD_DIR
 
-# Ensure permanent upload directory exists
+# Ensure upload directories exist
 Path(PERMANENT_UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
+Path(TEMP_UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
 
 # Async database engine and session for the worker
 engine = create_async_engine(settings.DATABASE_URL, echo=True)

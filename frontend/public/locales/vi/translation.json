@@ -58,7 +58,11 @@
     "hero_stat_support": "Phản hồi TB",
     "hero_stat_location": "Đặt tại Việt Nam",
     "hero_panel_title": "Tập trung chất lượng",
-    "hero_panel_body": "Mỗi sản phẩm có thông số rõ ràng và hình ảnh đã xử lý để ra quyết định nhanh."
+    "hero_panel_body": "Mỗi sản phẩm có thông số rõ ràng và hình ảnh đã xử lý để ra quyết định nhanh.",
+    "hero_image_alt": "Ảnh minh họa tổng quan sản phẩm công nghiệp"
+    ,
+    "demo_product_name": "Màng công nghiệp mẫu",
+    "demo_product_description": "Thẻ mẫu để xem trước bố cục và hiển thị hình ảnh."
   },
   "status": {
     "DRAFT": "Bản nháp",

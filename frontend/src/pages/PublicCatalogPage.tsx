@@ -17,6 +17,25 @@ const PublicCatalogPage: React.FC = () => {
     setSelectedCategoryIds(newSelectedIds);
   };
 
+  const demoProduct: Product = {
+    id: 0,
+    sku: 'DEMO-001',
+    name: t('common.demo_product_name'),
+    description: t('common.demo_product_description'),
+    category: 'PACKAGING',
+    status: 'PUBLISHED',
+    images: [
+      {
+        original_name: 'hero-placeholder.svg',
+        web_url: '/hero-placeholder.svg',
+        thumb_url: '/hero-placeholder.svg',
+      },
+    ],
+    specific_attributes: {},
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+
   return (
     <div className="font-sans">
       <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-orange-50">
@@ -51,6 +70,12 @@ const PublicCatalogPage: React.FC = () => {
             </div>
             <div className="lg:col-span-5">
               <div className="rounded-2xl border border-slate-200 bg-white/70 p-6 shadow-sm">
+                <img
+                  src="/hero-placeholder.svg"
+                  alt={t('common.hero_image_alt')}
+                  className="w-full rounded-xl border border-slate-200 mb-4"
+                  loading="lazy"
+                />
                 <div className="grid grid-cols-2 gap-4">
                   <div className="rounded-xl bg-slate-50 p-4">
                     <p className="text-2xl font-bold text-slate-900">20+</p>
@@ -109,7 +134,10 @@ const PublicCatalogPage: React.FC = () => {
 
           {!isLoading && !isError && products && products.length === 0 && (
             <div className="text-center py-10 text-gray-600">
-              <p>{t('common.no_products_found')}</p>
+              <p className="mb-6">{t('common.no_products_found')}</p>
+              <div className="max-w-sm mx-auto">
+                <ProductCard product={demoProduct} />
+              </div>
             </div>
           )}
 

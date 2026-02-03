@@ -28,28 +28,28 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const cardOpacity = isPubliclyVisible ? 'opacity-100' : 'opacity-60'; // Mute non-published cards
 
   return (
-    <div className={`relative bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 ${cardOpacity}`}>
+    <div className={`group relative bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${cardOpacity} flex flex-col h-full`}>
       <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
         <img
           src={product.images?.[0]?.web_url || '/placeholder.png'}
           alt={product.name}
           loading="lazy"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <span className={`absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClasses(product.status)}`}>
           {t(`status.${product.status}`)} {/* Translate status */}
         </span>
       </div>
-      <div className="p-4">
+      <div className="p-4 flex flex-col flex-1">
         <h3 className="text-lg font-semibold text-gray-900 truncate mb-1">
           {product.name}
         </h3>
         <p className="text-gray-600 text-sm mb-2 line-clamp-2">
           {product.description}
         </p>
-        <div className="flex justify-end items-center">
+        <div className="flex justify-end items-center mt-auto">
           <button
-            className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors duration-200"
+            className="px-3 py-1 bg-blue-600 text-white text-sm rounded transition-colors duration-200 group-hover:bg-blue-700"
             disabled={!isPubliclyVisible}
           >
             {t('common.view_details')} {/* Translate button text */}

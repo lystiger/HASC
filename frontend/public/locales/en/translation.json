@@ -58,7 +58,11 @@
     "hero_stat_support": "Avg. response",
     "hero_stat_location": "Based in Vietnam",
     "hero_panel_title": "Quality Focus",
-    "hero_panel_body": "Every listing includes spec‑driven details and processed images for fast procurement decisions."
+    "hero_panel_body": "Every listing includes spec‑driven details and processed images for fast procurement decisions.",
+    "hero_image_alt": "Industrial product overview mock"
+    ,
+    "demo_product_name": "Sample Industrial Film",
+    "demo_product_description": "This is a placeholder card to preview layout and image styling."
   },
   "status": {
     "DRAFT": "Draft",

@@ -23,7 +23,10 @@ const ProductDetailPage: React.FC = () => {
         <p className="text-sm text-red-600">
           {t('common.unexpected_error')}: {error?.message ?? 'Product not found'}
         </p>
-        <Link to="/" className="mt-4 inline-block text-blue-600 hover:text-blue-700">
+        <Link
+          to="/"
+          className="mt-4 inline-flex items-center rounded-full border border-blue-600 px-4 py-1.5 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-600 hover:text-white"
+        >
           {t('common.back_to_catalog')}
         </Link>
       </div>
@@ -34,7 +37,10 @@ const ProductDetailPage: React.FC = () => {
 
   return (
     <div className="mx-auto max-w-screen-xl px-6 py-10">
-      <Link to="/" className="text-sm text-blue-600 hover:text-blue-700">
+      <Link
+        to="/"
+        className="inline-flex items-center rounded-full border border-blue-600 px-4 py-1.5 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-600 hover:text-white"
+      >
         {t('common.back_to_catalog')}
       </Link>
 

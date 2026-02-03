@@ -68,14 +68,8 @@ const PublicCatalogPage: React.FC = () => {
                 </a>
               </div>
             </div>
-            <div className="lg:col-span-5">
+            <div className="lg:col-span-5 lg:-mt-4">
               <div className="rounded-2xl border border-slate-200 bg-white/70 p-6 shadow-sm">
-                <img
-                  src="/hero-placeholder.svg"
-                  alt={t('common.hero_image_alt')}
-                  className="w-full rounded-xl border border-slate-200 mb-4"
-                  loading="lazy"
-                />
                 <div className="grid grid-cols-2 gap-4">
                   <div className="rounded-xl bg-slate-50 p-4">
                     <p className="text-2xl font-bold text-slate-900">20+</p>
@@ -103,6 +97,31 @@ const PublicCatalogPage: React.FC = () => {
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+        <div className="mx-auto mt-8 flex w-full max-w-screen-xl flex-col gap-3 px-6 lg:flex-row lg:items-center">
+          <span className="text-xs uppercase tracking-[0.3em] text-slate-500">
+            Partners
+          </span>
+          <div className="relative w-full overflow-hidden rounded-full border border-slate-200 bg-white/80 py-2 shadow-sm">
+            <div className="marquee-track flex items-center gap-8">
+              <span className="text-sm font-semibold text-slate-600">ISO 9001</span>
+              <span className="text-sm font-semibold text-slate-600">Global Logistics</span>
+              <span className="text-sm font-semibold text-slate-600">SafeChem</span>
+              <span className="text-sm font-semibold text-slate-600">PackFlex</span>
+              <span className="text-sm font-semibold text-slate-600">FilterPro</span>
+              <span className="text-sm font-semibold text-slate-600">VinaSupply</span>
+              <span className="text-sm font-semibold text-slate-600">ISO 14001</span>
+              <span className="text-sm font-semibold text-slate-600">LabCert</span>
+              <span className="text-sm font-semibold text-slate-600">ISO 9001</span>
+              <span className="text-sm font-semibold text-slate-600">Global Logistics</span>
+              <span className="text-sm font-semibold text-slate-600">SafeChem</span>
+              <span className="text-sm font-semibold text-slate-600">PackFlex</span>
+              <span className="text-sm font-semibold text-slate-600">FilterPro</span>
+              <span className="text-sm font-semibold text-slate-600">VinaSupply</span>
+              <span className="text-sm font-semibold text-slate-600">ISO 14001</span>
+              <span className="text-sm font-semibold text-slate-600">LabCert</span>
             </div>
           </div>
         </div>

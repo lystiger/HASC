@@ -26,8 +26,11 @@ function App() {
         <BrowserRouter>
           <div className="flex flex-col min-h-screen">
             <header className="bg-slate-industrial text-white px-4 py-3">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <h1 className="text-xl font-bold">{t('common.product_catalog')}</h1>
+              <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <img src="/logo.webp" alt="HASC VN" className="h-8 w-8 rounded-full object-cover" />
+                  <h1 className="text-xl font-bold">HASC VN</h1>
+                </div>
                 <nav className="flex items-center gap-4 text-sm">
                   <NavLink
                     to="/"

@@ -44,7 +44,15 @@ const CategoryFilterSidebar: React.FC<CategoryFilterSidebarProps> = ({ onFilterC
       <h3 className="text-lg font-semibold mb-4 text-gray-800">{t('common.categories')}</h3>
       <div className="space-y-2">
         {categories?.map((category: Category) => (
-          <div key={category.id} className="flex items-center">
+          <label
+            key={category.id}
+            htmlFor={`category-${category.id}`}
+            className={`flex items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors ${
+              selectedCategoryIds.includes(category.id)
+                ? 'border-orange-safety bg-orange-50 text-orange-700'
+                : 'border-transparent text-gray-700 hover:border-slate-200 hover:bg-slate-50'
+            }`}
+          >
             <input
               type="checkbox"
               id={`category-${category.id}`}
@@ -52,10 +60,8 @@ const CategoryFilterSidebar: React.FC<CategoryFilterSidebarProps> = ({ onFilterC
               onChange={() => handleCheckboxChange(category.id)}
               className="h-4 w-4 text-orange-safety border-gray-300 rounded focus:ring-orange-safety"
             />
-            <label htmlFor={`category-${category.id}`} className="ml-2 text-sm text-gray-700 cursor-pointer">
-              {category.name}
-            </label>
-          </div>
+            <span className="text-sm">{category.name}</span>
+          </label>
         ))}
       </div>
     </div>

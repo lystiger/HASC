@@ -30,6 +30,7 @@ Date: 2026-02-03
 - JWT includes `role` claim.
 - `get_current_admin_user` enforces admin-only access for management endpoints.
 - Roles supported: `ADMIN`, `USER`.
+- Added admin seed script to create/reset users safely.
 
 ### Async Image Pipeline
 - Worker processes image tasks and generates WebP + thumbnail.
@@ -53,7 +54,5 @@ Date: 2026-02-03
 - Old tokens should be rotated after exposure in logs/terminal output.
 
 ## Recommended Next Steps
-1. Add optional retry/requeue for failed image tasks.
-2. Add a small admin seed script to create/reset admin users safely.
-3. Improve error logging for product creation to surface DB integrity errors.
-4. Consider making `GET /products/{id}` public if required by product catalog UX.
+1. Improve error logging for product creation to surface DB integrity errors.
+2. Consider making `GET /products/{id}` public if required by product catalog UX.

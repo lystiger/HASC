@@ -88,6 +88,7 @@ async def process_image_task(db: AsyncSession, task: DBTask):
     logger.info(f"Starting process_image_task for task {task.id}, product {task.metadata_['product_id']}")
     try:
         task.status = TaskStatus.IN_PROGRESS
+        task.attempts = (task.attempts or 0) + 1
         db.add(task)
         await db.commit()
         await db.refresh(task)
@@ -137,13 +138,23 @@ async def process_image_task(db: AsyncSession, task: DBTask):
     except Exception as e:
         logger.error(f"Task {task.id} (product {task.metadata_.get('product_id', 'N/A')}) failed with exception: {e}", exc_info=True)
         await db.rollback()
-        task.status = TaskStatus.FAILED
         task.error_message = str(e)
-        task.completed_at = datetime.now()
+        if task.attempts < task.max_attempts:
+            task.status = TaskStatus.PENDING
+            logger.info(
+                f"Task {task.id} (product {task.metadata_.get('product_id', 'N/A')}) re-queued "
+                f"for retry {task.attempts}/{task.max_attempts}."
+            )
+        else:
+            task.status = TaskStatus.FAILED
+            task.completed_at = datetime.now()
+            logger.info(
+                f"Task {task.id} (product {task.metadata_.get('product_id', 'N/A')}) "
+                "status set to FAILED (max attempts reached)."
+            )
         db.add(task)
         await db.commit()
         await db.refresh(task)
-        logger.info(f"Task {task.id} (product {task.metadata_.get('product_id', 'N/A')}) status set to FAILED.")
 
 
 async def check_and_update_product_status(db: AsyncSession, product_id: int):

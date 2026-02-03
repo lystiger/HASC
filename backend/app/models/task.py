@@ -24,6 +24,8 @@ class Task(Base):
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
     status = Column(Enum(TaskStatus), nullable=False, default=TaskStatus.PENDING)
     task_type = Column(Enum(TaskType), nullable=False)
+    attempts = Column(Integer, nullable=False, default=0)
+    max_attempts = Column(Integer, nullable=False, default=3)
     metadata_ = Column(JSON, nullable=True) # Using metadata_ to avoid conflict with Python keyword
     error_message = Column(Text, nullable=True)
 

@@ -121,12 +121,27 @@ async def create_product(
 
 
 
+@router.get("", response_model=List[Product])
 @router.get("/", response_model=List[Product])
 async def get_products(
+    category: Optional[ProductCategory] = None,
+    status: Optional[ProductStatus] = None,
+    sku: Optional[str] = None,
+    name: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(select(DBProduct))
+    stmt = select(DBProduct)
+    if category is not None:
+        stmt = stmt.where(DBProduct.category == category)
+    if status is not None:
+        stmt = stmt.where(DBProduct.status == status)
+    if sku:
+        stmt = stmt.where(DBProduct.sku == sku)
+    if name:
+        stmt = stmt.where(DBProduct.name.ilike(f"%{name}%"))
+
+    result = await db.execute(stmt)
     products = result.scalars().all()
     return [Product.model_validate(product) for product in products] # Use model_validate
 
@@ -199,4 +214,3 @@ async def delete_product(product_id: int, db: AsyncSession = Depends(get_db)):
     )
     await db.commit()
     return {"message": "Product deleted successfully"}
-

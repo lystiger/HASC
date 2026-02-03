@@ -4,10 +4,10 @@ This document summarizes the current implementation status of the "Full Product 
 
 ## 1. List products with filters
 
-*   **Status:** Partially Implemented
+*   **Status:** Implemented
 *   **Details:**
-    *   A `GET /products` endpoint exists that successfully retrieves a list of all products.
-    *   **Missing:** The endpoint currently lacks any functionality to filter products based on criteria (e.g., category, status, SKU, name).
+    *   A `GET /products` endpoint exists that retrieves a list of products.
+    *   Filtering by `category`, `status`, `sku`, and partial `name` is supported.
 
 ## 2. Get product details
 

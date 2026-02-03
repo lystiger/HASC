@@ -11,7 +11,8 @@ Date: 2026-02-03
 ## What’s Implemented
 ### Product API
 - `GET /products` supports filters: `category`, `status`, `sku`, `name` (partial, case-insensitive).
-- `GET /products/{id}` returns full product details including processed image URLs.
+- Public reads return only `PUBLISHED` products; admin users can access all statuses.
+- `GET /products/{id}` returns full product details including processed image URLs (public only for `PUBLISHED`).
 - `POST /products` creates products and enqueues image processing tasks.
 - `PUT /products/{id}` updates product fields and category.
 - `DELETE /products/{id}` deletes products.
@@ -54,5 +55,6 @@ Date: 2026-02-03
 - Old tokens should be rotated after exposure in logs/terminal output.
 
 ## Recommended Next Steps
-1. Improve error logging for product creation to surface DB integrity errors.
-2. Consider making `GET /products/{id}` public if required by product catalog UX.
+1. Build a minimal admin frontend for product/category management and image upload.
+2. Build a basic public catalog frontend that lists `PUBLISHED` products.
+3. Begin data migration only after the frontend workflow is stable.

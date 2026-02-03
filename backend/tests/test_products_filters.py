@@ -175,7 +175,10 @@ async def test_invalid_status_returns_422(async_client_auth, db_session):
 
 
 @pytest.mark.asyncio
-async def test_list_products_requires_auth(async_client_noauth, db_session):
+async def test_list_products_public_only_published(async_client_noauth, db_session):
     await _seed_products(db_session)
     resp = await async_client_noauth.get("/api/v1/products")
-    assert resp.status_code == 401
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data) == 2
+    assert all(item["status"] == "PUBLISHED" for item in data)

@@ -20,7 +20,7 @@ This document summarizes the current implementation status of the "Auth & Role" 
         *   `PUT /products/{product_id}` (Update Product)
         *   `DELETE /products/{product_id}` (Delete Product)
     *   **Current Protection:** Management endpoints now require authentication, and write operations are restricted to admin users via `get_current_admin_user`.
-    *   **Read Protection:** The `GET /products` and `GET /products/{product_id}` endpoints require authentication.
+    *   **Read Protection:** The `GET /products` and `GET /products/{product_id}` endpoints are public but return only `PUBLISHED` products for non-admin users.
     *   **Role Information in JWT:** The access token includes `role`, enabling role-based authorization.
     *   **Verification:** Added tests to confirm admin vs user access for category management endpoints.
 

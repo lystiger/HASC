@@ -8,6 +8,7 @@ This document summarizes the current implementation status of the "Full Product 
 *   **Details:**
     *   A `GET /products` endpoint exists that retrieves a list of products.
     *   Filtering by `category`, `status`, `sku`, and partial `name` is supported.
+    *   Public reads return only `PUBLISHED` products; admin users can access all statuses.
 
 ## 2. Get product details
 

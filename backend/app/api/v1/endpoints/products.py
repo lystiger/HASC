@@ -14,8 +14,9 @@ from app.schemas.product import ProductCreate, Product, ProductStatus, ProductUp
 from app.core.config import settings
 from app.models.category import Category as DBCategory
 from app.models.product import Product as DBProduct # Keep this import for the DBProduct instance
-from app.api.deps import get_db, get_current_user, get_current_admin_user
+from app.api.deps import get_db, get_current_user, get_current_admin_user, get_optional_user
 from app.models.user import User
+from app.models.user import UserRole
 from app.models.task import Task as DBTask, TaskStatus, TaskType
 from app.schemas.task import TaskCreate as TaskSchemaCreate
 
@@ -83,6 +84,9 @@ async def create_product(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Product with SKU '{sku}' already exists."
             ) from e
+        # Log the full DB error to help diagnose integrity violations
+        import logging
+        logging.getLogger(__name__).exception("IntegrityError creating product")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected database error occurred."
@@ -136,9 +140,14 @@ async def get_products(
     sku: Optional[str] = None,
     name: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User | None = Depends(get_optional_user),
 ):
     stmt = select(DBProduct).options(selectinload(DBProduct.category_rel))
+    is_admin = current_user is not None and current_user.role == UserRole.ADMIN
+    if not is_admin:
+        if status is not None and status != ProductStatus.PUBLISHED:
+            return []
+        status = ProductStatus.PUBLISHED
     if category is not None:
         stmt = stmt.join(DBCategory).where(DBCategory.name == category)
     if status is not None:
@@ -156,7 +165,7 @@ async def get_products(
 async def get_product_by_id(
     product_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User | None = Depends(get_optional_user),
 ):
     result = await db.execute(
         select(DBProduct)
@@ -165,6 +174,9 @@ async def get_product_by_id(
     )
     product = result.scalars().first()
     if not product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+    is_admin = current_user is not None and current_user.role == UserRole.ADMIN
+    if not is_admin and product.status != ProductStatus.PUBLISHED:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     return Product.model_validate(product)
 

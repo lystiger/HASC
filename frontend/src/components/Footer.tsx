@@ -1,6 +1,7 @@
 // frontend/src/components/Footer.tsx
 import React from 'react';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
+import { Link } from 'react-router-dom';
 
 const Footer: React.FC = () => {
   const { t } = useTranslation(); // Initialize useTranslation
@@ -20,11 +21,11 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">{t('common.quick_links')}</h3>
             <ul className="text-sm space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-200">{t('common.products')}</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-200">{t('common.contact_us_link')}</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-200">{t('common.privacy_policy')}</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-200">{t('common.terms_of_service')}</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-200">{t('common.shipping_returns')}</a></li>
+              <li><Link to="/" className="text-gray-300 hover:text-white transition-colors duration-200">{t('common.products')}</Link></li>
+              <li><Link to="/contact" className="text-gray-300 hover:text-white transition-colors duration-200">{t('common.contact_us_link')}</Link></li>
+              <li><Link to="/privacy" className="text-gray-300 hover:text-white transition-colors duration-200">{t('common.privacy_policy')}</Link></li>
+              <li><Link to="/terms" className="text-gray-300 hover:text-white transition-colors duration-200">{t('common.terms_of_service')}</Link></li>
+              <li><Link to="/shipping" className="text-gray-300 hover:text-white transition-colors duration-200">{t('common.shipping_returns')}</Link></li>
             </ul>
           </div>
 

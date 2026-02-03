@@ -75,6 +75,7 @@ Configure Axios/Fetch interceptors for 202-status handling.
 Phase 1.2: Catalog & Detail
 Implement ProductCard with lazy-loading for WebP images.
 Build the category filter sidebar.
+Add a hero section with technical positioning, stats, and CTAs that anchors to the catalog.
 
 Phase 1.3: Admin & Async
 Build the ProductUploadForm.

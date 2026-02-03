@@ -47,6 +47,18 @@
     "our_address": "Our Address",
     "business_hours": "Business Hours",
     "polling_failed_for_product": "Polling for product {{productId}} failed:"
+    ,
+    "hero_kicker": "Industrial Supply Partner",
+    "hero_title": "High‑spec materials for production lines that can’t slow down",
+    "hero_subtitle": "Browse verified industrial supplies, from packaging films to filtration and chemical solutions. Built for reliability, delivered with speed.",
+    "hero_cta_primary": "Browse Catalog",
+    "hero_cta_secondary": "Contact Sales",
+    "hero_stat_products": "Product families",
+    "hero_stat_quality": "Batch consistency",
+    "hero_stat_support": "Avg. response",
+    "hero_stat_location": "Based in Vietnam",
+    "hero_panel_title": "Quality Focus",
+    "hero_panel_body": "Every listing includes spec‑driven details and processed images for fast procurement decisions."
   },
   "status": {
     "DRAFT": "Draft",

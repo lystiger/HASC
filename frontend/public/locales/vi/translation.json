@@ -47,6 +47,18 @@
     "our_address": "Địa chỉ của chúng tôi",
     "business_hours": "Giờ làm việc",
     "polling_failed_for_product": "Thăm dò sản phẩm {{productId}} thất bại:"
+    ,
+    "hero_kicker": "Đối tác vật tư công nghiệp",
+    "hero_title": "Vật tư tiêu chuẩn cao cho dây chuyền không được phép chậm lại",
+    "hero_subtitle": "Khám phá vật tư công nghiệp đã được kiểm chứng, từ màng đóng gói đến lọc và hóa chất. Tin cậy, nhanh chóng.",
+    "hero_cta_primary": "Xem danh mục",
+    "hero_cta_secondary": "Liên hệ kinh doanh",
+    "hero_stat_products": "Nhóm sản phẩm",
+    "hero_stat_quality": "Độ ổn định lô",
+    "hero_stat_support": "Phản hồi TB",
+    "hero_stat_location": "Đặt tại Việt Nam",
+    "hero_panel_title": "Tập trung chất lượng",
+    "hero_panel_body": "Mỗi sản phẩm có thông số rõ ràng và hình ảnh đã xử lý để ra quyết định nhanh."
   },
   "status": {
     "DRAFT": "Bản nháp",

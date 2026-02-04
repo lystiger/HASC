@@ -6,9 +6,9 @@ import { Link } from 'react-router-dom';
 const Footer: React.FC = () => {
   const { t } = useTranslation(); // Initialize useTranslation
   return (
-    <footer className="bg-slate-industrial text-white py-8 mt-12">
+    <footer className="bg-slate-industrial text-white py-4 mt-6">
       <div className="container mx-auto px-6 max-w-screen-xl">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* Section 1: About Us */}
           <div>
             <h3 className="text-lg font-semibold mb-4">{t('common.about_us')}</h3>
@@ -37,7 +37,7 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
+        <div className="border-t border-gray-700 mt-5 pt-5 text-center text-sm text-gray-400">
           © {new Date().getFullYear()} HASC VN. {t('common.all_rights_reserved')}
         </div>
       </div>

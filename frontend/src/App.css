@@ -33,3 +33,11 @@
   gap: 2rem;
   padding-right: 2rem;
 }
+
+.product-zoom {
+  cursor: zoom-in;
+}
+
+.product-zoom:hover {
+  cursor: url('/glass.svg') 16 16, zoom-in;
+}

@@ -15,9 +15,19 @@ import LanguageSwitcher from './components/LanguageSwitcher'; // Imported
 import { useTranslation } from 'react-i18next'; // Imported
 import React, { useEffect, useState } from 'react';
 import { ArrowUp } from 'lucide-react';
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom';
 
 const queryClient = new QueryClient();
+
+const ScrollToTop: React.FC = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [location.pathname]);
+
+  return null;
+};
 
 function App() {
   const { t } = useTranslation(); // Initialize useTranslation
@@ -39,6 +49,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TaskMonitoringProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <div className="flex flex-col min-h-screen">
             <header className="bg-slate-industrial text-white px-4 py-3">
               <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between gap-4">

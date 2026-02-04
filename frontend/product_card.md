@@ -7,11 +7,7 @@ Industrial buyers need to see material textures (film clarity, filter density) a
 2. Component Layout
 The gallery follows a split-view grid system within the product detail page:
 
-Main Stage: Use a 2/3 layout split with the stage on the right column. Suggested layout:
-- Wrapper: `grid grid-cols-1 lg:grid-cols-3 gap-4`
-- Thumbnails: `lg:col-span-1`
-- Main stage: `lg:col-span-2`
-Keep the image container square via `aspect-square` so it scales but preserves 1:1 ratio.
+Main Stage: Use a 2/3 layout split with the stage on the right column. Keep the image container square via `aspect-square` so it scales but preserves 1:1 ratio.
 
 Interactive Zoom: On hover, show a magnified view of material textures.
 

@@ -28,8 +28,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const isPubliclyVisible = product.status === 'PUBLISHED';
   const cardOpacity = isPubliclyVisible ? 'opacity-100' : 'opacity-60'; // Mute non-published cards
 
+  const CardWrapper = isPubliclyVisible ? Link : 'div';
+
   return (
-    <div
+    <CardWrapper
+      {...(isPubliclyVisible ? { to: `/products/${product.id}` } : {})}
       className={`group relative flex h-full flex-col rounded-lg bg-white shadow-md transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl ${cardOpacity}`}
     >
       <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
@@ -52,23 +55,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </p>
         <div className="flex justify-end items-center mt-auto">
           {isPubliclyVisible ? (
-            <Link
-              to={`/products/${product.id}`}
-              className="px-3 py-1 bg-blue-600 text-white text-sm rounded transition-colors duration-200 group-hover:bg-blue-700"
+            <span
+              className="px-3 py-1 text-sm rounded border border-orange-600 bg-orange-600 text-white transition-all duration-200 group-hover:border-orange-700 group-hover:bg-gradient-to-r group-hover:from-orange-600 group-hover:to-orange-700"
             >
               {t('common.view_details')}
-            </Link>
+            </span>
           ) : (
-            <button
-              className="px-3 py-1 bg-blue-600 text-white text-sm rounded opacity-60 cursor-not-allowed"
-              disabled
+            <span
+              className="px-3 py-1 text-sm rounded border border-orange-400 bg-orange-400 text-white opacity-60 cursor-not-allowed"
             >
               {t('common.view_details')}
-            </button>
+            </span>
           )}
         </div>
       </div>
-    </div>
+    </CardWrapper>
   );
 };
 

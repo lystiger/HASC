@@ -1,6 +1,7 @@
 // frontend/src/pages/ProductDetailPage.tsx
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useProduct } from '../api/productService';
 
@@ -51,9 +52,10 @@ const ProductDetailPage: React.FC = () => {
     <div className="mx-auto max-w-screen-xl px-6 py-10">
       <Link
         to="/"
-        className="inline-flex items-center rounded-full border border-blue-600 px-4 py-1.5 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-600 hover:text-white"
+        className="inline-flex items-center justify-center rounded-full border border-slate-200 p-2 text-slate-600 transition-colors hover:border-orange-400 hover:text-orange-600"
+        aria-label={t('common.back_to_catalog')}
       >
-        {t('common.back_to_catalog')}
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
       </Link>
 
       <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-3">
@@ -84,7 +86,7 @@ const ProductDetailPage: React.FC = () => {
               ))}
             </div>
             <div className="lg:col-span-2">
-              <div className="group relative aspect-square w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+              <div className="group relative aspect-square w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-50 product-zoom">
                 {isPublished ? (
                   <img
                     src={mainImageUrl}

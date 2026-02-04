@@ -10,6 +10,7 @@ const PublicCatalogPage: React.FC = () => {
   const { t } = useTranslation(); // Initialize useTranslation
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMarqueePaused, setIsMarqueePaused] = useState(false);
   const { data: products, isLoading, isError, error } = useProducts({
     category_ids: selectedCategoryIds,
   });
@@ -267,7 +268,12 @@ const PublicCatalogPage: React.FC = () => {
                 Trusted industrial supply network
               </h3>
             </div>
-            <div className="marquee w-full max-w-4xl overflow-hidden border border-slate-200 bg-white">
+            <div
+              className={`marquee w-full max-w-4xl overflow-hidden border border-slate-200 bg-white${isMarqueePaused ? ' is-paused' : ''}`}
+              onTouchStart={() => setIsMarqueePaused(true)}
+              onTouchEnd={() => setIsMarqueePaused(false)}
+              onTouchCancel={() => setIsMarqueePaused(false)}
+            >
               <div className="marquee__inner">
                 <div className="marquee__track">
                   {partners.map((partner) => (
@@ -277,7 +283,7 @@ const PublicCatalogPage: React.FC = () => {
                       onClick={() => handlePartnerClick(partner.name)}
                       className="group"
                     >
-                      <span className="flex h-12 w-28 items-center justify-center rounded-md border border-slate-200 bg-white/80 px-3 transition-colors group-hover:border-orange-200">
+                      <span className="flex h-12 w-28 items-center justify-center rounded-md border border-slate-200 bg-white/80 px-3 transition-colors group-hover:border-orange-500 group-hover:ring-2 group-hover:ring-orange-200">
                         <img
                           src={partner.src}
                           alt={partner.name}

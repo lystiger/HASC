@@ -11,6 +11,15 @@
   overflow: hidden;
 }
 
+.marquee:hover .marquee__inner,
+.marquee:focus-within .marquee__inner {
+  animation-play-state: paused;
+}
+
+.marquee.is-paused .marquee__inner {
+  animation-play-state: paused;
+}
+
 .marquee__inner {
   display: flex;
   width: max-content;

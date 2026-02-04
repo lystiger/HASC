@@ -15,6 +15,12 @@ const Footer: React.FC = () => {
             <p className="text-sm text-gray-300">
               {t('common.about_us_text')}
             </p>
+            <img
+              src="/logo.webp"
+              alt="HASC VN"
+              className="mt-4 ml-[30%] h-[150px] w-[216px] rounded-full object-contain opacity-90"
+              loading="lazy"
+            />
           </div>
 
           {/* Section 2: Contact + Map */}

@@ -180,63 +180,53 @@ const PublicCatalogPage: React.FC = () => {
       </section>
 
       <div id="catalog" className="container mx-auto px-6 py-8 max-w-screen-xl">
-        <div className="flex flex-col gap-6 mb-8">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-slate-500">
-                {t('common.hero_kicker')}
-              </p>
-              <h2 className="text-3xl font-bold text-slate-industrial">
-                {t('common.product_catalog')}
-              </h2>
-              <p className="mt-2 text-sm text-slate-500 max-w-xl">
-                Search by product name, material, or spec to refine the catalog.
-              </p>
-            </div>
-            <div className="w-full lg:max-w-md">
-              <label className="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 mb-2">
-                Find A Product
-              </label>
-              <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 shadow-sm focus-within:ring-2 focus-within:ring-orange-300">
-                <input
-                  type="search"
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Try “ISO 9001 packaging”"
-                  className="w-full bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
-                  aria-label="Search products"
-                />
-                {searchQuery.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery('')}
-                    className="text-xs font-semibold text-slate-400 hover:text-slate-600 transition-colors"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <span className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
-                  Recent
-                </span>
-                {recentSearches.map((term) => (
-                  <button
-                    key={term}
-                    type="button"
-                    onClick={() => setSearchQuery(term)}
-                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-500 hover:border-orange-200 hover:text-orange-600 transition-colors"
-                  >
-                    {term}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
+        <div className="flex flex-col gap-4 mb-8">
+          <h2 className="text-3xl font-bold text-slate-industrial">
+            {t('common.product_catalog')}
+          </h2>
         </div>
         <div className="flex flex-col md:flex-row gap-8">
         {/* Sidebar for filters */}
         <aside className="md:w-1/4">
+          <div className="mb-6">
+            <label className="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 mb-2">
+              Find A Product
+            </label>
+            <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm focus-within:ring-2 focus-within:ring-orange-300">
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Try “ISO 9001 packaging”"
+                className="w-full bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
+                aria-label="Search products"
+              />
+              {searchQuery.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="text-xs font-semibold text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-400">
+                Recent
+              </span>
+              {recentSearches.map((term) => (
+                <button
+                  key={term}
+                  type="button"
+                  onClick={() => setSearchQuery(term)}
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-500 hover:border-orange-200 hover:text-orange-600 transition-colors"
+                >
+                  {term}
+                </button>
+              ))}
+            </div>
+          </div>
           <CategoryFilterSidebar onFilterChange={handleFilterChange} />
         </aside>
 

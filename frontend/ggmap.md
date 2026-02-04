@@ -1,29 +1,62 @@
-To finalize your Phase 1 setup, I have combined the map integration strategy with your verified UI layout. This .md serves as the official instruction set for your AI/developers to execute the location and contact logic.LOCATION_SPEC.md - Map & Contact Architecture1. Geographical AuthorityTarget: Công ty TNHH HASC Việt NamVerified Address: Canh Gara Oto 360, Thôn như Quỳnh, TT Như Quỳnh , Văn Lâm Hưng Yên Integration Logic (React/Vite)The map must be implemented as a Lazy-Loaded component to protect the 300ms interaction goal.Styling Hook (Industrial Blueprint Theme)To match the "Industrial Slate" palette (#0F172A) and the monochromatic Partner Network style:CSS Filter: grayscale(100%) invert(5%) contrast(1.1)Border: 1px solid #E2E8F03. Contact Component StructurePlace this section between the Product Catalog and the Partner Network ribbon.FeatureImplementationInteractive Map100% Width iframe with the verified address stringQuick Action"Open in Google Maps" button using https://goo.gl/maps/... linkLocale SupportMap labels must switch based on en.json or vi.json settingsContact InfoDisplay Phone, Email, and Address in JetBrains Mono for technical clarity4. Execution Code Block for AITypeScript/**
+To finalize Phase 1, this document defines the map + contact integration for HASC VN.
+
+LOCATION_SPEC.md - Map & Contact Architecture
+
+1. Geographical Authority
+Target: Công ty TNHH HASC Việt Nam
+Verified Address: Cạnh Gara Oto 360, Thôn như Quỳnh, TT Như Quỳnh, Văn Lâm, Hưng Yên
+
+2. Integration Logic (React/Vite)
+The map must be a lazy-loaded component to protect the 300ms interaction goal.
+
+3. Styling Hook (Industrial Blueprint Theme)
+Palette: "Industrial Slate" (#0F172A)
+Monochromatic map style:
+- CSS Filter: grayscale(100%) invert(5%) contrast(1.1)
+- Border: 1px solid #E2E8F0
+
+4. Footer Placement (Updated)
+Place the map beside the Contact Us content in the footer.
+The map height should align with the contact block height for a balanced row.
+
+Feature Implementation
+Interactive Map: iframe using the verified address string.
+Quick Action: "Open in Google Maps" button using a public share link (no API key).
+Locale Support: labels must switch based on `en.json` / `vi.json`.
+Contact Info: display Phone, Email, and Address in JetBrains Mono for technical clarity.
+
+5. Execution Code Block for AI (No API Key)
+TypeScript
+/**
  * IMPLEMENTATION NOTE:
- * Use the Google Maps Embed API with the following Address String:
- * "Canh Gara Oto 360, Thôn như Quỳnh, TT Như Quỳnh , Văn Lâm Hưng Yên"
- * or let me do the location marking for you, just implement the system
+ * Use the public Google Maps Embed (no API key) for:
+ * "Cạnh Gara Oto 360, Thôn như Quỳnh, TT Như Quỳnh, Văn Lâm, Hưng Yên"
  */
 
 const MapSection = () => (
-
-  <div className="relative w-full h-[450px] bg-slate-100 overflow-hidden">
-    {/* Overlaying Info Card for Desktop */}
-    <div className="absolute top-10 left-10 z-10 p-6 bg-white/95 border border-slate-200 shadow-xl max-w-sm hidden lg:block">
-      <h3 className="font-inter font-bold text-slate-900 mb-2">Hanoi Headquarters</h3>
+  <div className="flex w-full flex-col gap-4 lg:flex-row lg:items-stretch">
+    <div className="flex-1 rounded-lg border border-slate-200 bg-white p-4">
+      <h3 className="font-inter font-bold text-slate-900 mb-2">HASC VN Contact</h3>
       <p className="font-mono text-sm text-slate-600 leading-relaxed">
-        Room 1002, 10th Floor, 27 Le Van Luong St.
+        Cạnh Gara Oto 360, Thôn như Quỳnh, TT Như Quỳnh, Văn Lâm, Hưng Yên
       </p>
       <div className="mt-4 pt-4 border-t border-slate-100">
         <p className="text-sm font-bold text-orange-600">Avg. Response: 24h</p>
       </div>
     </div>
-    
-    <iframe
-      className="w-full h-full grayscale opacity-90 contrast-110"
-      src={`https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=27+Le+Van+Luong+Hanoi`}
-      allowFullScreen
-    />
+    <div className="flex-1 overflow-hidden rounded-lg border border-slate-200">
+      <iframe
+        className="h-full w-full grayscale opacity-90 contrast-110"
+        src="https://www.google.com/maps?q=C%E1%BA%A1nh+Gara+Oto+360,+Th%C3%B4n+nh%C6%B0+Qu%E1%BB%B3nh,+TT+Nh%C6%B0+Qu%E1%BB%B3nh,+V%C4%83n+L%C3%A2m,+H%C6%B0ng+Y%C3%AAn&output=embed"
+        allowFullScreen
+        loading="lazy"
+      />
+    </div>
   </div>
 );
-5. Acceptance Criteria[ ] Map renders without blocking the main thread.[ ] Grayscale styling is applied successfully.[ ] Mobile users can "Long Press" to open the location in native maps.[ ] Address matches the footer text exactly.
+
+6. Acceptance Criteria
+[ ] Map renders without blocking the main thread.
+[ ] Grayscale styling is applied successfully.
+[ ] Mobile users can "Long Press" to open the location in native maps.
+[ ] Address matches the footer text exactly.

@@ -17,11 +17,37 @@ const Footer: React.FC = () => {
             </p>
           </div>
 
-          {/* Section 2: Contact Info (Basic) */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">{t('common.contact')}</h3>
-            <p className="text-sm text-gray-300">{t('common.email')}: info@hascvn.com</p>
-            <p className="text-sm text-gray-300">{t('common.phone')}: +1 (555) 123-4567</p>
+          {/* Section 2: Contact + Map */}
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-stretch">
+            <div className="flex-1 rounded-lg border border-slate-200 bg-white/10 p-4">
+              <h3 className="text-lg font-semibold mb-3">{t('common.contact')}</h3>
+              <p className="text-sm text-gray-300">
+                {t('common.email')}: info@hascvn.com
+              </p>
+              <p className="text-sm text-gray-300">
+                {t('common.phone')}: +1 (555) 123-4567
+              </p>
+              <p className="mt-3 text-sm text-gray-300 font-mono">
+                Cạnh Gara Oto 360, Thôn như Quỳnh, TT Như Quỳnh, Văn Lâm, Hưng Yên
+              </p>
+              <a
+                href="https://www.google.com/maps?q=C%E1%BA%A1nh+Gara+Oto+360,+Th%C3%B4n+nh%C6%B0+Qu%E1%BB%B3nh,+TT+Nh%C6%B0+Qu%E1%BB%B3nh,+V%C4%83n+L%C3%A2m,+H%C6%B0ng+Y%C3%AAn"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-4 inline-flex items-center justify-center rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-gray-200 transition-colors hover:border-orange-400 hover:text-white"
+              >
+                Open in Google Maps
+              </a>
+            </div>
+            <div className="flex-1 overflow-hidden rounded-lg border border-slate-200 bg-white/10">
+              <iframe
+                className="h-full w-full"
+                src="https://www.google.com/maps?q=C%E1%BA%A1nh+Gara+Oto+360,+Th%C3%B4n+nh%C6%B0+Qu%E1%BB%B3nh,+TT+Nh%C6%B0+Qu%E1%BB%B3nh,+V%C4%83n+L%C3%A2m,+H%C6%B0ng+Y%C3%AAn&output=embed"
+                allowFullScreen
+                loading="lazy"
+                title="HASC VN Map"
+              />
+            </div>
           </div>
         </div>
 

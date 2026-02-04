@@ -4,6 +4,7 @@ import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { useTaskMonitoring } from '../context/TaskMonitoringContext';
 import type { Product, ProductStatus } from '../types/product';
 import { apiClient } from '../api/apiClient';
+import { TASK_STATUS } from '../types/task';
 
 interface ProductPollingOptions {
   productId: string;
@@ -46,23 +47,23 @@ export const useProductPolling = ({ productId, taskId, onSuccess, onError }: Pro
       queryClient.invalidateQueries({ queryKey: ['products'] }); // Invalidate product list to show updated product
 
       if (product.status === 'PUBLISHED') {
-        updateTaskStatus(taskId, 'COMPLETED', `Product "${product.name}" published.`);
+        updateTaskStatus(taskId, TASK_STATUS.COMPLETED, `Product "${product.name}" published.`);
         onSuccess?.(product);
       } else if (product.status === 'ARCHIVED') {
-        updateTaskStatus(taskId, 'COMPLETED', `Product "${product.name}" archived.`);
+        updateTaskStatus(taskId, TASK_STATUS.COMPLETED, `Product "${product.name}" archived.`);
         onSuccess?.(product);
       } else if (product.status === 'FAILED') {
-        updateTaskStatus(taskId, 'FAILED', `Product "${product.name}" failed to process.`);
+        updateTaskStatus(taskId, TASK_STATUS.FAILED, `Product "${product.name}" failed to process.`);
         onError?.(new Error(`Product processing failed for ${product.name}`));
       }
     } else {
-      updateTaskStatus(taskId, 'IN_PROGRESS', `Processing product "${product.name}"... Status: ${product.status}`);
+      updateTaskStatus(taskId, TASK_STATUS.IN_PROGRESS, `Processing product "${product.name}"... Status: ${product.status}`);
     }
   }, [product, isFetchedAfterMount, updateTaskStatus, taskId, onSuccess, onError, queryClient]);
 
   useEffect(() => {
     if (isError) {
-      updateTaskStatus(taskId, 'FAILED', `Polling failed: ${error?.message}`);
+      updateTaskStatus(taskId, TASK_STATUS.FAILED, `Polling failed: ${error?.message}`);
       onError?.(error);
     }
   }, [isError, error, updateTaskStatus, taskId, onError]);

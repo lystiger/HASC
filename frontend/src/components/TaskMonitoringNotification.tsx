@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTaskMonitoring } from '../context/TaskMonitoringContext';
 import { useProductPolling } from '../hooks/useProductPolling';
+import { ACTIVE_TASK_STATUSES, TASK_STATUS } from '../types/task';
 import type { MonitoringTask, TaskStatus } from '../types/task';
 import type { Product } from '../types/product';
 import { X, CheckCircle, AlertCircle, Loader, Archive } from 'lucide-react';
@@ -10,12 +11,12 @@ import { useTranslation } from 'react-i18next'; // Import useTranslation
 // Utility to get icon based on task status
 const getStatusIcon = (status: TaskStatus) => {
   switch (status) {
-    case 'PENDING':
-    case 'IN_PROGRESS':
+    case TASK_STATUS.PENDING:
+    case TASK_STATUS.IN_PROGRESS:
       return <Loader className="animate-spin text-orange-safety" size={16} />;
-    case 'COMPLETED':
+    case TASK_STATUS.COMPLETED:
       return <CheckCircle className="text-green-500" size={16} />;
-    case 'FAILED':
+    case TASK_STATUS.FAILED:
       return <AlertCircle className="text-red-500" size={16} />;
     default:
       return null;
@@ -30,7 +31,7 @@ interface TaskItemProps {
 const TaskItem: React.FC<TaskItemProps> = ({ task, onDismiss }) => {
   const { t } = useTranslation(); // Initialize useTranslation
   // Use polling for products that are still pending or in progress
-  const shouldPoll = task.status === 'PENDING' || task.status === 'IN_PROGRESS';
+  const shouldPoll = ACTIVE_TASK_STATUSES.includes(task.status);
 
   useProductPolling({
     productId: task.productId,
@@ -49,9 +50,12 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDismiss }) => {
     <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm mb-2">
       <div className="flex items-center space-x-2">
         {getStatusIcon(task.status)}
-        <p className="text-sm text-gray-800">{task.message}</p>
+        <div className="flex flex-col">
+          <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{task.status}</p>
+          <p className="text-sm text-gray-800">{task.message}</p>
+        </div>
       </div>
-      {(task.status === 'COMPLETED' || task.status === 'FAILED') && (
+      {(task.status === TASK_STATUS.COMPLETED || task.status === TASK_STATUS.FAILED) && (
         <button onClick={() => onDismiss(task.id)} className="text-gray-400 hover:text-gray-600">
           <X size={16} />
         </button>

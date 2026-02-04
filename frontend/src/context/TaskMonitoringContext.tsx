@@ -1,5 +1,6 @@
 // frontend/src/context/TaskMonitoringContext.tsx
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { TASK_STATUS } from '../types/task';
 import type { MonitoringTask, TaskStatus } from '../types/task';
 
 interface TaskMonitoringContextType {
@@ -31,7 +32,7 @@ export const TaskMonitoringProvider: React.FC<TaskMonitoringProviderProps> = ({ 
     const newTask: MonitoringTask = {
       id: newTaskId,
       productId,
-      status: 'PENDING',
+      status: TASK_STATUS.PENDING,
       message: initialMessage,
     };
     setTasks((prevTasks) => [...prevTasks, newTask]);

@@ -29,19 +29,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const cardOpacity = isPubliclyVisible ? 'opacity-100' : 'opacity-60'; // Mute non-published cards
 
   return (
-    <div className={`group relative bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ${cardOpacity} flex flex-col h-full`}>
+    <div
+      className={`group relative flex h-full flex-col rounded-lg bg-white shadow-md transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl ${cardOpacity}`}
+    >
       <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
         <img
           src={product.images?.[0]?.web_url || '/placeholder.png'}
           alt={product.name}
           loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
         />
         <span className={`absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClasses(product.status)}`}>
           {t(`status.${product.status}`)} {/* Translate status */}
         </span>
       </div>
-      <div className="p-4 flex flex-col flex-1">
+      <div className="flex flex-1 flex-col p-4">
         <h3 className="text-lg font-semibold text-gray-900 truncate mb-1">
           {product.name}
         </h3>

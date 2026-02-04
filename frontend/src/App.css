@@ -7,7 +7,13 @@
   }
 }
 
-.marquee-track {
-  min-width: max-content;
+.marquee-inner {
+  display: flex;
+  width: max-content;
   animation: marquee 18s linear infinite;
+}
+
+.marquee-track {
+  display: flex;
+  min-width: max-content;
 }

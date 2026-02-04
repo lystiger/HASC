@@ -147,8 +147,8 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
               file:mr-4 file:py-2 file:px-4
               file:rounded-md file:border-0
               file:text-sm file:font-semibold
-              file:bg-orange-safety file:text-white
-              hover:file:bg-orange-600"
+              file:bg-slate-industrial file:text-white
+              hover:file:bg-slate-900"
             required
           />
         </div>
@@ -157,7 +157,7 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
         )}
         <button
           type="submit"
-          className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="w-full py-2 px-4 rounded-md border border-orange-600 bg-orange-600 text-sm font-semibold text-white shadow-sm transition-colors hover:border-orange-700 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2"
           disabled={isLoading}
         >
           {isLoading ? t('common.uploading') : t('common.upload_product')}

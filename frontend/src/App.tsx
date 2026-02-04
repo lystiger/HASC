@@ -32,6 +32,8 @@ const ScrollToTop: React.FC = () => {
 function App() {
   const { t } = useTranslation(); // Initialize useTranslation
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const umamiScriptUrl = import.meta.env.VITE_UMAMI_SCRIPT_URL as string | undefined;
+  const umamiWebsiteId = import.meta.env.VITE_UMAMI_WEBSITE_ID as string | undefined;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,6 +46,22 @@ function App() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (!umamiScriptUrl || !umamiWebsiteId) {
+      return;
+    }
+    if (document.querySelector(`script[data-umami-script]`)) {
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = umamiScriptUrl;
+    script.async = true;
+    script.defer = true;
+    script.setAttribute('data-website-id', umamiWebsiteId);
+    script.setAttribute('data-umami-script', 'true');
+    document.head.appendChild(script);
+  }, [umamiScriptUrl, umamiWebsiteId]);
 
   return (
     <QueryClientProvider client={queryClient}>

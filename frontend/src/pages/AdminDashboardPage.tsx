@@ -16,6 +16,7 @@ const AdminDashboardPage: React.FC = () => {
     description: '',
   });
   const [errorMessage, setErrorMessage] = useState('');
+  const umamiDashboardUrl = import.meta.env.VITE_UMAMI_DASHBOARD_URL as string | undefined;
 
   const handleUploadSuccess = (productId: string, taskIds: string[]) => {
     // For simplicity, we'll assume one product_id maps to one primary monitoring task
@@ -34,93 +35,119 @@ const AdminDashboardPage: React.FC = () => {
       </p>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <aside className="h-fit rounded-lg border border-slate-200 bg-white p-4 shadow-sm lg:col-span-1">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500 mb-4">
-            Steps
-          </h2>
-          <ol className="space-y-4 text-sm">
-            <li>
-              <button
-                type="button"
-                onClick={() => setCurrentStep(1)}
-                className={`flex w-full items-start gap-3 text-left ${
-                  currentStep === 1 ? 'text-slate-900' : 'text-slate-400'
-                }`}
-              >
-                <span className={`flex h-7 w-7 items-center justify-center rounded-full border ${
-                  currentStep === 1 ? 'border-orange-500 text-orange-600' : 'border-slate-200'
-                }`}>
-                  1
-                </span>
-                <div>
-                  <p className="font-semibold">Upload</p>
-                  <p className="text-xs text-slate-500">Drop product images to begin processing.</p>
+        <aside className="space-y-4 lg:col-span-1">
+          <div className="h-fit rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500 mb-4">
+              Steps
+            </h2>
+            <ol className="space-y-4 text-sm">
+              <li>
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(1)}
+                  className={`flex w-full items-start gap-3 text-left ${
+                    currentStep === 1 ? 'text-slate-900' : 'text-slate-400'
+                  }`}
+                >
+                  <span className={`flex h-7 w-7 items-center justify-center rounded-full border ${
+                    currentStep === 1 ? 'border-orange-500 text-orange-600' : 'border-slate-200'
+                  }`}>
+                    1
+                  </span>
+                  <div>
+                    <p className="font-semibold">Upload</p>
+                    <p className="text-xs text-slate-500">Drop product images to begin processing.</p>
+                  </div>
+                </button>
+              </li>
+              <li>
+                <div className="relative group">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (hasUploaded) {
+                        setCurrentStep(2);
+                      }
+                    }}
+                    disabled={!hasUploaded}
+                    className={`flex w-full items-start gap-3 text-left ${
+                      currentStep === 2 ? 'text-slate-900' : 'text-slate-400'
+                    } ${!hasUploaded ? 'cursor-not-allowed opacity-60' : ''}`}
+                  >
+                    <span className={`flex h-7 w-7 items-center justify-center rounded-full border ${
+                      currentStep === 2 ? 'border-orange-500 text-orange-600' : 'border-slate-200'
+                    }`}>
+                      2
+                    </span>
+                    <div>
+                      <p className="font-semibold">Details</p>
+                      <p className="text-xs text-slate-500">Add specs, category, and pricing.</p>
+                    </div>
+                  </button>
+                  {!hasUploaded && (
+                    <span className="pointer-events-none absolute left-full top-1/2 ml-3 w-56 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 shadow-lg opacity-0 transition-opacity group-hover:opacity-100">
+                      Complete the upload step to unlock this section.
+                    </span>
+                  )}
                 </div>
-              </button>
-            </li>
-            <li>
-              <div className="relative group">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (hasUploaded) {
-                      setCurrentStep(2);
-                    }
-                  }}
-                  disabled={!hasUploaded}
-                  className={`flex w-full items-start gap-3 text-left ${
-                    currentStep === 2 ? 'text-slate-900' : 'text-slate-400'
-                  } ${!hasUploaded ? 'cursor-not-allowed opacity-60' : ''}`}
-                >
-                  <span className={`flex h-7 w-7 items-center justify-center rounded-full border ${
-                    currentStep === 2 ? 'border-orange-500 text-orange-600' : 'border-slate-200'
-                  }`}>
-                    2
-                  </span>
-                  <div>
-                    <p className="font-semibold">Details</p>
-                    <p className="text-xs text-slate-500">Add specs, category, and pricing.</p>
-                  </div>
-                </button>
-                {!hasUploaded && (
-                  <span className="pointer-events-none absolute left-full top-1/2 ml-3 w-56 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 shadow-lg opacity-0 transition-opacity group-hover:opacity-100">
-                    Complete the upload step to unlock this section.
-                  </span>
-                )}
+              </li>
+              <li>
+                <div className="relative group">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (hasUploaded) {
+                        setCurrentStep(3);
+                      }
+                    }}
+                    disabled={!hasUploaded}
+                    className={`flex w-full items-start gap-3 text-left ${
+                      currentStep === 3 ? 'text-slate-900' : 'text-slate-400'
+                    } ${!hasUploaded ? 'cursor-not-allowed opacity-60' : ''}`}
+                  >
+                    <span className={`flex h-7 w-7 items-center justify-center rounded-full border ${
+                      currentStep === 3 ? 'border-orange-500 text-orange-600' : 'border-slate-200'
+                    }`}>
+                      3
+                    </span>
+                    <div>
+                      <p className="font-semibold">Review & Publish</p>
+                      <p className="text-xs text-slate-500">Confirm output and make it live.</p>
+                    </div>
+                  </button>
+                  {!hasUploaded && (
+                    <span className="pointer-events-none absolute left-full top-1/2 ml-3 w-56 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 shadow-lg opacity-0 transition-opacity group-hover:opacity-100">
+                      Complete the upload step to unlock this section.
+                    </span>
+                  )}
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm text-sm text-slate-600">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500 mb-4">
+              Analytics
+            </h2>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="font-semibold text-slate-700">Traffic & Product Views</p>
+                <p className="text-xs text-slate-400">Open Umami dashboard for full insights.</p>
               </div>
-            </li>
-            <li>
-              <div className="relative group">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (hasUploaded) {
-                      setCurrentStep(3);
-                    }
-                  }}
-                  disabled={!hasUploaded}
-                  className={`flex w-full items-start gap-3 text-left ${
-                    currentStep === 3 ? 'text-slate-900' : 'text-slate-400'
-                  } ${!hasUploaded ? 'cursor-not-allowed opacity-60' : ''}`}
+              {umamiDashboardUrl ? (
+                <a
+                  href={umamiDashboardUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center rounded-md border border-orange-600 bg-orange-600 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-white hover:border-orange-700 hover:bg-orange-700"
                 >
-                  <span className={`flex h-7 w-7 items-center justify-center rounded-full border ${
-                    currentStep === 3 ? 'border-orange-500 text-orange-600' : 'border-slate-200'
-                  }`}>
-                    3
-                  </span>
-                  <div>
-                    <p className="font-semibold">Review & Publish</p>
-                    <p className="text-xs text-slate-500">Confirm output and make it live.</p>
-                  </div>
-                </button>
-                {!hasUploaded && (
-                  <span className="pointer-events-none absolute left-full top-1/2 ml-3 w-56 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 shadow-lg opacity-0 transition-opacity group-hover:opacity-100">
-                    Complete the upload step to unlock this section.
-                  </span>
-                )}
-              </div>
-            </li>
-          </ol>
+                  Open Dashboard
+                </a>
+              ) : (
+                <span className="text-xs text-slate-400">Set `VITE_UMAMI_DASHBOARD_URL` to enable.</span>
+              )}
+            </div>
+          </div>
         </aside>
 
         <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">

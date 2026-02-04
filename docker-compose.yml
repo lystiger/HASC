@@ -10,6 +10,29 @@ services:
     ports:
       - "5432:5432"
 
+  umami-db:
+    image: postgres:13
+    volumes:
+      - umami_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=umami
+      - POSTGRES_PASSWORD=umami
+      - POSTGRES_DB=umami
+    ports:
+      - "5433:5432"
+
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    environment:
+      - DATABASE_URL=postgresql://umami:umami@umami-db:5432/umami
+      - DATABASE_TYPE=postgresql
+      - HASH_SALT=replace-me-with-a-long-random-string
+      - ALLOW_EMBEDDING=1
+    ports:
+      - "3001:3000"
+    depends_on:
+      - umami-db
+
   backend:
     build: ./backend
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
@@ -43,3 +66,4 @@ services:
 
 volumes:
   postgres_data:
+  umami_data:

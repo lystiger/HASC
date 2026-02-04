@@ -7,13 +7,20 @@
   }
 }
 
-.marquee-inner {
-  display: flex;
-  width: max-content;
-  animation: marquee 18s linear infinite;
+.marquee {
+  overflow: hidden;
 }
 
-.marquee-track {
+.marquee__inner {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+  will-change: transform;
+}
+
+.marquee__track {
   display: flex;
   min-width: max-content;
+  gap: 2rem;
+  padding-right: 2rem;
 }

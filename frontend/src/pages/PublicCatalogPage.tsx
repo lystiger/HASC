@@ -148,42 +148,46 @@ const PublicCatalogPage: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="relative z-10 mx-auto mt-8 flex w-full max-w-screen-xl flex-col gap-3 px-6 lg:flex-row lg:items-center">
-          <span className="text-xs uppercase tracking-[0.3em] text-white">
-            Partners
-          </span>
-          <div className="marquee relative w-full overflow-hidden rounded-full border border-slate-200 bg-white/80 py-2 shadow-sm">
-            <div className="marquee-inner">
-              <div className="marquee-track flex items-center gap-8 pr-8">
-                <span className="text-sm font-semibold text-slate-600">ISO 9001</span>
-                <span className="text-sm font-semibold text-slate-600">Global Logistics</span>
-                <span className="text-sm font-semibold text-slate-600">SafeChem</span>
-                <span className="text-sm font-semibold text-slate-600">PackFlex</span>
-                <span className="text-sm font-semibold text-slate-600">FilterPro</span>
-                <span className="text-sm font-semibold text-slate-600">VinaSupply</span>
-                <span className="text-sm font-semibold text-slate-600">ISO 14001</span>
-                <span className="text-sm font-semibold text-slate-600">LabCert</span>
-              </div>
-              <div className="marquee-track flex items-center gap-8 pr-8" aria-hidden="true">
-                <span className="text-sm font-semibold text-slate-600">ISO 9001</span>
-                <span className="text-sm font-semibold text-slate-600">Global Logistics</span>
-                <span className="text-sm font-semibold text-slate-600">SafeChem</span>
-                <span className="text-sm font-semibold text-slate-600">PackFlex</span>
-                <span className="text-sm font-semibold text-slate-600">FilterPro</span>
-                <span className="text-sm font-semibold text-slate-600">VinaSupply</span>
-                <span className="text-sm font-semibold text-slate-600">ISO 14001</span>
-                <span className="text-sm font-semibold text-slate-600">LabCert</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </section>
 
       <div id="catalog" className="container mx-auto px-6 py-8 max-w-screen-xl">
-        <div className="flex flex-col gap-4 mb-8">
+        <div className="flex flex-col gap-4 mb-8 lg:flex-row lg:items-center lg:justify-between">
           <h2 className="text-3xl font-bold text-slate-industrial">
             {t('common.product_catalog')}
           </h2>
+          <div className="flex items-center gap-3">
+            <span className="text-xs uppercase tracking-[0.3em] text-slate-500">
+              Partners
+            </span>
+            <div className="marquee relative w-[60%] min-w-[260px] max-w-[520px] overflow-hidden rounded-full border border-slate-200 bg-white/80 py-3 shadow-sm">
+              <div className="marquee__inner">
+                <div className="marquee__track">
+                  <img src="/partner1.webp" alt="Partner 1" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner2.webp" alt="Partner 2" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner3.webp" alt="Partner 3" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner4.webp" alt="Partner 4" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner5.webp" alt="Partner 5" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner6.webp" alt="Partner 6" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner7.webp" alt="Partner 7" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner8.webp" alt="Partner 8" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner9.webp" alt="Partner 9" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner10.webp" alt="Partner 10" className="h-9 w-auto object-contain" loading="lazy" />
+                </div>
+                <div className="marquee__track" aria-hidden="true">
+                  <img src="/partner1.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner2.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner3.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner4.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner5.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner6.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner7.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner8.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner9.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
+                  <img src="/partner10.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div className="flex flex-col md:flex-row gap-8">
         {/* Sidebar for filters */}

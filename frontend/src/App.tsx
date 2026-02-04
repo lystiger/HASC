@@ -72,8 +72,12 @@ function App() {
             <header className="bg-slate-industrial text-white px-4 py-3">
               <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <img src="/logo.webp" alt="HASC VN" className="h-8 w-8 rounded-full object-cover" />
-                  <h1 className="text-xl font-bold">HASC VN</h1>
+                  <a href="/#hero" className="brand-wordmark" aria-label="Welcome to HASC">
+                    <span className="brand-intro">Welcome to,</span>
+                    <span className="brand-h">H</span>
+                    <span className="brand-a">A</span>
+                    <span className="brand-sc">SC</span>
+                  </a>
                 </div>
                 <nav className="flex flex-wrap items-center gap-4 text-sm">
                   <NavLink

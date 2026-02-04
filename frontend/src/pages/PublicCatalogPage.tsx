@@ -97,7 +97,7 @@ const PublicCatalogPage: React.FC = () => {
 
   return (
     <div className="font-sans">
-      <section className="relative overflow-hidden bg-slate-900">
+      <section id="hero" className="relative overflow-hidden bg-slate-900">
         <div className="absolute inset-0 z-0">
           <img
             src="/img.webp"

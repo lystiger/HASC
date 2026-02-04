@@ -1,5 +1,5 @@
 // frontend/src/pages/ProductDetailPage.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useProduct } from '../api/productService';
@@ -8,7 +8,17 @@ const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const { data: product, isLoading, error } = useProduct(id);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [imageIndexByProduct, setImageIndexByProduct] = useState<Record<string, number>>({});
+  const images = product?.images ?? [];
 
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+    const storedIndex = imageIndexByProduct[id];
+    setActiveImageIndex(storedIndex ?? 0);
+  }, [id, images.length, imageIndexByProduct]);
   if (isLoading) {
     return (
       <div className="mx-auto max-w-screen-xl px-6 py-10">
@@ -33,7 +43,9 @@ const ProductDetailPage: React.FC = () => {
     );
   }
 
-  const imageUrl = product.images?.[0]?.web_url || '/placeholder.png';
+  const activeImage = images[activeImageIndex];
+  const mainImageUrl = activeImage?.web_url || images[0]?.web_url || '/hero-placeholder.svg';
+  const isPublished = product.status === 'PUBLISHED';
 
   return (
     <div className="mx-auto max-w-screen-xl px-6 py-10">
@@ -44,15 +56,49 @@ const ProductDetailPage: React.FC = () => {
         {t('common.back_to_catalog')}
       </Link>
 
-      <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <div className="aspect-[4/3] w-full overflow-hidden rounded-lg bg-slate-100">
-            <img
-              src={imageUrl}
-              alt={product.name}
-              className="h-full w-full object-cover"
-              loading="lazy"
-            />
+      <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-3">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 lg:col-span-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <div className="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden">
+              {images.map((img, idx) => (
+                <button
+                  key={`${img.web_url}-${idx}`}
+                  type="button"
+                  onClick={() => {
+                    setActiveImageIndex(idx);
+                    if (id) {
+                      setImageIndexByProduct((prev) => ({ ...prev, [id]: idx }));
+                    }
+                  }}
+                  className={`rounded-md border-2 p-1 transition-colors ${
+                    activeImageIndex === idx ? 'border-orange-500' : 'border-slate-200'
+                  } ${!isPublished ? 'opacity-50' : ''}`}
+                >
+                  <img
+                    src={img.thumb_url || img.web_url}
+                    alt={`${product.name} thumbnail ${idx + 1}`}
+                    className="h-20 w-20 object-cover"
+                    loading="lazy"
+                  />
+                </button>
+              ))}
+            </div>
+            <div className="lg:col-span-2">
+              <div className="group relative aspect-square w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+                {isPublished ? (
+                  <img
+                    src={mainImageUrl}
+                    alt={product.name}
+                    className="h-full w-full object-contain mix-blend-multiply transition-transform duration-300 ease-out group-hover:scale-110"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center bg-slate-200 text-slate-500">
+                    <span className="text-sm font-medium">Optimizing Technical View...</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 

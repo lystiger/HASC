@@ -76,6 +76,23 @@ const PublicCatalogPage: React.FC = () => {
   ];
 
   const recentSearches = ['Microfiber wipers', 'Food-grade drums', 'Ventilation filters', 'Pallet stretch'];
+  const partners = [
+    { name: 'Partner 1', src: '/partner1.webp' },
+    { name: 'Partner 2', src: '/partner2.webp' },
+    { name: 'Partner 3', src: '/partner3.webp' },
+    { name: 'Partner 4', src: '/partner4.webp' },
+    { name: 'Partner 5', src: '/partner5.webp' },
+    { name: 'Partner 6', src: '/partner6.webp' },
+    { name: 'Partner 7', src: '/partner7.webp' },
+    { name: 'Partner 8', src: '/partner8.webp' },
+    { name: 'Partner 9', src: '/partner9.webp' },
+    { name: 'Partner 10', src: '/partner10.webp' },
+  ];
+
+  const handlePartnerClick = (partnerName: string) => {
+    setSearchQuery(partnerName);
+    document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <div className="font-sans">
@@ -151,43 +168,10 @@ const PublicCatalogPage: React.FC = () => {
       </section>
 
       <div id="catalog" className="container mx-auto px-6 py-8 max-w-screen-xl">
-        <div className="flex flex-col gap-4 mb-8 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-4 mb-8">
           <h2 className="text-3xl font-bold text-slate-industrial">
             {t('common.product_catalog')}
           </h2>
-          <div className="flex items-center gap-3">
-            <span className="text-xs uppercase tracking-[0.3em] text-slate-500">
-              Partners
-            </span>
-            <div className="marquee relative w-[60%] min-w-[260px] max-w-[520px] overflow-hidden rounded-full border border-slate-200 bg-white/80 py-3 shadow-sm">
-              <div className="marquee__inner">
-                <div className="marquee__track">
-                  <img src="/partner1.webp" alt="Partner 1" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner2.webp" alt="Partner 2" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner3.webp" alt="Partner 3" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner4.webp" alt="Partner 4" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner5.webp" alt="Partner 5" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner6.webp" alt="Partner 6" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner7.webp" alt="Partner 7" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner8.webp" alt="Partner 8" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner9.webp" alt="Partner 9" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner10.webp" alt="Partner 10" className="h-9 w-auto object-contain" loading="lazy" />
-                </div>
-                <div className="marquee__track" aria-hidden="true">
-                  <img src="/partner1.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner2.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner3.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner4.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner5.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner6.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner7.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner8.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner9.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
-                  <img src="/partner10.webp" alt="" className="h-9 w-auto object-contain" loading="lazy" />
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
         <div className="flex flex-col md:flex-row gap-8">
         {/* Sidebar for filters */}
@@ -273,6 +257,57 @@ const PublicCatalogPage: React.FC = () => {
         </main>
         </div>
       </div>
+
+      <section className="border-t border-slate-200 bg-white/70">
+        <div className="container mx-auto px-6 py-10 max-w-screen-xl">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Partners</p>
+              <h3 className="text-2xl font-semibold text-slate-industrial">
+                Trusted industrial supply network
+              </h3>
+            </div>
+            <div className="marquee w-full max-w-4xl overflow-hidden border border-slate-200 bg-white">
+              <div className="marquee__inner">
+                <div className="marquee__track">
+                  {partners.map((partner) => (
+                    <button
+                      key={partner.name}
+                      type="button"
+                      onClick={() => handlePartnerClick(partner.name)}
+                      className="group"
+                    >
+                      <span className="flex h-12 w-28 items-center justify-center rounded-md border border-slate-200 bg-white/80 px-3 transition-colors group-hover:border-orange-200">
+                        <img
+                          src={partner.src}
+                          alt={partner.name}
+                          className="h-9 w-full object-contain"
+                          loading="lazy"
+                        />
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                <div className="marquee__track" aria-hidden="true">
+                  {partners.map((partner) => (
+                    <span
+                      key={`${partner.name}-ghost`}
+                      className="flex h-12 w-28 items-center justify-center rounded-md border border-slate-200 bg-white/80 px-3"
+                    >
+                      <img
+                        src={partner.src}
+                        alt=""
+                        className="h-9 w-full object-contain"
+                        loading="lazy"
+                      />
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

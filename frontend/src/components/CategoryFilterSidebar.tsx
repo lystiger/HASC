@@ -3,13 +3,14 @@ import React, { useState } from 'react';
 import { useCategories } from '../api/categoryService';
 import type { Category } from '../types/category';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
+import { getCategoryLabel } from '../utils/categoryLabels';
 
 interface CategoryFilterSidebarProps {
   onFilterChange: (selectedCategoryNames: string[]) => void;
 }
 
 const CategoryFilterSidebar: React.FC<CategoryFilterSidebarProps> = ({ onFilterChange }) => {
-  const { t } = useTranslation(); // Initialize useTranslation
+  const { t, i18n } = useTranslation(); // Initialize useTranslation
   const { data: categories, isLoading, isError, error } = useCategories();
   const [selectedCategoryNames, setSelectedCategoryNames] = useState<string[]>([]);
 
@@ -60,7 +61,7 @@ const CategoryFilterSidebar: React.FC<CategoryFilterSidebarProps> = ({ onFilterC
               onChange={() => handleCheckboxChange(category.name)}
               className="h-4 w-4 text-orange-safety border-gray-300 rounded focus:ring-orange-safety"
             />
-            <span className="text-sm">{category.name}</span>
+            <span className="text-sm">{getCategoryLabel(category.name, i18n.resolvedLanguage ?? 'en')}</span>
           </label>
         ))}
       </div>

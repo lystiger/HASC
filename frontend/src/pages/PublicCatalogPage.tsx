@@ -29,7 +29,7 @@ const PublicCatalogPage: React.FC = () => {
       sku: 'DEMO-001',
       name: t('common.demo_product_name'),
       description: t('common.demo_product_description'),
-      category: 'PACKAGING',
+      category: 'Màng PE in, ghép, tráng keo',
       status: 'PUBLISHED',
       images: [
         {
@@ -47,7 +47,7 @@ const PublicCatalogPage: React.FC = () => {
       sku: 'DEMO-002',
       name: `${t('common.demo_product_name')} 2`,
       description: t('common.demo_product_description'),
-      category: 'FILTERS',
+      category: 'Lọc (FILTER) - Thiết bị',
       status: 'PUBLISHED',
       images: [
         {
@@ -65,7 +65,7 @@ const PublicCatalogPage: React.FC = () => {
       sku: 'DEMO-003',
       name: `${t('common.demo_product_name')} 3`,
       description: t('common.demo_product_description'),
-      category: 'CHEMICALS',
+      category: 'Hóa chất cho ngành giấy',
       status: 'PUBLISHED',
       images: [
         {

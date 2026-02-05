@@ -4,10 +4,11 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useProduct } from '../api/productService';
+import { getCategoryLabel } from '../utils/categoryLabels';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: product, isLoading, error } = useProduct(id);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [imageIndexByProduct, setImageIndexByProduct] = useState<Record<string, number>>({});
@@ -109,7 +110,7 @@ const ProductDetailPage: React.FC = () => {
           <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-gray-600">
             <span>SKU: {product.sku}</span>
             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-              {product.category}
+              {getCategoryLabel(product.category, i18n.resolvedLanguage ?? 'en')}
             </span>
           </div>
           <p className="mt-4 text-gray-700">{product.description}</p>

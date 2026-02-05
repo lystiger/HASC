@@ -5,9 +5,10 @@ import { useTaskMonitoring } from '../context/TaskMonitoringContext';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
 import { useCategories } from '../api/categoryService';
 import { updateProductById } from '../api/productService';
+import { getCategoryLabel } from '../utils/categoryLabels';
 
 const AdminDashboardPage: React.FC = () => {
-  const { t } = useTranslation(); // Initialize useTranslation
+  const { t, i18n } = useTranslation(); // Initialize useTranslation
   const { addTask } = useTaskMonitoring();
   const [currentStep, setCurrentStep] = useState(1);
   const [hasUploaded, setHasUploaded] = useState(false);
@@ -222,7 +223,7 @@ const AdminDashboardPage: React.FC = () => {
                       <option value="">Select a category</option>
                       {categories?.map((category) => (
                         <option key={category.id} value={category.name}>
-                          {category.name}
+                          {getCategoryLabel(category.name, i18n.resolvedLanguage ?? 'en')}
                         </option>
                       ))}
                     </select>

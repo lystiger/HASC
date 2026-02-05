@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useCategories } from '../api/categoryService';
 import { apiClient } from '../api/apiClient';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
+import { getCategoryLabel } from '../utils/categoryLabels';
 
 interface ProductUploadFormProps {
   onUploadSuccess: (
@@ -13,7 +14,7 @@ interface ProductUploadFormProps {
 }
 
 const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }) => {
-  const { t } = useTranslation(); // Initialize useTranslation
+  const { t, i18n } = useTranslation(); // Initialize useTranslation
   const { data: categories, isLoading: isLoadingCategories, isError: isErrorCategories, error: categoriesError } = useCategories();
 
   const [name, setName] = useState('');
@@ -139,7 +140,7 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
               <option value="">{t('common.select_category')}</option>
               {categories?.map((cat) => (
                 <option key={cat.id} value={cat.name}>
-                  {cat.name}
+                  {getCategoryLabel(cat.name, i18n.resolvedLanguage ?? 'en')}
                 </option>
               ))}
             </select>

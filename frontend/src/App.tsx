@@ -7,6 +7,7 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
 import ShippingReturnsPage from './pages/ShippingReturnsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
+import AboutPage from './pages/AboutPage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TaskMonitoringProvider } from './context/TaskMonitoringContext';
 import TaskMonitoringNotification from './components/TaskMonitoringNotification';
@@ -97,6 +98,14 @@ function App() {
                     {t('common.contact_us_link')}
                   </NavLink>
                   <NavLink
+                    to="/about"
+                    className={({ isActive }) =>
+                      `transition-colors ${isActive ? 'text-white' : 'text-slate-200 hover:text-white'}`
+                    }
+                  >
+                    About
+                  </NavLink>
+                  <NavLink
                     to="/admin"
                     className={({ isActive }) =>
                       `transition-colors ${isActive ? 'text-white' : 'text-slate-200 hover:text-white'}`
@@ -111,6 +120,7 @@ function App() {
             <main className="flex-grow">
               <Routes>
                 <Route path="/" element={<PublicCatalogPage />} />
+                <Route path="/about" element={<AboutPage />} />
                 <Route path="/products/:id" element={<ProductDetailPage />} />
                 <Route path="/admin" element={<AdminDashboardPage />} />
                 <Route path="/contact" element={<ContactPage />} />

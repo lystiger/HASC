@@ -79,3 +79,9 @@
   border-radius: 999px;
   transform: translateY(-50%);
 }
+
+.timeline-year {
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', 'Menlo', monospace;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}

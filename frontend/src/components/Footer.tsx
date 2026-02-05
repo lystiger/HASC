@@ -2,6 +2,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
 import { Link } from 'react-router-dom';
+import { CONTACT_INFO } from '../constants/contactInfo';
 
 const Footer: React.FC = () => {
   const { t } = useTranslation(); // Initialize useTranslation
@@ -28,16 +29,16 @@ const Footer: React.FC = () => {
             <div className="flex-1 rounded-lg border border-slate-200 bg-white/10 p-4">
               <h3 className="text-lg font-semibold mb-3">{t('common.contact')}</h3>
               <p className="text-sm text-gray-300">
-                {t('common.email')}: info@hascvn.com
+                {t('common.email')}: {CONTACT_INFO.email}
               </p>
               <p className="text-sm text-gray-300">
-                {t('common.phone')}: +1 (555) 123-4567
+                {t('common.phone')}: {CONTACT_INFO.phone}
               </p>
               <p className="mt-3 text-sm text-gray-300 font-mono">
-                Cạnh Gara Oto 360, Thôn như Quỳnh, TT Như Quỳnh, Văn Lâm, Hưng Yên
+                {CONTACT_INFO.address}
               </p>
               <a
-                href="https://www.google.com/maps?q=C%E1%BA%A1nh+Gara+Oto+360,+Th%C3%B4n+nh%C6%B0+Qu%E1%BB%B3nh,+TT+Nh%C6%B0+Qu%E1%BB%B3nh,+V%C4%83n+L%C3%A2m,+H%C6%B0ng+Y%C3%AAn"
+                href={CONTACT_INFO.mapsUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="mt-4 inline-flex items-center justify-center rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-gray-200 transition-colors hover:border-orange-400 hover:text-white"
@@ -48,7 +49,7 @@ const Footer: React.FC = () => {
             <div className="flex-1 overflow-hidden rounded-lg border border-slate-200 bg-white/10">
               <iframe
                 className="h-full w-full"
-                src="https://www.google.com/maps?q=C%E1%BA%A1nh+Gara+Oto+360,+Th%C3%B4n+nh%C6%B0+Qu%E1%BB%B3nh,+TT+Nh%C6%B0+Qu%E1%BB%B3nh,+V%C4%83n+L%C3%A2m,+H%C6%B0ng+Y%C3%AAn&output=embed"
+                src={CONTACT_INFO.mapsEmbedUrl}
                 allowFullScreen
                 loading="lazy"
                 title="HASC VN Map"

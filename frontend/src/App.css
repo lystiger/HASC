@@ -86,6 +86,11 @@
   text-transform: uppercase;
 }
 
+.mono-data {
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', 'Menlo', monospace;
+  letter-spacing: 0.05em;
+}
+
 .nav-indicator {
   position: relative;
   display: flex;

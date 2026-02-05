@@ -1,34 +1,37 @@
 // frontend/src/pages/AboutPage.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-const milestones = [
-  { year: '2012', title: 'Founded in Hanoi', detail: 'Started as a focused industrial packaging supplier.' },
-  { year: '2016', title: 'ISO 9001 Certified', detail: 'Quality system formalized for enterprise partners.' },
-  { year: '2020', title: 'Expanded into Filters', detail: 'Broadened product range for manufacturing clients.' },
-  { year: '2023', title: 'Chemicals Line Added', detail: 'Launched compliant specialty chemical offerings.' },
-];
+import { useTranslation } from 'react-i18next';
 
 const gallery = [
-  { src: '/img.webp', label: 'Warehouse Operations' },
-  { src: '/hero-placeholder.svg', label: 'Quality Control Lab' },
-  { src: '/hero-placeholder.svg', label: 'Logistics Fleet' },
-  { src: '/hero-placeholder.svg', label: 'Packaging Line' },
-];
-
-const certifications = [
-  { title: 'ISO 9001:2015', issuer: 'ISO', year: '2016', src: '/hero-placeholder.svg' },
-  { title: 'Safety Compliance', issuer: 'Local Authority', year: '2021', src: '/hero-placeholder.svg' },
+  { src: '/about1.webp', label: 'HASC Facility 01' },
+  { src: '/about2.webp', label: 'HASC Facility 02' },
+  { src: '/about3.webp', label: 'HASC Facility 03' },
+  { src: '/about4.jpeg', label: 'HASC Facility 04' },
+  { src: '/about5.jpeg', label: 'HASC Facility 05' },
+  { src: '/about6.jpeg', label: 'HASC Facility 06' },
+  { src: '/about7.jpeg', label: 'HASC Facility 07' },
+  { src: '/about8.jpeg', label: 'HASC Facility 08' },
 ];
 
 const AboutPage: React.FC = () => {
+  const { t } = useTranslation();
+  const businessLinesRaw = t('about.business_lines', { returnObjects: true }) as unknown;
+  const businessLines = Array.isArray(businessLinesRaw) ? businessLinesRaw : [];
+  const coreStatementsRaw = t('about.core_statements', { returnObjects: true }) as unknown;
+  const coreStatements = Array.isArray(coreStatementsRaw) ? coreStatementsRaw : [];
+  const typedCoreStatements = coreStatements.filter(
+    (item): item is { title: string; body: string } =>
+      Boolean(item && typeof item === 'object' && 'title' in item && 'body' in item)
+  );
+
   return (
     <div className="font-sans">
       <section className="relative overflow-hidden bg-slate-900">
         <div className="absolute inset-0">
           <img
-            src="/img.webp"
-            alt="HASC VN headquarters"
+            src="/about1.webp"
+            alt="HASC VN facility"
             className="h-full w-full object-cover"
             loading="lazy"
           />
@@ -36,14 +39,13 @@ const AboutPage: React.FC = () => {
         </div>
         <div className="relative z-10 mx-auto flex max-w-screen-xl flex-col gap-6 px-6 py-16">
           <p className="text-xs uppercase tracking-[0.4em] text-orange-200">
-            Corporate Heritage
+            {t('about.hero_kicker')}
           </p>
           <h1 className="max-w-3xl text-4xl font-bold text-white md:text-5xl">
-            Built for industrial scale with a focus on reliability and compliance.
+            {t('about.hero_title')}
           </h1>
           <p className="max-w-2xl text-base text-slate-100 md:text-lg">
-            We support large-volume industrial contracts with disciplined operations, verified
-            standards, and an infrastructure designed for long-term partnerships.
+            {t('about.hero_subtitle')}
           </p>
         </div>
       </section>
@@ -51,30 +53,36 @@ const AboutPage: React.FC = () => {
       <section className="mx-auto max-w-screen-xl px-6 py-12">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <p className="text-xs uppercase tracking-[0.35em] text-slate-500">Foundations</p>
+            <p className="text-xs uppercase tracking-[0.35em] text-slate-500">
+              {t('about.profile_kicker')}
+            </p>
             <h2 className="mt-3 text-3xl font-semibold text-slate-industrial">
-              Proof of momentum, year by year.
+              {t('about.profile_title')}
             </h2>
             <p className="mt-4 text-sm text-slate-600">
-              A concise view of the milestones that shaped our industrial readiness.
+              {t('about.profile_subtitle')}
             </p>
           </div>
           <div className="lg:col-span-8">
-            <div className="border-l border-slate-200 pl-6">
-              <ul className="space-y-6">
-                {milestones.map((item) => (
-                  <li key={item.year} className="relative">
-                    <span className="absolute -left-[30px] top-1.5 h-3 w-3 rounded-full bg-orange-500" />
-                    <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-6">
-                      <span className="timeline-year text-sm text-slate-500">{item.year}</span>
-                      <div>
-                        <p className="text-base font-semibold text-slate-800">{item.title}</p>
-                        <p className="text-sm text-slate-500">{item.detail}</p>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex flex-col gap-3">
+                <p className="text-sm font-semibold text-slate-800">
+                  {t('about.company_name')}
+                </p>
+                <p className="text-sm text-slate-500">
+                  {t('about.tax_label')}: <span className="mono-data">0108049836</span>
+                </p>
+              </div>
+              <div className="mt-6">
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                  {t('about.business_lines_label')}
+                </p>
+                <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-slate-600">
+                  {businessLines.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </div>
@@ -84,25 +92,25 @@ const AboutPage: React.FC = () => {
         <div className="mx-auto max-w-screen-xl px-6 py-12">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-slate-500">Infrastructure</p>
+              <p className="text-xs uppercase tracking-[0.35em] text-slate-500">
+                {t('about.gallery_kicker')}
+              </p>
               <h2 className="mt-3 text-3xl font-semibold text-slate-industrial">
-                Infrastructure in motion.
+                {t('about.gallery_title')}
               </h2>
               <p className="mt-2 text-sm text-slate-600">
-                A minimal glimpse behind the scenes of our operational backbone.
+                {t('about.gallery_subtitle')}
               </p>
             </div>
           </div>
-          <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {gallery.map((item) => (
               <figure
                 key={item.label}
                 className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
               >
-                <img src={item.src} alt={item.label} className="h-56 w-full object-cover" loading="lazy" />
-                <figcaption className="px-4 py-3 text-sm font-medium text-slate-700">
-                  {item.label}
-                </figcaption>
+                <img src={item.src} alt={item.label} className="h-48 w-full object-cover" loading="lazy" />
+                <figcaption className="px-4 py-3 text-sm font-medium text-slate-700">{item.label}</figcaption>
               </figure>
             ))}
           </div>
@@ -112,37 +120,24 @@ const AboutPage: React.FC = () => {
       <section className="mx-auto max-w-screen-xl px-6 py-12">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <p className="text-xs uppercase tracking-[0.35em] text-slate-500">Standards</p>
+            <p className="text-xs uppercase tracking-[0.35em] text-slate-500">
+              {t('about.values_kicker')}
+            </p>
             <h2 className="mt-3 text-3xl font-semibold text-slate-industrial">
-              Commitment to verified standards.
+              {t('about.values_title')}
             </h2>
             <p className="mt-3 text-sm text-slate-600">
-              Documentation that reflects operational maturity and compliance.
+              {t('about.values_subtitle')}
             </p>
           </div>
           <div className="lg:col-span-8">
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-              {certifications.map((cert) => (
-                <div key={cert.title} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                  <img
-                    src={cert.src}
-                    alt={cert.title}
-                    className="h-32 w-full rounded-lg object-cover"
-                    loading="lazy"
-                  />
-                  <div className="mt-3">
-                    <p className="text-sm font-semibold text-slate-800">{cert.title}</p>
-                    <p className="text-xs text-slate-500">
-                      Issued by {cert.issuer} · {cert.year}
-                    </p>
-                  </div>
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+              {typedCoreStatements.map((statement) => (
+                <div key={statement.title} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <h3 className="text-base font-semibold text-slate-900">{statement.title}</h3>
+                  <p className="mt-3 text-sm text-slate-600">{statement.body}</p>
                 </div>
               ))}
-              {certifications.length === 0 && (
-                <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-500">
-                  Compliance documentation available on request.
-                </div>
-              )}
             </div>
           </div>
         </div>

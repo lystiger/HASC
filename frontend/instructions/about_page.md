@@ -44,3 +44,31 @@ E. CTA (Link Only)
 - Convert gallery to masonry / “technical gallery” layout.
 - Add richer history narrative blocks.
 - Localized content (EN/VN) if translations are ready.
+
+7. Current web
+CÔNG TY TNHH HASC (VIET NAM)
+
+
+MST: 0108049836
+
+Sản xuất và kinh doanh các loại bao bì màng bảo vệ PE, túi PE, màng PE tự hủy sinh học , túi tự hủy sinh học
+Sản xuất và kinh doanh các loại màng co bao gói sản phẩm đóng hộp, túi, chai..v.v
+Sản xuất và kinh doanh các loại màng, túi cho bao gói sản phẩm theo kích thước yêu cầu
+Gia công và lắp giáp các loại filter giấy carton và tấm lọc sợi tổng hợp, sợi thủy tinh cho phòng sơn
+Chuyên cung cấp các loại hóa chất cho ngành giấy như, Coating, release, polimer, chất khử mực, chất phá bọt, các chất vệ sinh máy giấy.
+ 
+
+ 
+
+ 
+
+Tầm nhìn: Trở thành chuyên gia hàng đầu trong lĩnh vực kinh doanh và  sản xuất các loại màng từ PE,  màng báo gói tự hủy sinh học và thông thường, tấm lọc cho phòng sơn tại thị trường Việt Nam và hướng đến thị trường thế giới.
+
+
+Sứ mệnh: Mang lại cho khách hàng và đối tác sản phẩm tốt nhất và sự ổn định về chất lượng, tiến độ, với sự chăm sóc tốt nhất.
+
+
+Giá trị cốt lõi: Mang lại giá trị cộng đồng, lợi ích cho các cổ đông và người lao động và mang lại cơ hội cho đối tác.
+
+Một số hình ảnh về công ty
+image...

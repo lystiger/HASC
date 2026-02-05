@@ -73,5 +73,43 @@
     "PUBLISHED": "Published",
     "ARCHIVED": "Archived",
     "FAILED": "Failed"
+  },
+  "about": {
+    "hero_kicker": "Corporate Heritage",
+    "hero_title": "HASC COMPANY LIMITED (VIET NAM)",
+    "hero_subtitle": "Stable infrastructure, disciplined processes, and a focus on reliable delivery for industrial partners.",
+    "profile_kicker": "Company Profile",
+    "profile_title": "Operational foundation and production capability.",
+    "profile_subtitle": "Legal information and key business lines of HASC VN.",
+    "company_name": "HASC COMPANY LIMITED (VIET NAM)",
+    "tax_label": "Tax ID",
+    "business_lines_label": "Business Lines",
+    "business_lines": [
+      "Manufacture and trade PE protective films, PE bags, biodegradable PE films, and biodegradable bags.",
+      "Manufacture and trade shrink films for packaged products such as cans, bags, bottles, etc.",
+      "Manufacture and supply films and bags tailored to custom packaging dimensions.",
+      "Process and assemble carton paper filters and synthetic fiber / fiberglass filter pads for paint booths.",
+      "Supply paper industry chemicals including coatings, release agents, polymers, de-inking agents, defoamers, and paper machine cleaning chemicals."
+    ],
+    "gallery_kicker": "Gallery",
+    "gallery_title": "Selected company visuals.",
+    "gallery_subtitle": "Operational and production environments of HASC VN.",
+    "values_kicker": "Direction",
+    "values_title": "Vision, mission, and core values.",
+    "values_subtitle": "Long-term commitments to customers, partners, and the community.",
+    "core_statements": [
+      {
+        "title": "Vision",
+        "body": "To become a leading expert in the business and production of PE films, biodegradable and conventional packaging films, and paint booth filters in Vietnam, with a global outlook."
+      },
+      {
+        "title": "Mission",
+        "body": "Deliver the best products and stable quality and timelines to customers and partners, with the highest level of care."
+      },
+      {
+        "title": "Core Values",
+        "body": "Create community value, benefits for shareholders and employees, and opportunities for partners."
+      }
+    ]
   }
 }

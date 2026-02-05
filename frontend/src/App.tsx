@@ -43,8 +43,8 @@ const AppLayout: React.FC = () => {
     () => [
       { to: '/', label: t('common.products') },
       { to: '/contact', label: t('common.contact_us_link') },
-      { to: '/about', label: 'About' },
-      { to: '/admin', label: 'Admin' },
+      { to: '/about', label: t('common.about_nav', { defaultValue: 'About' }) },
+      { to: '/admin', label: t('common.admin_nav', { defaultValue: 'Admin' }) },
     ],
     [t]
   );

@@ -44,14 +44,16 @@ const AdminDashboardPage: React.FC = () => {
     <div className="container mx-auto px-6 py-8 max-w-screen-xl font-sans">
       <h1 className="text-4xl font-bold text-slate-industrial mb-6">{t('common.admin_dashboard')}</h1>
       <p className="text-sm text-slate-500 mb-8">
-        A guided workflow for non-technical admins to upload, verify, and publish products.
+        {t('admin.subtitle', {
+          defaultValue: 'A guided workflow for non-technical admins to upload, verify, and publish products.',
+        })}
       </p>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <aside className="space-y-4 lg:col-span-1">
           <div className="h-fit rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
             <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500 mb-4">
-              Steps
+              {t('admin.steps_title', { defaultValue: 'Steps' })}
             </h2>
             <ol className="space-y-4 text-sm">
               <li>
@@ -68,8 +70,12 @@ const AdminDashboardPage: React.FC = () => {
                     1
                   </span>
                   <div>
-                    <p className="font-semibold">Upload</p>
-                    <p className="text-xs text-slate-500">Drop product images to begin processing.</p>
+                    <p className="font-semibold">
+                      {t('admin.step_upload_title', { defaultValue: 'Upload' })}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {t('admin.step_upload_desc', { defaultValue: 'Drop product images to begin processing.' })}
+                    </p>
                   </div>
                 </button>
               </li>
@@ -93,13 +99,17 @@ const AdminDashboardPage: React.FC = () => {
                       2
                     </span>
                     <div>
-                      <p className="font-semibold">Details</p>
-                      <p className="text-xs text-slate-500">Add specs, category, and pricing.</p>
+                      <p className="font-semibold">
+                        {t('admin.step_details_title', { defaultValue: 'Details' })}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {t('admin.step_details_desc', { defaultValue: 'Add specs, category, and pricing.' })}
+                      </p>
                     </div>
                   </button>
                   {!hasUploaded && (
                     <span className="pointer-events-none absolute left-full top-1/2 ml-3 w-56 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 shadow-lg opacity-0 transition-opacity group-hover:opacity-100">
-                      Complete the upload step to unlock this section.
+                      {t('admin.step_locked', { defaultValue: 'Complete the upload step to unlock this section.' })}
                     </span>
                   )}
                 </div>
@@ -124,13 +134,17 @@ const AdminDashboardPage: React.FC = () => {
                       3
                     </span>
                     <div>
-                      <p className="font-semibold">Review & Publish</p>
-                      <p className="text-xs text-slate-500">Confirm output and make it live.</p>
+                      <p className="font-semibold">
+                        {t('admin.step_review_title', { defaultValue: 'Review & Publish' })}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {t('admin.step_review_desc', { defaultValue: 'Confirm output and make it live.' })}
+                      </p>
                     </div>
                   </button>
                   {!hasUploaded && (
                     <span className="pointer-events-none absolute left-full top-1/2 ml-3 w-56 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 shadow-lg opacity-0 transition-opacity group-hover:opacity-100">
-                      Complete the upload step to unlock this section.
+                      {t('admin.step_locked', { defaultValue: 'Complete the upload step to unlock this section.' })}
                     </span>
                   )}
                 </div>
@@ -140,12 +154,16 @@ const AdminDashboardPage: React.FC = () => {
 
           <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm text-sm text-slate-600">
             <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500 mb-4">
-              Analytics
+              {t('admin.analytics_title', { defaultValue: 'Analytics' })}
             </h2>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="font-semibold text-slate-700">Traffic & Product Views</p>
-                <p className="text-xs text-slate-400">Open Umami dashboard for full insights.</p>
+                <p className="font-semibold text-slate-700">
+                  {t('admin.analytics_heading', { defaultValue: 'Traffic & Product Views' })}
+                </p>
+                <p className="text-xs text-slate-400">
+                  {t('admin.analytics_subtitle', { defaultValue: 'Open Umami dashboard for full insights.' })}
+                </p>
               </div>
               {umamiDashboardUrl ? (
                 <a
@@ -154,10 +172,14 @@ const AdminDashboardPage: React.FC = () => {
                   rel="noreferrer"
                   className="inline-flex items-center justify-center rounded-md border border-orange-600 bg-orange-600 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-white hover:border-orange-700 hover:bg-orange-700"
                 >
-                  Open Dashboard
+                  {t('admin.analytics_cta', { defaultValue: 'Open Dashboard' })}
                 </a>
               ) : (
-                <span className="text-xs text-slate-400">Set `VITE_UMAMI_DASHBOARD_URL` to enable.</span>
+                <span className="text-xs text-slate-400">
+                  {t('admin.analytics_empty', {
+                    defaultValue: 'Set `VITE_UMAMI_DASHBOARD_URL` to enable.',
+                  })}
+                </span>
               )}
             </div>
           </div>
@@ -167,9 +189,13 @@ const AdminDashboardPage: React.FC = () => {
           {currentStep === 1 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-industrial">Upload Product Images</h2>
+                <h2 className="text-2xl font-bold text-slate-industrial">
+                  {t('admin.upload_title', { defaultValue: 'Upload Product Images' })}
+                </h2>
                 <p className="text-sm text-slate-500 mt-2">
-                  Start by uploading high-resolution product images. We will optimize them automatically.
+                  {t('admin.upload_subtitle', {
+                    defaultValue: 'Start by uploading high-resolution product images. We will optimize them automatically.',
+                  })}
                 </p>
               </div>
               <ProductUploadForm onUploadSuccess={(productId, taskIds, details) => {
@@ -182,14 +208,18 @@ const AdminDashboardPage: React.FC = () => {
           {currentStep === 2 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-industrial">Add Product Details</h2>
+                <h2 className="text-2xl font-bold text-slate-industrial">
+                  {t('admin.details_title', { defaultValue: 'Add Product Details' })}
+                </h2>
                 <p className="text-sm text-slate-500 mt-2">
-                  Fill in SKU, category, specifications, and pricing. This step is coming next.
+                  {t('admin.details_subtitle', {
+                    defaultValue: 'Fill in SKU, category, specifications, and pricing. This step is coming next.',
+                  })}
                 </p>
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <label className="text-sm text-slate-600">
-                  Product Name
+                  {t('admin.field_name', { defaultValue: 'Product Name' })}
                   <input
                     type="text"
                     value={formValues.name}
@@ -199,7 +229,7 @@ const AdminDashboardPage: React.FC = () => {
                   />
                 </label>
                 <label className="text-sm text-slate-600">
-                  SKU
+                  {t('admin.field_sku', { defaultValue: 'SKU' })}
                   <input
                     type="text"
                     value={formValues.sku}
@@ -209,18 +239,22 @@ const AdminDashboardPage: React.FC = () => {
                   />
                 </label>
                 <label className="text-sm text-slate-600 md:col-span-2">
-                  Category
+                  {t('admin.field_category', { defaultValue: 'Category' })}
                   {isLoadingCategories ? (
-                    <div className="mt-2 text-xs text-slate-500">Loading categories...</div>
+                    <div className="mt-2 text-xs text-slate-500">
+                      {t('admin.loading_categories', { defaultValue: 'Loading categories...' })}
+                    </div>
                   ) : isErrorCategories ? (
-                    <div className="mt-2 text-xs text-red-600">Failed to load categories.</div>
+                    <div className="mt-2 text-xs text-red-600">
+                      {t('admin.error_categories', { defaultValue: 'Failed to load categories.' })}
+                    </div>
                   ) : (
                     <select
                       value={formValues.category}
                       onChange={(event) => setFormValues((prev) => ({ ...prev, category: event.target.value }))}
                       className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
                     >
-                      <option value="">Select a category</option>
+                      <option value="">{t('admin.select_category', { defaultValue: 'Select a category' })}</option>
                       {categories?.map((category) => (
                         <option key={category.id} value={category.name}>
                           {getCategoryLabel(category.name, i18n.resolvedLanguage ?? 'en')}
@@ -230,7 +264,7 @@ const AdminDashboardPage: React.FC = () => {
                   )}
                 </label>
                 <label className="text-sm text-slate-600 md:col-span-2">
-                  Description
+                  {t('admin.field_description', { defaultValue: 'Description' })}
                   <textarea
                     value={formValues.description}
                     onChange={(event) => setFormValues((prev) => ({ ...prev, description: event.target.value }))}
@@ -246,7 +280,7 @@ const AdminDashboardPage: React.FC = () => {
                   className="rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:border-slate-300"
                   onClick={() => setCurrentStep(1)}
                 >
-                  Back
+                  {t('admin.back', { defaultValue: 'Back' })}
                 </button>
                 <button
                   type="button"
@@ -255,11 +289,19 @@ const AdminDashboardPage: React.FC = () => {
                   onClick={async () => {
                     const { name, sku, category, description } = formValues;
                     if (!uploadedProductId) {
-                      setErrorMessage('Upload images first so we can attach details.');
+                      setErrorMessage(
+                        t('admin.error_upload_first', {
+                          defaultValue: 'Upload images first so we can attach details.',
+                        })
+                      );
                       return;
                     }
                     if (!name || !sku || !category || !description) {
-                      setErrorMessage('Please complete all required fields before continuing.');
+                      setErrorMessage(
+                        t('admin.error_required', {
+                          defaultValue: 'Please complete all required fields before continuing.',
+                        })
+                      );
                       return;
                     }
                     setIsSavingDetails(true);
@@ -272,13 +314,18 @@ const AdminDashboardPage: React.FC = () => {
                       });
                       setCurrentStep(3);
                     } catch (err) {
-                      setErrorMessage((err as Error).message || 'Failed to save product details.');
+                      setErrorMessage(
+                        (err as Error).message ||
+                          t('admin.error_save', { defaultValue: 'Failed to save product details.' })
+                      );
                     } finally {
                       setIsSavingDetails(false);
                     }
                   }}
                 >
-                  {isSavingDetails ? 'Saving...' : 'Continue'}
+                  {isSavingDetails
+                    ? t('admin.saving', { defaultValue: 'Saving...' })
+                    : t('admin.continue', { defaultValue: 'Continue' })}
                 </button>
               </div>
             </div>
@@ -287,13 +334,17 @@ const AdminDashboardPage: React.FC = () => {
           {currentStep === 3 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-industrial">Review & Publish</h2>
+                <h2 className="text-2xl font-bold text-slate-industrial">
+                  {t('admin.review_title', { defaultValue: 'Review & Publish' })}
+                </h2>
                 <p className="text-sm text-slate-500 mt-2">
-                  Verify the optimized images and confirm all specifications before publishing.
+                  {t('admin.review_subtitle', {
+                    defaultValue: 'Verify the optimized images and confirm all specifications before publishing.',
+                  })}
                 </p>
               </div>
               <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-6 text-sm text-slate-500">
-                Review checklist placeholder.
+                {t('admin.review_placeholder', { defaultValue: 'Review checklist placeholder.' })}
               </div>
               <div className="flex flex-wrap gap-3">
                 <button
@@ -301,7 +352,7 @@ const AdminDashboardPage: React.FC = () => {
                   className="rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:border-slate-300"
                   onClick={() => setCurrentStep(2)}
                 >
-                  Back
+                  {t('admin.back', { defaultValue: 'Back' })}
                 </button>
                 <button
                   type="button"
@@ -310,25 +361,38 @@ const AdminDashboardPage: React.FC = () => {
                   onClick={async () => {
                     const { name, sku, category, description } = formValues;
                     if (!uploadedProductId) {
-                      setErrorMessage('Upload images first so we can publish.');
+                      setErrorMessage(
+                        t('admin.error_upload_publish', {
+                          defaultValue: 'Upload images first so we can publish.',
+                        })
+                      );
                       return;
                     }
                     if (!name || !sku || !category || !description) {
-                      setErrorMessage('Please complete all required fields before publishing.');
+                      setErrorMessage(
+                        t('admin.error_required_publish', {
+                          defaultValue: 'Please complete all required fields before publishing.',
+                        })
+                      );
                       return;
                     }
                     setIsPublishing(true);
                     try {
                       await updateProductById(uploadedProductId, { status: 'PUBLISHED' });
-                      alert('Product published successfully.');
+                      alert(t('admin.publish_success', { defaultValue: 'Product published successfully.' }));
                     } catch (err) {
-                      setErrorMessage((err as Error).message || 'Failed to publish product.');
+                      setErrorMessage(
+                        (err as Error).message ||
+                          t('admin.error_publish', { defaultValue: 'Failed to publish product.' })
+                      );
                     } finally {
                       setIsPublishing(false);
                     }
                   }}
                 >
-                  {isPublishing ? 'Publishing...' : 'Publish Product'}
+                  {isPublishing
+                    ? t('admin.publishing', { defaultValue: 'Publishing...' })
+                    : t('admin.publish', { defaultValue: 'Publish Product' })}
                 </button>
               </div>
             </div>
@@ -338,14 +402,16 @@ const AdminDashboardPage: React.FC = () => {
       {errorMessage && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-6">
           <div className="w-full max-w-sm rounded-lg border border-slate-200 bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-slate-900">Missing information</h3>
+            <h3 className="text-lg font-semibold text-slate-900">
+              {t('admin.error_title', { defaultValue: 'Missing information' })}
+            </h3>
             <p className="mt-2 text-sm text-slate-600">{errorMessage}</p>
             <button
               type="button"
               onClick={() => setErrorMessage('')}
               className="mt-4 inline-flex items-center justify-center rounded-md border border-orange-600 bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:border-orange-700 hover:bg-orange-700"
             >
-              OK
+              {t('admin.ok', { defaultValue: 'OK' })}
             </button>
           </div>
         </div>

@@ -4,14 +4,14 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 const gallery = [
-  { src: '/about1.webp', label: 'HASC Facility 01' },
-  { src: '/about2.webp', label: 'HASC Facility 02' },
-  { src: '/about3.webp', label: 'HASC Facility 03' },
-  { src: '/about4.jpeg', label: 'HASC Facility 04' },
-  { src: '/about5.jpeg', label: 'HASC Facility 05' },
-  { src: '/about6.jpeg', label: 'HASC Facility 06' },
-  { src: '/about7.jpeg', label: 'HASC Facility 07' },
-  { src: '/about8.jpeg', label: 'HASC Facility 08' },
+  { src: '/about1.webp', labelKey: 'about.gallery_labels.0', fallback: 'HASC Facility 01' },
+  { src: '/about2.webp', labelKey: 'about.gallery_labels.1', fallback: 'HASC Facility 02' },
+  { src: '/about3.webp', labelKey: 'about.gallery_labels.2', fallback: 'HASC Facility 03' },
+  { src: '/about4.jpeg', labelKey: 'about.gallery_labels.3', fallback: 'HASC Facility 04' },
+  { src: '/about5.jpeg', labelKey: 'about.gallery_labels.4', fallback: 'HASC Facility 05' },
+  { src: '/about6.jpeg', labelKey: 'about.gallery_labels.5', fallback: 'HASC Facility 06' },
+  { src: '/about7.jpeg', labelKey: 'about.gallery_labels.6', fallback: 'HASC Facility 07' },
+  { src: '/about8.jpeg', labelKey: 'about.gallery_labels.7', fallback: 'HASC Facility 08' },
 ];
 
 const AboutPage: React.FC = () => {
@@ -30,7 +30,7 @@ const AboutPage: React.FC = () => {
       <section className="relative overflow-hidden bg-slate-900">
         <div className="absolute inset-0">
           <img
-            src="/about1.webp"
+            src="/about3.webp"
             alt="HASC VN facility"
             className="h-full w-full object-cover"
             loading="lazy"
@@ -106,11 +106,18 @@ const AboutPage: React.FC = () => {
           <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {gallery.map((item) => (
               <figure
-                key={item.label}
+                key={item.labelKey}
                 className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
               >
-                <img src={item.src} alt={item.label} className="h-48 w-full object-cover" loading="lazy" />
-                <figcaption className="px-4 py-3 text-sm font-medium text-slate-700">{item.label}</figcaption>
+                <img
+                  src={item.src}
+                  alt={t(item.labelKey, { defaultValue: item.fallback })}
+                  className="h-48 w-full object-cover"
+                  loading="lazy"
+                />
+                <figcaption className="px-4 py-3 text-sm font-medium text-slate-700">
+                  {t(item.labelKey, { defaultValue: item.fallback })}
+                </figcaption>
               </figure>
             ))}
           </div>
@@ -146,16 +153,18 @@ const AboutPage: React.FC = () => {
       <section className="border-t border-slate-200 bg-white">
         <div className="mx-auto flex max-w-screen-xl flex-col items-start gap-4 px-6 py-10 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.35em] text-slate-500">Next Step</p>
+            <p className="text-xs uppercase tracking-[0.35em] text-slate-500">
+              {t('about.cta_kicker', { defaultValue: 'Next Step' })}
+            </p>
             <h3 className="mt-2 text-2xl font-semibold text-slate-industrial">
-              Ready to discuss enterprise supply needs?
+              {t('about.cta_title', { defaultValue: 'Ready to discuss enterprise supply needs?' })}
             </h3>
           </div>
           <Link
             to="/contact"
             className="inline-flex items-center justify-center rounded-md bg-orange-safety px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-orange-600"
           >
-            Contact Sales
+            {t('about.cta_button', { defaultValue: 'Contact Sales' })}
           </Link>
         </div>
       </section>

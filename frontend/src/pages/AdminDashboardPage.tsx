@@ -3,12 +3,15 @@ import React, { useState } from 'react';
 import ProductUploadForm from '../components/ProductUploadForm';
 import { useTaskMonitoring } from '../context/TaskMonitoringContext';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
+import { useCategories } from '../api/categoryService';
+import { updateProductById } from '../api/productService';
 
 const AdminDashboardPage: React.FC = () => {
   const { t } = useTranslation(); // Initialize useTranslation
   const { addTask } = useTaskMonitoring();
   const [currentStep, setCurrentStep] = useState(1);
   const [hasUploaded, setHasUploaded] = useState(false);
+  const [uploadedProductId, setUploadedProductId] = useState<string | null>(null);
   const [formValues, setFormValues] = useState({
     name: '',
     sku: '',
@@ -16,15 +19,24 @@ const AdminDashboardPage: React.FC = () => {
     description: '',
   });
   const [errorMessage, setErrorMessage] = useState('');
+  const [isSavingDetails, setIsSavingDetails] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const umamiDashboardUrl = import.meta.env.VITE_UMAMI_DASHBOARD_URL as string | undefined;
+  const { data: categories, isLoading: isLoadingCategories, isError: isErrorCategories } = useCategories();
 
-  const handleUploadSuccess = (productId: string, taskIds: string[]) => {
+  const handleUploadSuccess = (
+    productId: string,
+    taskIds: string[],
+    details: { name: string; sku: string; category: string; description: string }
+  ) => {
     // For simplicity, we'll assume one product_id maps to one primary monitoring task
     // and multiple task_ids can be internal to that product's processing.
     // The useProductPolling hook will handle the actual polling based on the product_id.
     addTask(productId, t('common.product_upload_initiated', { productId })); // Translated
     alert(t('common.product_upload_initiated', { productId })); // Translated
     setHasUploaded(true);
+    setUploadedProductId(productId);
+    setFormValues(details);
   };
 
   return (
@@ -159,8 +171,8 @@ const AdminDashboardPage: React.FC = () => {
                   Start by uploading high-resolution product images. We will optimize them automatically.
                 </p>
               </div>
-              <ProductUploadForm onUploadSuccess={(productId, taskIds) => {
-                handleUploadSuccess(productId, taskIds);
+              <ProductUploadForm onUploadSuccess={(productId, taskIds, details) => {
+                handleUploadSuccess(productId, taskIds, details);
                 setCurrentStep(2);
               }} />
             </div>
@@ -197,13 +209,24 @@ const AdminDashboardPage: React.FC = () => {
                 </label>
                 <label className="text-sm text-slate-600 md:col-span-2">
                   Category
-                  <input
-                    type="text"
-                    value={formValues.category}
-                    onChange={(event) => setFormValues((prev) => ({ ...prev, category: event.target.value }))}
-                    className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
-                    placeholder="e.g., FILTERS"
-                  />
+                  {isLoadingCategories ? (
+                    <div className="mt-2 text-xs text-slate-500">Loading categories...</div>
+                  ) : isErrorCategories ? (
+                    <div className="mt-2 text-xs text-red-600">Failed to load categories.</div>
+                  ) : (
+                    <select
+                      value={formValues.category}
+                      onChange={(event) => setFormValues((prev) => ({ ...prev, category: event.target.value }))}
+                      className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                    >
+                      <option value="">Select a category</option>
+                      {categories?.map((category) => (
+                        <option key={category.id} value={category.name}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </label>
                 <label className="text-sm text-slate-600 md:col-span-2">
                   Description
@@ -227,16 +250,34 @@ const AdminDashboardPage: React.FC = () => {
                 <button
                   type="button"
                   className="rounded-md border border-orange-600 bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:border-orange-700 hover:bg-orange-700"
-                  onClick={() => {
+                  disabled={isSavingDetails}
+                  onClick={async () => {
                     const { name, sku, category, description } = formValues;
+                    if (!uploadedProductId) {
+                      setErrorMessage('Upload images first so we can attach details.');
+                      return;
+                    }
                     if (!name || !sku || !category || !description) {
                       setErrorMessage('Please complete all required fields before continuing.');
                       return;
                     }
-                    setCurrentStep(3);
+                    setIsSavingDetails(true);
+                    try {
+                      await updateProductById(uploadedProductId, {
+                        name,
+                        sku,
+                        category,
+                        description,
+                      });
+                      setCurrentStep(3);
+                    } catch (err) {
+                      setErrorMessage((err as Error).message || 'Failed to save product details.');
+                    } finally {
+                      setIsSavingDetails(false);
+                    }
                   }}
                 >
-                  Continue
+                  {isSavingDetails ? 'Saving...' : 'Continue'}
                 </button>
               </div>
             </div>
@@ -264,14 +305,29 @@ const AdminDashboardPage: React.FC = () => {
                 <button
                   type="button"
                   className="rounded-md border border-orange-600 bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:border-orange-700 hover:bg-orange-700"
-                  onClick={() => {
+                  disabled={isPublishing}
+                  onClick={async () => {
                     const { name, sku, category, description } = formValues;
+                    if (!uploadedProductId) {
+                      setErrorMessage('Upload images first so we can publish.');
+                      return;
+                    }
                     if (!name || !sku || !category || !description) {
                       setErrorMessage('Please complete all required fields before publishing.');
+                      return;
+                    }
+                    setIsPublishing(true);
+                    try {
+                      await updateProductById(uploadedProductId, { status: 'PUBLISHED' });
+                      alert('Product published successfully.');
+                    } catch (err) {
+                      setErrorMessage((err as Error).message || 'Failed to publish product.');
+                    } finally {
+                      setIsPublishing(false);
                     }
                   }}
                 >
-                  Publish Product
+                  {isPublishing ? 'Publishing...' : 'Publish Product'}
                 </button>
               </div>
             </div>

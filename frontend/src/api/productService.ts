@@ -35,6 +35,29 @@ export const fetchProductById = async (productId: string): Promise<Product> => {
   throw new Error(response.message || 'Failed to fetch product');
 };
 
+export interface ProductUpdatePayload {
+  sku?: string;
+  name?: string;
+  description?: string | null;
+  category?: string;
+  status?: Product['status'];
+  specific_attributes?: Record<string, unknown>;
+}
+
+export const updateProductById = async (
+  productId: string,
+  payload: ProductUpdatePayload
+): Promise<Product> => {
+  const response = await apiClient<Product>(`/api/v1/products/${productId}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+  if (response.data) {
+    return response.data;
+  }
+  throw new Error(response.message || 'Failed to update product');
+};
+
 export const useProducts = (params: FetchProductsParams) => {
   return useQuery<Product[], Error>({
     queryKey: ['products', params], // Query key includes params for re-fetching when params change

@@ -5,7 +5,11 @@ import { apiClient } from '../api/apiClient';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
 
 interface ProductUploadFormProps {
-  onUploadSuccess: (productId: string, taskIds: string[]) => void;
+  onUploadSuccess: (
+    productId: string,
+    taskIds: string[],
+    details: { name: string; sku: string; category: string; description: string }
+  ) => void;
 }
 
 const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }) => {
@@ -13,10 +17,10 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
   const { data: categories, isLoading: isLoadingCategories, isError: isErrorCategories, error: categoriesError } = useCategories();
 
   const [name, setName] = useState('');
+  const [sku, setSku] = useState('');
   const [description, setDescription] = useState('');
-  const [price, setPrice] = useState<number | ''>('');
-  const [categoryId, setCategoryId] = useState('');
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [categoryName, setCategoryName] = useState('');
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,34 +29,42 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
     setError(null);
     setIsLoading(true);
 
-    if (!name || !description || price === '' || !categoryId || !imageFile) {
+    if (!sku || !name || !description || !categoryName || imageFiles.length === 0) {
       setError(t('common.fill_all_fields'));
       setIsLoading(false);
       return;
     }
 
     const formData = new FormData();
+    formData.append('sku', sku);
     formData.append('name', name);
     formData.append('description', description);
-    formData.append('price', price.toString());
-    formData.append('category_id', categoryId);
-    formData.append('image', imageFile);
+    formData.append('category', categoryName);
+    formData.append('specific_attributes', JSON.stringify({}));
+    imageFiles.forEach((file) => {
+      formData.append('images', file);
+    });
 
     try {
       // Assuming a /v1/products endpoint for creating products
-      const response = await apiClient<{ product_id: string; task_ids: string[] }>('/api/v1/products', {
+      const response = await apiClient<{ product_id: string; task_ids: string[] }>('/api/v1/products/', {
         method: 'POST',
         body: formData,
       });
 
       if (response.status === 202 && response.productId && response.taskIds) {
-        onUploadSuccess(response.productId, response.taskIds);
+        onUploadSuccess(response.productId, response.taskIds, {
+          name,
+          sku,
+          category: categoryName,
+          description,
+        });
         // Clear form
+        setSku('');
         setName('');
         setDescription('');
-        setPrice('');
-        setCategoryId('');
-        setImageFile(null);
+        setCategoryName('');
+        setImageFiles([]);
       } else if (response.message) {
         setError(response.message);
       } else {
@@ -83,6 +95,19 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
           />
         </div>
         <div>
+          <label htmlFor="sku" className="block text-sm font-medium text-gray-700">
+            SKU
+          </label>
+          <input
+            type="text"
+            id="sku"
+            value={sku}
+            onChange={(e) => setSku(e.target.value)}
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+            required
+          />
+        </div>
+        <div>
           <label htmlFor="description" className="block text-sm font-medium text-gray-700">
             {t('common.description')}
           </label>
@@ -96,20 +121,6 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
           ></textarea>
         </div>
         <div>
-          <label htmlFor="price" className="block text-sm font-medium text-gray-700">
-            {t('common.price')}
-          </label>
-          <input
-            type="number"
-            id="price"
-            value={price}
-            onChange={(e) => setPrice(parseFloat(e.target.value))}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            step="0.01"
-            required
-          />
-        </div>
-        <div>
           <label htmlFor="category" className="block text-sm font-medium text-gray-700">
             {t('common.category')}
           </label>
@@ -120,14 +131,14 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
           ) : (
             <select
               id="category"
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
+              value={categoryName}
+              onChange={(e) => setCategoryName(e.target.value)}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
               required
             >
               <option value="">{t('common.select_category')}</option>
               {categories?.map((cat) => (
-                <option key={cat.id} value={cat.id}>
+                <option key={cat.id} value={cat.name}>
                   {cat.name}
                 </option>
               ))}
@@ -142,7 +153,8 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
             type="file"
             id="image"
             accept="image/*" // Allow all image types, backend will convert to WebP
-            onChange={(e) => setImageFile(e.target.files ? e.target.files[0] : null)}
+            multiple
+            onChange={(e) => setImageFiles(e.target.files ? Array.from(e.target.files) : [])}
             className="mt-1 block w-full text-sm text-gray-500
               file:mr-4 file:py-2 file:px-4
               file:rounded-md file:border-0

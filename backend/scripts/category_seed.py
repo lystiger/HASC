@@ -1,7 +1,7 @@
 import argparse
 import asyncio
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 
 from app.core.config import settings
@@ -25,11 +25,20 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Replace all existing categories with the default set.",
     )
+    parser.add_argument(
+        "--delete-products",
+        action="store_true",
+        help="Delete all products before replacing categories.",
+    )
     return parser.parse_args()
 
 
-async def seed_categories(session: AsyncSession, replace: bool) -> None:
+async def seed_categories(session: AsyncSession, replace: bool, delete_products: bool) -> None:
     if replace:
+        if delete_products:
+            await session.execute(text("DELETE FROM tasks"))
+            await session.execute(text("DELETE FROM products"))
+            await session.commit()
         await session.execute(DBCategory.__table__.delete())
         await session.commit()
 
@@ -53,7 +62,7 @@ async def main() -> None:
     )
 
     async with SessionLocal() as session:
-        await seed_categories(session, replace=args.replace)
+        await seed_categories(session, replace=args.replace, delete_products=args.delete_products)
 
 
 if __name__ == "__main__":

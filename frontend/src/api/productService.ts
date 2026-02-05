@@ -6,6 +6,7 @@ import type { Product } from '../types/product';
 interface FetchProductsParams {
   category?: string;
   name?: string;
+  sku?: string;
 }
 
 const fetchProducts = async (params: FetchProductsParams): Promise<Product[]> => {
@@ -15,6 +16,9 @@ const fetchProducts = async (params: FetchProductsParams): Promise<Product[]> =>
   }
   if (params.name) {
     queryParams.set('name', params.name);
+  }
+  if (params.sku) {
+    queryParams.set('sku', params.sku);
   }
 
   const queryString = queryParams.toString();

@@ -1,5 +1,5 @@
 // frontend/src/pages/PublicCatalogPage.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useProducts } from '../api/productService';
 import ProductCard from '../components/ProductCard';
@@ -11,12 +11,35 @@ const PublicCatalogPage: React.FC = () => {
   const { t } = useTranslation(); // Initialize useTranslation
   const [selectedCategoryNames, setSelectedCategoryNames] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [skuQuery, setSkuQuery] = useState('');
+  const [searchMode, setSearchMode] = useState<'name' | 'sku'>('name');
+  const [attributeKey, setAttributeKey] = useState('');
   const [isMarqueePaused, setIsMarqueePaused] = useState(false);
-  const normalizedSearch = searchQuery.trim();
+  const [recentSearches, setRecentSearches] = useState<Array<{ mode: 'name' | 'sku'; term: string }>>([]);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [debouncedSku, setDebouncedSku] = useState('');
+  const normalizedSearch = debouncedSearch.trim();
+  const normalizedSku = debouncedSku.trim();
   const categoryParam = selectedCategoryNames.length === 1 ? selectedCategoryNames[0] : undefined;
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSku(skuQuery);
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [skuQuery]);
+
   const { data: products, isLoading, isError, error } = useProducts({
     category: categoryParam,
-    name: normalizedSearch.length > 0 ? normalizedSearch : undefined,
+    name: searchMode === 'name' && normalizedSearch.length > 0 ? normalizedSearch : undefined,
+    sku: searchMode === 'sku' && normalizedSku.length > 0 ? normalizedSku : undefined,
   });
 
   const handleFilterChange = (newSelectedNames: string[]) => {
@@ -80,7 +103,43 @@ const PublicCatalogPage: React.FC = () => {
     },
   ];
 
-  const recentSearches = ['Microfiber wipers', 'Food-grade drums', 'Ventilation filters', 'Pallet stretch'];
+  const RECENT_STORAGE_KEY = 'hasc_recent_searches';
+
+  useEffect(() => {
+    const raw = window.localStorage.getItem(RECENT_STORAGE_KEY);
+    if (!raw) {
+      return;
+    }
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        const cleaned = parsed.filter(
+          (item): item is { mode: 'name' | 'sku'; term: string } =>
+            Boolean(item && (item.mode === 'name' || item.mode === 'sku') && typeof item.term === 'string')
+        );
+        setRecentSearches(cleaned.slice(0, 6));
+      }
+    } catch {
+      // ignore malformed storage
+    }
+  }, []);
+
+  const persistRecent = (next: Array<{ mode: 'name' | 'sku'; term: string }>) => {
+    setRecentSearches(next);
+    window.localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(next));
+  };
+
+  const addRecentSearch = (mode: 'name' | 'sku', term: string) => {
+    const cleaned = term.trim();
+    if (!cleaned) {
+      return;
+    }
+    const next = [
+      { mode, term: cleaned },
+      ...recentSearches.filter((item) => !(item.mode === mode && item.term === cleaned)),
+    ].slice(0, 6);
+    persistRecent(next);
+  };
   const partners = [
     { name: 'Partner 1', src: '/partner1.webp' },
     { name: 'Partner 2', src: '/partner2.webp' },
@@ -99,10 +158,27 @@ const PublicCatalogPage: React.FC = () => {
     document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const filteredProducts =
-    selectedCategoryNames.length > 1
-      ? (products ?? []).filter((product) => selectedCategoryNames.includes(product.category))
-      : products ?? [];
+  const filteredProducts = useMemo(() => {
+    let working = products ?? [];
+    if (selectedCategoryNames.length > 1) {
+      working = working.filter((product) => selectedCategoryNames.includes(product.category));
+    }
+    const key = attributeKey.trim();
+    if (key.length > 0) {
+      working = working.filter((product) => {
+        const attributes = product.specific_attributes ?? {};
+        return attributes[key] !== undefined;
+      });
+    }
+    return working;
+  }, [products, selectedCategoryNames, attributeKey]);
+
+  const activeFilters = [
+    ...(searchMode === 'name' && normalizedSearch ? [`${t('common.search')}: ${normalizedSearch}`] : []),
+    ...(searchMode === 'sku' && normalizedSku ? [`SKU: ${normalizedSku}`] : []),
+    ...(selectedCategoryNames.length > 0 ? selectedCategoryNames : []),
+    ...(attributeKey ? [`${attributeKey}`] : []),
+  ];
 
   return (
     <div className="font-sans">
@@ -178,49 +254,142 @@ const PublicCatalogPage: React.FC = () => {
       </section>
 
       <div id="catalog" className="container mx-auto px-6 py-8 max-w-screen-xl">
-        <div className="flex flex-col gap-4 mb-8">
-          <h2 className="text-3xl font-bold text-slate-industrial">
-            {t('common.product_catalog')}
-          </h2>
-        </div>
+          <div className="flex flex-col gap-4 mb-8">
+            <h2 className="text-3xl font-bold text-slate-industrial">
+              {t('common.product_catalog')}
+            </h2>
+            {activeFilters.length > 0 && (
+              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                <span>{t('common.results')}: {filteredProducts.length}</span>
+                <span className="text-slate-300">|</span>
+                <div className="flex flex-wrap gap-2">
+                  {activeFilters.map((filter) => (
+                    <span
+                      key={filter}
+                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-500"
+                    >
+                      {filter}
+                    </span>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSkuQuery('');
+                    setAttributeKey('');
+                    setSelectedCategoryNames([]);
+                  }}
+                  className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-500 hover:border-orange-300 hover:text-orange-600"
+                >
+                  {t('common.clear_filters')}
+                </button>
+              </div>
+            )}
+          </div>
         <div className="flex flex-col md:flex-row gap-8">
         {/* Sidebar for filters */}
         <aside className="md:w-1/4">
           <div className="mb-6">
             <label className="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 mb-2">
-              Find A Product
+              {t('common.find_product')}
             </label>
+            <div className="mb-3 inline-flex rounded-full border border-slate-200 bg-white p-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500 shadow-sm">
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchMode('name');
+                  setSkuQuery('');
+                }}
+                className={`rounded-full px-3 py-1 transition-colors ${
+                  searchMode === 'name'
+                    ? 'bg-slate-900 text-white'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+                aria-label={t('common.search_mode_name')}
+              >
+                {t('common.search_mode_name')}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchMode('sku');
+                  setSearchQuery('');
+                }}
+                className={`rounded-full px-3 py-1 transition-colors ${
+                  searchMode === 'sku' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-700'
+                }`}
+                aria-label={t('common.search_mode_sku')}
+              >
+                {t('common.search_mode_sku')}
+              </button>
+            </div>
             <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm focus-within:ring-2 focus-within:ring-orange-300">
               <input
                 type="search"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Try “ISO 9001 packaging”"
+                value={searchMode === 'name' ? searchQuery : skuQuery}
+                onChange={(event) =>
+                  searchMode === 'name'
+                    ? setSearchQuery(event.target.value)
+                    : setSkuQuery(event.target.value)
+                }
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    addRecentSearch(searchMode, searchMode === 'name' ? searchQuery : skuQuery);
+                  }
+                }}
+                placeholder={
+                  searchMode === 'name' ? t('common.search_placeholder') : t('common.sku_placeholder')
+                }
                 className="w-full bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
                 aria-label="Search products"
               />
-              {searchQuery.length > 0 && (
+              {(searchMode === 'name' ? searchQuery : skuQuery).length > 0 && (
                 <button
                   type="button"
-                  onClick={() => setSearchQuery('')}
+                  onClick={() => (searchMode === 'name' ? setSearchQuery('') : setSkuQuery(''))}
                   className="text-xs font-semibold text-slate-400 hover:text-slate-600 transition-colors"
                 >
                   Clear
                 </button>
               )}
             </div>
+            <div className="mt-4">
+              <label className="block text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-400 mb-2">
+                {t('common.attribute_filter')}
+              </label>
+              <input
+                type="text"
+                value={attributeKey}
+                onChange={(event) => setAttributeKey(event.target.value)}
+                placeholder={t('common.attribute_key')}
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-300"
+              />
+            </div>
             <div className="mt-3 flex flex-wrap gap-2">
               <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-400">
-                Recent
+                {t('common.recent')}
               </span>
-              {recentSearches.map((term) => (
+              {recentSearches.length === 0 && (
+                <span className="text-xs text-slate-400">{t('common.no_recent_searches')}</span>
+              )}
+              {recentSearches.map((item) => (
                 <button
-                  key={term}
+                  key={`${item.mode}-${item.term}`}
                   type="button"
-                  onClick={() => setSearchQuery(term)}
+                  onClick={() => {
+                    setSearchMode(item.mode);
+                    if (item.mode === 'name') {
+                      setSearchQuery(item.term);
+                      setSkuQuery('');
+                    } else {
+                      setSkuQuery(item.term);
+                      setSearchQuery('');
+                    }
+                  }}
                   className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-500 hover:border-orange-200 hover:text-orange-600 transition-colors"
                 >
-                  {term}
+                  {item.mode === 'sku' ? `SKU: ${item.term}` : item.term}
                 </button>
               ))}
             </div>

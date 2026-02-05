@@ -8,15 +8,18 @@ import { useTranslation } from 'react-i18next'; // Import useTranslation
 
 const PublicCatalogPage: React.FC = () => {
   const { t } = useTranslation(); // Initialize useTranslation
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const [selectedCategoryNames, setSelectedCategoryNames] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isMarqueePaused, setIsMarqueePaused] = useState(false);
+  const normalizedSearch = searchQuery.trim();
+  const categoryParam = selectedCategoryNames.length === 1 ? selectedCategoryNames[0] : undefined;
   const { data: products, isLoading, isError, error } = useProducts({
-    category_ids: selectedCategoryIds,
+    category: categoryParam,
+    name: normalizedSearch.length > 0 ? normalizedSearch : undefined,
   });
 
-  const handleFilterChange = (newSelectedIds: string[]) => {
-    setSelectedCategoryIds(newSelectedIds);
+  const handleFilterChange = (newSelectedNames: string[]) => {
+    setSelectedCategoryNames(newSelectedNames);
   };
 
   const demoProducts: Product[] = [
@@ -94,6 +97,11 @@ const PublicCatalogPage: React.FC = () => {
     setSearchQuery(partnerName);
     document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  const filteredProducts =
+    selectedCategoryNames.length > 1
+      ? (products ?? []).filter((product) => selectedCategoryNames.includes(product.category))
+      : products ?? [];
 
   return (
     <div className="font-sans">
@@ -235,7 +243,7 @@ const PublicCatalogPage: React.FC = () => {
             </div>
           )}
 
-          {!isLoading && !isError && products && products.length === 0 && (
+          {!isLoading && !isError && filteredProducts.length === 0 && (
             <div className="text-center py-10 text-gray-600">
               <p className="mb-6">{t('common.no_products_found')}</p>
               <div className="w-full">
@@ -248,9 +256,9 @@ const PublicCatalogPage: React.FC = () => {
             </div>
           )}
 
-          {!isLoading && !isError && products && products.length > 0 && (
+          {!isLoading && !isError && filteredProducts.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((product: Product) => (
+              {filteredProducts.map((product: Product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>

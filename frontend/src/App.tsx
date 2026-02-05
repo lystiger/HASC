@@ -73,7 +73,7 @@ function App() {
               <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <a href="/#hero" className="brand-wordmark" aria-label="Welcome to HASC">
-                    <span className="brand-intro">Welcome to,</span>
+                    <span className="brand-intro">Welcome to</span>
                     <span className="brand-h">H</span>
                     <span className="brand-a">A</span>
                     <span className="brand-sc">SC</span>

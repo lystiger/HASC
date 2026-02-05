@@ -4,14 +4,18 @@ import { apiClient } from './apiClient';
 import type { Product } from '../types/product';
 
 interface FetchProductsParams {
-  category_ids?: string[];
-  // Add other filter parameters as needed (e.g., search, min_price, max_price)
+  category?: string;
+  name?: string;
 }
 
 const fetchProducts = async (params: FetchProductsParams): Promise<Product[]> => {
   const queryParams = new URLSearchParams();
-  params.category_ids?.forEach(id => queryParams.append('category_ids', id));
-  // Add other params to queryParams
+  if (params.category) {
+    queryParams.set('category', params.category);
+  }
+  if (params.name) {
+    queryParams.set('name', params.name);
+  }
 
   const queryString = queryParams.toString();
   const endpoint = `/api/v1/products${queryString ? `?${queryString}` : ''}`;

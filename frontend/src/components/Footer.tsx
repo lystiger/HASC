@@ -16,12 +16,20 @@ const Footer: React.FC = () => {
             <p className="text-sm text-gray-300">
               {t('common.about_us_text')}
             </p>
-            <img
-              src="/logo.webp"
-              alt="HASC VN"
-              className="mt-4 ml-[30%] h-[150px] w-[216px] rounded-full object-contain opacity-90"
-              loading="lazy"
-            />
+            <div className="mt-4 flex flex-wrap items-center gap-4">
+              <img
+                src="/logo.webp"
+                alt="HASC VN"
+                className="h-[150px] w-[216px] rounded-full object-contain opacity-90"
+                loading="lazy"
+              />
+              <img
+                src="/approval.webp"
+                alt="HASC approval badge"
+                className="h-[96px] w-[96px] translate-x-0 rounded-full object-contain opacity-90 sm:h-[115px] sm:w-[115px] sm:translate-x-5"
+                loading="lazy"
+              />
+            </div>
           </div>
 
           {/* Section 2: Contact + Map */}
@@ -34,6 +42,29 @@ const Footer: React.FC = () => {
               <p className="text-sm text-gray-300">
                 {t('common.phone')}: {CONTACT_INFO.phone}
               </p>
+              <div className="mt-3 flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-gray-300">
+                <span>{t('common.find_us', { defaultValue: 'Find us' })}</span>
+                <div className="flex items-center gap-2">
+                  <a
+                    href={CONTACT_INFO.socials.zalo}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Zalo"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200/60 text-xs font-bold text-gray-200 transition-colors hover:border-orange-400 hover:text-white"
+                  >
+                    <img src="/icons8-zalo.svg" alt="" className="h-4 w-4 object-contain" />
+                  </a>
+                  <a
+                    href={CONTACT_INFO.socials.facebook}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Facebook"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200/60 text-xs font-bold text-gray-200 transition-colors hover:border-orange-400 hover:text-white"
+                  >
+                    <img src="/icons8-facebook.svg" alt="" className="h-4 w-4 object-contain" />
+                  </a>
+                </div>
+              </div>
               <p className="mt-3 text-sm text-gray-300 font-mono">
                 {CONTACT_INFO.address}
               </p>

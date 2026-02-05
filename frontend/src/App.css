@@ -85,3 +85,38 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
+
+.nav-indicator {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.2rem;
+}
+
+.nav-indicator__link {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  transition: color 0.2s ease;
+}
+
+.nav-indicator__link.is-active {
+  color: #0f172a;
+}
+
+.nav-indicator__card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #f8fafc;
+  border-radius: 999px;
+  box-shadow: 0 10px 20px -16px rgba(15, 23, 42, 0.8);
+  transition: transform 0.45s cubic-bezier(0.2, 0.9, 0.2, 1.35), width 0.35s ease;
+  will-change: transform, width;
+}

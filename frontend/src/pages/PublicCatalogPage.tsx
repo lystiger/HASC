@@ -1,5 +1,6 @@
 // frontend/src/pages/PublicCatalogPage.tsx
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useProducts } from '../api/productService';
 import ProductCard from '../components/ProductCard';
 import CategoryFilterSidebar from '../components/CategoryFilterSidebar';
@@ -134,12 +135,12 @@ const PublicCatalogPage: React.FC = () => {
                 >
                   {t('common.hero_cta_primary')}
                 </a>
-                <a
-                  href="#contact"
+                <Link
+                  to="/contact"
                   className="inline-flex items-center justify-center rounded-md border border-white/60 px-5 py-2.5 text-white font-semibold hover:border-white hover:text-white transition-colors"
                 >
                   {t('common.hero_cta_secondary')}
-                </a>
+                </Link>
               </div>
             </div>
             <div className="lg:col-span-5 lg:-mt-4">

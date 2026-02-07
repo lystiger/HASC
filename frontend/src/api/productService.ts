@@ -7,6 +7,7 @@ interface FetchProductsParams {
   category?: string;
   name?: string;
   sku?: string;
+  status?: string;
 }
 
 const fetchProducts = async (params: FetchProductsParams): Promise<Product[]> => {
@@ -19,6 +20,9 @@ const fetchProducts = async (params: FetchProductsParams): Promise<Product[]> =>
   }
   if (params.sku) {
     queryParams.set('sku', params.sku);
+  }
+  if (params.status) {
+    queryParams.set('status', params.status);
   }
 
   const queryString = queryParams.toString();

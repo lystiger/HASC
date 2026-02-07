@@ -43,6 +43,7 @@ const AdminDashboardPage: React.FC = () => {
     setFormValues(details);
   };
 
+
   return (
     <div className="container mx-auto px-6 py-8 max-w-screen-xl font-sans">
       <h1 className="text-4xl font-bold text-slate-industrial mb-6">{t('common.admin_dashboard')}</h1>
@@ -191,6 +192,14 @@ const AdminDashboardPage: React.FC = () => {
                     className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 hover:border-orange-300 hover:text-orange-600"
                   >
                     {t('admin.categories_cta', { defaultValue: 'Manage Categories' })}
+                  </Link>
+                )}
+                {isAdmin && (
+                  <Link
+                    to="/admin/products"
+                    className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 hover:border-orange-300 hover:text-orange-600"
+                  >
+                    {t('admin.products_cta', { defaultValue: 'Manage Products' })}
                   </Link>
                 )}
               </div>

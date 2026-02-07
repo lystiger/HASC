@@ -10,6 +10,7 @@ import ProductDetailPage from './pages/ProductDetailPage';
 import AboutPage from './pages/AboutPage';
 import AdminCategoriesPage from './pages/AdminCategoriesPage';
 import LoginPage from './pages/LoginPage';
+import AdminProductsPage from './pages/AdminProductsPage';
 import { clearStoredAccessToken, getStoredUserRole } from './utils/auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TaskMonitoringProvider } from './context/TaskMonitoringContext';
@@ -193,6 +194,14 @@ const AppLayout: React.FC = () => {
               element={
                 <RequireAdmin redirectTo="/login?next=/admin/categories">
                   <AdminCategoriesPage />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path="/admin/products"
+              element={
+                <RequireAdmin redirectTo="/login?next=/admin/products">
+                  <AdminProductsPage />
                 </RequireAdmin>
               }
             />

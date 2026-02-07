@@ -64,6 +64,13 @@ const Footer: React.FC = () => {
                   >
                     <img src="/icons8-facebook.svg" alt="" className="h-4 w-4 object-contain" />
                   </a>
+                  <a
+                    href="mailto:hasc@hascvn.com.vn"
+                    aria-label="Gmail"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200/60 text-xs font-bold text-gray-200 transition-colors hover:border-orange-400 hover:text-white"
+                  >
+                    <img src="/icons8-gmail.svg" alt="" className="h-4 w-4 object-contain" />
+                  </a>
                 </div>
               </div>
               <p className="mt-3 text-sm text-gray-300 font-mono">

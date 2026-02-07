@@ -30,6 +30,7 @@ const ContactPage: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [toastVisible, setToastVisible] = useState(false);
 
   const validateForm = () => {
     const nextErrors: Record<string, string> = {};
@@ -62,6 +63,19 @@ const ContactPage: React.FC = () => {
     setIsSubmitting(true);
     setToastMessage('');
 
+    const subject = `Technical Inquiry - ${formValues.company || formValues.name}`;
+    const bodyLines = [
+      `Name: ${formValues.name}`,
+      `Company: ${formValues.company}`,
+      `Email: ${formValues.email}`,
+      `Industry: ${formValues.industry}`,
+      '',
+      formValues.message,
+    ];
+    const mailto = `mailto:hasc@hascvn.com.vn?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
+      bodyLines.join('\n')
+    )}`;
+    window.location.href = mailto;
     window.setTimeout(() => {
       setIsSubmitting(false);
       setFormValues({ name: '', company: '', email: '', industry: '', message: '' });
@@ -69,8 +83,20 @@ const ContactPage: React.FC = () => {
       setToastMessage(
         t('contact.success', { defaultValue: 'Thanks! Your inquiry has been queued for review.' })
       );
-    }, 600);
+      setToastVisible(true);
+    }, 200);
   };
+
+  React.useEffect(() => {
+    if (!toastVisible) {
+      return;
+    }
+    const timeout = window.setTimeout(() => {
+      setToastMessage('');
+      setToastVisible(false);
+    }, 10000);
+    return () => window.clearTimeout(timeout);
+  }, [toastVisible]);
 
   return (
     <div className="mx-auto min-h-screen max-w-screen-xl px-6 py-10 font-sans">
@@ -214,6 +240,36 @@ const ContactPage: React.FC = () => {
                 {t('common.email')}
               </p>
               <p className="mt-2 mono-data text-sm text-slate-700">{CONTACT_INFO.email}</p>
+              <p className="mt-4 text-xs uppercase tracking-[0.3em] text-slate-400">
+                {t('common.find_us', { defaultValue: 'Find us' })}
+              </p>
+              <div className="mt-2 flex items-center gap-2">
+                <a
+                  href={CONTACT_INFO.socials.zalo}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Zalo"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-xs font-bold text-slate-600 transition-colors hover:border-orange-300 hover:text-orange-600"
+                >
+                  <img src="/icons8-zalo.svg" alt="" className="h-4 w-4 object-contain" />
+                </a>
+                <a
+                  href={CONTACT_INFO.socials.facebook}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Facebook"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-xs font-bold text-slate-600 transition-colors hover:border-orange-300 hover:text-orange-600"
+                >
+                  <img src="/icons8-facebook.svg" alt="" className="h-4 w-4 object-contain" />
+                </a>
+                <a
+                  href="mailto:hasc@hasvcn.com.vn"
+                  aria-label="Gmail"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-xs font-bold text-slate-600 transition-colors hover:border-orange-300 hover:text-orange-600"
+                >
+                  <img src="/icons8-gmail.svg" alt="" className="h-4 w-4 object-contain" />
+                </a>
+              </div>
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-slate-400">

@@ -47,6 +47,7 @@ const AdminProductsPage: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [saveMessage, setSaveMessage] = useState('');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editValues, setEditValues] = useState({
     sku: '',
@@ -65,6 +66,9 @@ const AdminProductsPage: React.FC = () => {
   const [isProcessingImages, setIsProcessingImages] = useState(false);
   const [pendingImageCount, setPendingImageCount] = useState(0);
   const [baseImageCount, setBaseImageCount] = useState(0);
+  const [showProcessingIndicator, setShowProcessingIndicator] = useState(false);
+  const [processingCountdownMs, setProcessingCountdownMs] = useState(0);
+  const processingDisplayMs = 10000;
 
   const { data: products, isLoading, isError, error } = useProducts({
     category: categoryFilter || undefined,
@@ -137,9 +141,12 @@ const AdminProductsPage: React.FC = () => {
     });
     setActiveImageIndex(0);
     setEditMessage('');
+    setSaveMessage('');
     setIsProcessingImages(false);
     setPendingImageCount(0);
     setBaseImageCount(product.images?.length ?? 0);
+    setShowProcessingIndicator(false);
+    setProcessingCountdownMs(0);
   };
 
   const handleSetMainImage = (index: number) => {
@@ -159,6 +166,7 @@ const AdminProductsPage: React.FC = () => {
     }
     setIsSaving(true);
     setEditMessage('');
+    setSaveMessage('');
     try {
       await updateProductById(String(editingProduct.id), {
         sku: editValues.sku,
@@ -171,7 +179,8 @@ const AdminProductsPage: React.FC = () => {
         images: editValues.images,
       });
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      setEditMessage(t('admin.products.save_success', { defaultValue: 'Product updated.' }));
+      setSaveMessage(t('admin.products.save_success', { defaultValue: 'Product updated.' }));
+      setEditingProduct(null);
     } catch (err) {
       setEditMessage((err as Error).message || t('admin.products.save_error', { defaultValue: 'Failed to save.' }));
     } finally {
@@ -203,6 +212,8 @@ const AdminProductsPage: React.FC = () => {
         setBaseImageCount(editValues.images.length);
         setPendingImageCount(filesToUpload.length);
         setIsProcessingImages(true);
+        setShowProcessingIndicator(true);
+        setProcessingCountdownMs(processingDisplayMs);
         queryClient.invalidateQueries({ queryKey: ['products'] });
       } else {
         setEditMessage(response.message || t('admin.products.images_error', { defaultValue: 'Failed to add images.' }));
@@ -222,6 +233,8 @@ const AdminProductsPage: React.FC = () => {
       setEditValues((prev) => ({ ...prev, images: refreshedProduct.images }));
       setIsProcessingImages(false);
       setPendingImageCount(0);
+      setShowProcessingIndicator(false);
+      setProcessingCountdownMs(0);
       setEditMessage(t('admin.products.images_done', { defaultValue: 'Images processed.' }));
       queryClient.invalidateQueries({ queryKey: ['products'] });
     }
@@ -233,6 +246,33 @@ const AdminProductsPage: React.FC = () => {
     queryClient,
     t,
   ]);
+
+  useEffect(() => {
+    if (!showProcessingIndicator) {
+      return;
+    }
+    const start = Date.now();
+    const end = start + processingDisplayMs;
+    setProcessingCountdownMs(processingDisplayMs);
+    const interval = window.setInterval(() => {
+      const remaining = Math.max(0, end - Date.now());
+      setProcessingCountdownMs(remaining);
+      if (remaining === 0) {
+        setShowProcessingIndicator(false);
+      }
+    }, 100);
+    return () => window.clearInterval(interval);
+  }, [showProcessingIndicator, processingDisplayMs]);
+
+  useEffect(() => {
+    if (!saveMessage) {
+      return;
+    }
+    const timeout = window.setTimeout(() => {
+      setSaveMessage('');
+    }, 4000);
+    return () => window.clearTimeout(timeout);
+  }, [saveMessage]);
 
   const filteredProducts = products ?? [];
   const totalCount = filteredProducts.length;
@@ -361,6 +401,7 @@ const AdminProductsPage: React.FC = () => {
       </div>
 
       <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        {saveMessage && <p className="mb-3 text-xs text-emerald-600">{saveMessage}</p>}
         {isLoading && (
           <p className="text-sm text-slate-500">
             {t('admin.products.loading', { defaultValue: 'Loading products...' })}
@@ -587,12 +628,33 @@ const AdminProductsPage: React.FC = () => {
                   />
                 </label>
                 {isProcessingImages && (
-                  <span className="text-[11px] text-orange-500">
-                    {t('admin.products.images_processing', {
-                      defaultValue: 'Processing {{count}} image(s)...',
-                      count: pendingImageCount,
-                    })}
-                  </span>
+                  showProcessingIndicator && (
+                    <span className="inline-flex items-center gap-2 text-[11px] text-orange-500">
+                      <span
+                        className="relative flex h-4 w-4 items-center justify-center"
+                        aria-hidden="true"
+                      >
+                        <span
+                          className="absolute inset-0 rounded-full"
+                          style={{
+                            background: `conic-gradient(#f97316 ${
+                              Math.round((processingCountdownMs / processingDisplayMs) * 360)
+                            }deg, rgba(249, 115, 22, 0.2) ${
+                              Math.round((processingCountdownMs / processingDisplayMs) * 360)
+                            }deg)`,
+                          }}
+                        />
+                        <span className="absolute inset-0 rounded-full border border-orange-200" />
+                        <span className="relative z-10 text-[8px] font-semibold text-orange-700">
+                          {Math.max(0, Math.ceil(processingCountdownMs / 1000))}
+                        </span>
+                      </span>
+                      {t('admin.products.images_processing', {
+                        defaultValue: 'Processing {{count}} image(s)...',
+                        count: pendingImageCount,
+                      })}
+                    </span>
+                  )
                 )}
                 <span className="text-[11px] text-slate-400">
                   {t('admin.products.images_hint', { defaultValue: 'New images will process in the background.' })}

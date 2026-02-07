@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { loginWithPassword } from '../api/authService';
 import { clearStoredAccessToken, getStoredUserRole, setStoredAccessToken } from '../utils/auth';
+import { Eye, EyeOff } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
   const { t } = useTranslation();
@@ -14,6 +15,7 @@ const LoginPage: React.FC = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -66,13 +68,27 @@ const LoginPage: React.FC = () => {
 
           <label className="text-sm text-slate-600">
             {t('auth.password', { defaultValue: 'Password' })}
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
-              required
-            />
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="inline-flex items-center justify-center rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:border-slate-300"
+                aria-label={
+                  showPassword
+                    ? t('auth.hide_password', { defaultValue: 'Hide' })
+                    : t('auth.show_password', { defaultValue: 'Show' })
+                }
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" aria-hidden="true" /> : <Eye className="h-4 w-4" aria-hidden="true" />}
+              </button>
+            </div>
           </label>
 
           {error && <p className="text-xs text-red-600">{error}</p>}

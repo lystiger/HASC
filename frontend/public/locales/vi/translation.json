@@ -266,6 +266,8 @@
     "sign_in": "Đăng nhập",
     "sign_out": "Đăng xuất",
     "signing_in": "Đang đăng nhập...",
+    "show_password": "Hiện",
+    "hide_password": "Ẩn",
     "error_required": "Vui lòng nhập email và mật khẩu.",
     "error_login": "Đăng nhập thất bại.",
     "error_not_admin": "Tài khoản này không có quyền quản trị."

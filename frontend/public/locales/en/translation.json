@@ -266,6 +266,8 @@
     "sign_in": "Sign In",
     "sign_out": "Sign Out",
     "signing_in": "Signing in...",
+    "show_password": "Show",
+    "hide_password": "Hide",
     "error_required": "Email and password are required.",
     "error_login": "Login failed.",
     "error_not_admin": "This account is not an admin."

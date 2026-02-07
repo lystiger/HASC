@@ -83,6 +83,40 @@
     "demo_product_name": "Sample Industrial Film",
     "demo_product_description": "This is a placeholder card to preview layout and image styling."
   },
+  "contact": {
+    "kicker": "Direct & Geometric",
+    "subtitle": "Fast-track technical inquiries for procurement teams.",
+    "inquiry_title": "Send a Technical Inquiry",
+    "inquiry_subtitle": "Tell us about your project scope and we will respond within 24 hours.",
+    "info_title": "Information Hub",
+    "info_subtitle": "Direct lines for procurement and logistics.",
+    "note": "We respond within 24 hours on business days.",
+    "success": "Thanks! Your inquiry has been queued for review.",
+    "industry": {
+      "packaging": "Packaging",
+      "filters": "Filters",
+      "chemicals": "Chemicals",
+      "equipment": "Equipment"
+    },
+    "form": {
+      "name": "Name",
+      "company": "Company",
+      "email": "Email",
+      "industry": "Industry Sector",
+      "select": "Select a sector",
+      "message": "Message",
+      "sending": "Sending...",
+      "submit": "Send Technical Inquiry"
+    },
+    "errors": {
+      "name": "Name is required.",
+      "company": "Company is required.",
+      "email": "Email is required.",
+      "email_format": "Enter a valid email address.",
+      "industry": "Select an industry sector.",
+      "message": "Message is required."
+    }
+  },
   "status": {
     "DRAFT": "Draft",
     "PUBLISHED": "Published",

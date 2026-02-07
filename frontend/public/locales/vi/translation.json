@@ -83,6 +83,40 @@
     "demo_product_name": "Màng công nghiệp mẫu",
     "demo_product_description": "Thẻ mẫu để xem trước bố cục và hiển thị hình ảnh."
   },
+  "contact": {
+    "kicker": "Liên hệ trực tiếp",
+    "subtitle": "Ưu tiên xử lý yêu cầu kỹ thuật cho đội mua hàng.",
+    "inquiry_title": "Gửi yêu cầu kỹ thuật",
+    "inquiry_subtitle": "Cho chúng tôi biết phạm vi dự án và chúng tôi sẽ phản hồi trong vòng 24 giờ.",
+    "info_title": "Thông tin liên hệ",
+    "info_subtitle": "Đường dây trực tiếp cho mua hàng và logistics.",
+    "note": "Chúng tôi phản hồi trong 24 giờ vào ngày làm việc.",
+    "success": "Cảm ơn! Yêu cầu của bạn đã được đưa vào hàng chờ xử lý.",
+    "industry": {
+      "packaging": "Bao bì",
+      "filters": "Bộ lọc",
+      "chemicals": "Hóa chất",
+      "equipment": "Thiết bị"
+    },
+    "form": {
+      "name": "Họ tên",
+      "company": "Công ty",
+      "email": "Email",
+      "industry": "Ngành hàng",
+      "select": "Chọn ngành",
+      "message": "Nội dung",
+      "sending": "Đang gửi...",
+      "submit": "Gửi yêu cầu kỹ thuật"
+    },
+    "errors": {
+      "name": "Vui lòng nhập họ tên.",
+      "company": "Vui lòng nhập công ty.",
+      "email": "Vui lòng nhập email.",
+      "email_format": "Vui lòng nhập email hợp lệ.",
+      "industry": "Vui lòng chọn ngành hàng.",
+      "message": "Vui lòng nhập nội dung."
+    }
+  },
   "status": {
     "DRAFT": "Bản nháp",
     "PUBLISHED": "Đã xuất bản",

@@ -2,18 +2,30 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
 import { CONTACT_INFO } from '../constants/contactInfo';
+import { useCategories } from '../api/categoryService';
 
 const ContactPage: React.FC = () => {
   const { t } = useTranslation(); // Initialize useTranslation
-  const industryOptions = useMemo(
-    () => [
-      { value: 'PACKAGING', label: t('contact.industry.packaging', { defaultValue: 'Packaging' }) },
-      { value: 'FILTERS', label: t('contact.industry.filters', { defaultValue: 'Filters' }) },
-      { value: 'CHEMICALS', label: t('contact.industry.chemicals', { defaultValue: 'Chemicals' }) },
-      { value: 'EQUIPMENT', label: t('contact.industry.equipment', { defaultValue: 'Equipment' }) },
-    ],
-    [t]
-  );
+  const {
+    data: categories = [],
+    isLoading: categoriesLoading,
+    error: categoriesError,
+  } = useCategories();
+  const industryOptions = useMemo(() => {
+    const labelKeyMap: Record<string, string> = {
+      PACKAGING: 'contact.industry.packaging',
+      FILTERS: 'contact.industry.filters',
+      CHEMICALS: 'contact.industry.chemicals',
+      EQUIPMENT: 'contact.industry.equipment',
+    };
+    return categories.map((category) => {
+      const key = labelKeyMap[category.name];
+      return {
+        value: category.name,
+        label: key ? t(key, { defaultValue: category.name }) : category.name,
+      };
+    });
+  }, [categories, t]);
   const [formValues, setFormValues] = useState({
     name: '',
     company: '',
@@ -130,10 +142,13 @@ const ContactPage: React.FC = () => {
               <select
                 value={formValues.industry}
                 onChange={(event) => setFormValues((prev) => ({ ...prev, industry: event.target.value }))}
-                className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
+                disabled={categoriesLoading || Boolean(categoriesError)}
+                className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 disabled:cursor-not-allowed disabled:bg-slate-50"
               >
                 <option value="">
-                  {t('contact.form.select', { defaultValue: 'Select a sector' })}
+                  {categoriesLoading
+                    ? t('common.loading', { defaultValue: 'Loading' })
+                    : t('contact.form.select', { defaultValue: 'Select a sector' })}
                 </option>
                 {industryOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -141,6 +156,11 @@ const ContactPage: React.FC = () => {
                   </option>
                 ))}
               </select>
+              {categoriesError && (
+                <span className="mt-1 block text-xs text-red-600">
+                  {t('common.error_loading_categories', { defaultValue: 'Error loading categories.' })}
+                </span>
+              )}
               {errors.industry && <span className="mt-1 block text-xs text-red-600">{errors.industry}</span>}
             </label>
 

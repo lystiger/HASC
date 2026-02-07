@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useProduct } from '../api/productService';
 import { useCategories } from '../api/categoryService';
 import { getCategoryDisplayNameByCode } from '../utils/categoryDisplay';
+import { resolveMediaUrl } from '../utils/media';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -48,7 +49,10 @@ const ProductDetailPage: React.FC = () => {
   }
 
   const activeImage = images[activeImageIndex];
-  const mainImageUrl = activeImage?.web_url || images[0]?.web_url || '/hero-placeholder.svg';
+  const mainImageUrl =
+    resolveMediaUrl(activeImage?.web_url) ||
+    resolveMediaUrl(images[0]?.web_url) ||
+    '/hero-placeholder.svg';
   const isPublished = product.status === 'PUBLISHED';
 
   return (
@@ -80,7 +84,7 @@ const ProductDetailPage: React.FC = () => {
                   } ${!isPublished ? 'opacity-50' : ''}`}
                 >
                   <img
-                    src={img.thumb_url || img.web_url}
+                    src={resolveMediaUrl(img.thumb_url || img.web_url)}
                     alt={`${product.name} thumbnail ${idx + 1}`}
                     className="h-20 w-20 object-cover"
                     loading="lazy"

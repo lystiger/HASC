@@ -3,6 +3,7 @@ import React from 'react';
 import type { Product, ProductStatus } from '../types/product';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
 import { Link } from 'react-router-dom';
+import { resolveMediaUrl } from '../utils/media';
 
 interface ProductCardProps {
   product: Product;
@@ -37,7 +38,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     >
       <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
         <img
-          src={product.images?.[0]?.web_url || '/placeholder.png'}
+          src={resolveMediaUrl(product.images?.[0]?.web_url) || '/placeholder.png'}
           alt={product.name}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"

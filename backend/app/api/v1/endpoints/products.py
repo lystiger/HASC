@@ -298,3 +298,47 @@ async def delete_product(
     )
     await db.commit()
     return {"message": "Product deleted successfully"}
+
+
+@router.post("/{product_id}/images", response_model=Dict[str, Any], status_code=status.HTTP_202_ACCEPTED)
+async def add_product_images(
+    product_id: int,
+    images: List[UploadFile] = File(...),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_admin_user),
+):
+    result = await db.execute(
+        select(DBProduct).where(DBProduct.id == product_id)
+    )
+    product = result.scalars().first()
+    if not product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+
+    task_ids = []
+    for image in images:
+        file_extension = image.filename.split(".")[-1] if "." in image.filename else "tmp"
+        temp_filename = f"temp_original_{uuid.uuid4().hex}_{product_id}.{file_extension}"
+        container_full_temp_file_path = os.path.join(TEMP_UPLOAD_DIR, temp_filename)
+
+        with open(container_full_temp_file_path, "wb") as buffer:
+            buffer.write(await image.read())
+
+        task_metadata = {
+            "product_id": product_id,
+            "original_image_path": container_full_temp_file_path,
+            "original_filename": image.filename,
+            "content_type": image.content_type,
+        }
+        task_in = TaskSchemaCreate(
+            product_id=product_id,
+            task_type=TaskType.IMAGE_PROCESSING,
+            status=TaskStatus.PENDING,
+            metadata_=task_metadata,
+        )
+        db_task = DBTask(**task_in.model_dump())
+        db.add(db_task)
+        await db.commit()
+        await db.refresh(db_task)
+        task_ids.append(db_task.id)
+
+    return {"product_id": product_id, "task_ids": task_ids, "message": "Image upload queued."}

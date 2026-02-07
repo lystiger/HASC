@@ -80,16 +80,21 @@ const ProductDetailPage: React.FC = () => {
                       setImageIndexByProduct((prev) => ({ ...prev, [id]: idx }));
                     }
                   }}
-                  className={`rounded-md border-2 p-1 transition-colors ${
-                    activeImageIndex === idx ? 'border-orange-500' : 'border-slate-200'
+                  className={`rounded-md border-2 p-1 transition-colors hover:border-orange-400 hover:shadow-[0_0_0_2px_rgba(251,146,60,0.3)] ${
+                    activeImageIndex === idx ? 'border-orange-500 shadow-[0_0_0_2px_rgba(249,115,22,0.35)]' : 'border-slate-200'
                   } ${!isPublished ? 'opacity-50' : ''}`}
                 >
-                  <img
-                    src={resolveMediaUrl(img.thumb_url || img.web_url)}
-                    alt={`${product.name} thumbnail ${idx + 1}`}
-                    className="h-20 w-20 object-cover"
-                    loading="lazy"
-                  />
+                  <div className="flex flex-col items-center gap-1">
+                    <img
+                      src={resolveMediaUrl(img.thumb_url || img.web_url)}
+                      alt={`${product.name} thumbnail ${idx + 1}`}
+                      className="h-20 w-20 object-cover"
+                      loading="lazy"
+                    />
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                      #{idx + 1}
+                    </span>
+                  </div>
                 </button>
               ))}
             </div>

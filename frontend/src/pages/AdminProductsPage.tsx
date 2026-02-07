@@ -1,8 +1,8 @@
 // frontend/src/pages/AdminProductsPage.tsx
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { updateProductById, useProducts } from '../api/productService';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { fetchProductById, updateProductById, useProducts } from '../api/productService';
 import { useCategories } from '../api/categoryService';
 import type { Product } from '../types/product';
 import { getCategoryDisplayNameByCode } from '../utils/categoryDisplay';
@@ -61,12 +61,23 @@ const AdminProductsPage: React.FC = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [editMessage, setEditMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [isProcessingImages, setIsProcessingImages] = useState(false);
+  const [pendingImageCount, setPendingImageCount] = useState(0);
+  const [baseImageCount, setBaseImageCount] = useState(0);
 
   const { data: products, isLoading, isError, error } = useProducts({
     category: categoryFilter || undefined,
     name: searchName || undefined,
     sku: searchSku || undefined,
     status: statusFilter || undefined,
+  });
+
+  const { data: refreshedProduct } = useQuery({
+    queryKey: ['product', editingProduct?.id, 'edit'],
+    queryFn: () => fetchProductById(String(editingProduct?.id)),
+    enabled: Boolean(editingProduct),
+    refetchInterval: isProcessingImages ? 2000 : false,
   });
 
   const deleteMutation = useMutation({
@@ -126,6 +137,9 @@ const AdminProductsPage: React.FC = () => {
     });
     setActiveImageIndex(0);
     setEditMessage('');
+    setIsProcessingImages(false);
+    setPendingImageCount(0);
+    setBaseImageCount(product.images?.length ?? 0);
   };
 
   const handleSetMainImage = (index: number) => {
@@ -164,6 +178,61 @@ const AdminProductsPage: React.FC = () => {
       setIsSaving(false);
     }
   };
+
+  const handleAddImages = async (files: FileList | null) => {
+    if (!files || !editingProduct) {
+      return;
+    }
+    const filesToUpload = Array.from(files);
+    if (filesToUpload.length === 0) {
+      return;
+    }
+    const formData = new FormData();
+    filesToUpload.forEach((file) => {
+      formData.append('images', file);
+    });
+    setIsUploadingImages(true);
+    setEditMessage('');
+    try {
+      const response = await apiClient(`/api/v1/products/${editingProduct.id}/images`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (response.status === 202) {
+        setEditMessage(t('admin.products.images_queued', { defaultValue: 'Images queued for processing.' }));
+        setBaseImageCount(editValues.images.length);
+        setPendingImageCount(filesToUpload.length);
+        setIsProcessingImages(true);
+        queryClient.invalidateQueries({ queryKey: ['products'] });
+      } else {
+        setEditMessage(response.message || t('admin.products.images_error', { defaultValue: 'Failed to add images.' }));
+      }
+    } catch (err) {
+      setEditMessage((err as Error).message || t('admin.products.images_error', { defaultValue: 'Failed to add images.' }));
+    } finally {
+      setIsUploadingImages(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isProcessingImages || !refreshedProduct) {
+      return;
+    }
+    if (refreshedProduct.images.length >= baseImageCount + pendingImageCount) {
+      setEditValues((prev) => ({ ...prev, images: refreshedProduct.images }));
+      setIsProcessingImages(false);
+      setPendingImageCount(0);
+      setEditMessage(t('admin.products.images_done', { defaultValue: 'Images processed.' }));
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    }
+  }, [
+    isProcessingImages,
+    refreshedProduct,
+    baseImageCount,
+    pendingImageCount,
+    queryClient,
+    t,
+  ]);
 
   const filteredProducts = products ?? [];
   const totalCount = filteredProducts.length;
@@ -500,22 +569,63 @@ const AdminProductsPage: React.FC = () => {
               <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
                 {t('admin.products.images_title', { defaultValue: 'Images' })}
               </p>
+              <div className="mt-3 flex items-center gap-2">
+                <label className="inline-flex items-center justify-center rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 hover:border-orange-300 hover:text-orange-600">
+                  {isUploadingImages
+                    ? t('admin.products.images_uploading', { defaultValue: 'Uploading...' })
+                    : t('admin.products.images_add', { defaultValue: 'Add Images' })}
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(event) => {
+                      handleAddImages(event.target.files);
+                      event.currentTarget.value = '';
+                    }}
+                    disabled={isUploadingImages}
+                  />
+                </label>
+                {isProcessingImages && (
+                  <span className="text-[11px] text-orange-500">
+                    {t('admin.products.images_processing', {
+                      defaultValue: 'Processing {{count}} image(s)...',
+                      count: pendingImageCount,
+                    })}
+                  </span>
+                )}
+                <span className="text-[11px] text-slate-400">
+                  {t('admin.products.images_hint', { defaultValue: 'New images will process in the background.' })}
+                </span>
+              </div>
               <div className="mt-3 grid grid-cols-3 gap-2">
                 {editValues.images.map((img, idx) => (
-                  <button
-                    key={`${img.web_url}-${idx}`}
-                    type="button"
-                    onClick={() => setActiveImageIndex(idx)}
-                    className={`h-20 w-full overflow-hidden rounded-md border ${
-                      idx === activeImageIndex ? 'border-orange-500' : 'border-slate-200'
-                    }`}
-                  >
-                    <img
-                      src={resolveMediaUrl(img.thumb_url || img.web_url)}
-                      alt={`${editingProduct.name} ${idx + 1}`}
-                      className="h-full w-full object-cover"
-                    />
-                  </button>
+                  <div key={`${img.web_url}-${idx}`} className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setActiveImageIndex(idx)}
+                      className={`h-20 w-full overflow-hidden rounded-md border ${
+                        idx === activeImageIndex ? 'border-orange-500' : 'border-slate-200'
+                      }`}
+                    >
+                      <img
+                        src={resolveMediaUrl(img.thumb_url || img.web_url)}
+                        alt={`${editingProduct.name} ${idx + 1}`}
+                        className="h-full w-full object-cover"
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nextImages = editValues.images.filter((_, imageIndex) => imageIndex !== idx);
+                        setEditValues((prev) => ({ ...prev, images: nextImages }));
+                        setActiveImageIndex(0);
+                      }}
+                      className="absolute right-1 top-1 rounded-full bg-slate-900/70 px-2 py-1 text-[10px] font-semibold text-white"
+                    >
+                      {t('admin.products.images_remove', { defaultValue: 'Remove' })}
+                    </button>
+                  </div>
                 ))}
               </div>
               <button

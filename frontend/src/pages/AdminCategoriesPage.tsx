@@ -275,15 +275,23 @@ const AdminCategoriesPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-6 py-8 max-w-screen-xl font-sans">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-industrial">
-          {t('admin.categories.title', { defaultValue: 'Category Manager' })}
-        </h1>
-        <p className="mt-2 text-sm text-slate-500">
-          {t('admin.categories.subtitle', {
-            defaultValue: 'Maintain bilingual category labels for the catalog and inquiry form.',
-          })}
-        </p>
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-industrial">
+            {t('admin.categories.title', { defaultValue: 'Category Manager' })}
+          </h1>
+          <p className="mt-2 text-sm text-slate-500">
+            {t('admin.categories.subtitle', {
+              defaultValue: 'Maintain bilingual category labels for the catalog and inquiry form.',
+            })}
+          </p>
+        </div>
+        <Link
+          to="/admin"
+          className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 hover:border-orange-300 hover:text-orange-600"
+        >
+          {t('admin.categories.back_to_admin', { defaultValue: 'Back to Admin' })}
+        </Link>
       </div>
 
       <form

@@ -76,9 +76,8 @@ def _process_image_file(
     os.remove(image_path)
     logger.info(f"Removed original image: {image_path}")
 
-    # Return paths relative to the project root or accessible URL paths
-    # Assuming UPLOAD_DIR is configured to be served statically
-    return f"{PERMANENT_UPLOAD_DIR}/{web_image_filename}", f"{PERMANENT_UPLOAD_DIR}/{thumbnail_filename}"
+    # Return public URL paths served by FastAPI static mount
+    return f"/uploads/{web_image_filename}", f"/uploads/{thumbnail_filename}"
 
 
 async def process_image_task(db: AsyncSession, task: DBTask):

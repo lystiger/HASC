@@ -94,6 +94,9 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
             required
           />
+          <p className="mt-1 text-xs text-gray-500">
+            {t('common.product_name_hint', { defaultValue: 'Use the official product name customers recognize.' })}
+          </p>
         </div>
         <div>
           <label htmlFor="sku" className="block text-sm font-medium text-gray-700">
@@ -107,6 +110,9 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
             required
           />
+          <p className="mt-1 text-xs text-gray-500">
+            {t('common.sku_hint', { defaultValue: 'Short unique code (e.g., HASC-2024-001).' })}
+          </p>
         </div>
         <div>
           <label htmlFor="description" className="block text-sm font-medium text-gray-700">
@@ -120,6 +126,9 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
             required
           ></textarea>
+          <p className="mt-1 text-xs text-gray-500">
+            {t('common.description_hint', { defaultValue: 'Include key specs, usage, and material details.' })}
+          </p>
         </div>
         <div>
           <label htmlFor="category" className="block text-sm font-medium text-gray-700">

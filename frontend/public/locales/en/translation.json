@@ -17,6 +17,7 @@
     "network_error_upload": "Network error during upload.",
     "an_error_occurred": "An error occurred.",
     "product_upload_initiated": "Product upload initiated! Product ID: {{productId}}. Monitoring started.",
+    "product_name_hint": "Use the official product name customers recognize.",
     "admin_dashboard": "Admin Dashboard",
     "upload_new_product": "Upload New Product",
     "queue_status": "Queue Status",
@@ -48,7 +49,9 @@
     "search_mode_sku": "SKU",
     "search_placeholder": "Try “ISO 9001 packaging”",
     "sku_placeholder": "Exact SKU (e.g., HASC-2024-001)",
+    "sku_hint": "Short unique code (e.g., HASC-2024-001).",
     "attribute_filter": "Attribute filter",
+    "description_hint": "Include key specs, usage, and material details.",
     "attribute_key": "Attribute key",
     "product_published": "Product \"{{productName}}\" published.",
     "product_archived": "Product \"{{productName}}\" archived.",
@@ -252,7 +255,8 @@
       "importing": "Importing...",
       "import_error_empty": "CSV has no data rows.",
       "import_error_header": "CSV header must include code,name_en,name_vi.",
-      "import_summary": "Imported {{created}}. Failed {{failed}}."
+      "import_summary": "Imported {{created}}. Failed {{failed}}.",
+      "back_to_admin": "Back to Admin"
     },
     "error_title": "Missing information",
     "ok": "OK"

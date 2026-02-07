@@ -17,6 +17,7 @@
     "network_error_upload": "Lỗi mạng khi tải lên.",
     "an_error_occurred": "Đã xảy ra lỗi.",
     "product_upload_initiated": "Đã bắt đầu tải sản phẩm! ID sản phẩm: {{productId}}. Đang theo dõi.",
+    "product_name_hint": "Dùng tên sản phẩm chính thức mà khách hàng nhận ra.",
     "admin_dashboard": "Bảng điều khiển quản trị",
     "upload_new_product": "Tải sản phẩm mới",
     "queue_status": "Trạng thái hàng đợi",
@@ -48,7 +49,9 @@
     "search_mode_sku": "SKU",
     "search_placeholder": "Thử “bao bì ISO 9001”",
     "sku_placeholder": "SKU chính xác (vd: HASC-2024-001)",
+    "sku_hint": "Mã ngắn, duy nhất (vd: HASC-2024-001).",
     "attribute_filter": "Lọc theo thuộc tính",
+    "description_hint": "Nêu thông số chính, công dụng và vật liệu.",
     "attribute_key": "Khóa thuộc tính",
     "product_published": "Sản phẩm \"{{productName}}\" đã được xuất bản.",
     "product_archived": "Sản phẩm \"{{productName}}\" đã được lưu trữ.",
@@ -252,7 +255,8 @@
       "importing": "Đang nhập...",
       "import_error_empty": "CSV không có dữ liệu.",
       "import_error_header": "CSV cần header code,name_en,name_vi.",
-      "import_summary": "Đã nhập {{created}}. Thất bại {{failed}}."
+      "import_summary": "Đã nhập {{created}}. Thất bại {{failed}}.",
+      "back_to_admin": "Quay lại Admin"
     },
     "error_title": "Thiếu thông tin",
     "ok": "OK"

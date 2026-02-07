@@ -9,6 +9,8 @@ import ShippingReturnsPage from './pages/ShippingReturnsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import AboutPage from './pages/AboutPage';
 import AdminCategoriesPage from './pages/AdminCategoriesPage';
+import LoginPage from './pages/LoginPage';
+import { clearStoredAccessToken, getStoredUserRole } from './utils/auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TaskMonitoringProvider } from './context/TaskMonitoringContext';
 import TaskMonitoringNotification from './components/TaskMonitoringNotification';
@@ -17,7 +19,7 @@ import LanguageSwitcher from './components/LanguageSwitcher'; // Imported
 import { useTranslation } from 'react-i18next'; // Imported
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ArrowUp } from 'lucide-react';
-import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, NavLink, useLocation, Navigate } from 'react-router-dom';
 
 const queryClient = new QueryClient();
 
@@ -29,6 +31,17 @@ const ScrollToTop: React.FC = () => {
   }, [location.pathname]);
 
   return null;
+};
+
+const RequireAdmin: React.FC<{ children: React.ReactElement; redirectTo: string }> = ({
+  children,
+  redirectTo,
+}) => {
+  const isAdmin = getStoredUserRole() === 'ADMIN';
+  if (!isAdmin) {
+    return <Navigate to={redirectTo} replace />;
+  }
+  return children;
 };
 
 const AppLayout: React.FC = () => {
@@ -45,9 +58,26 @@ const AppLayout: React.FC = () => {
       { to: '/', label: t('common.products') },
       { to: '/contact', label: t('common.contact_us_link') },
       { to: '/about', label: t('common.about_nav', { defaultValue: 'About' }) },
-      { to: '/admin', label: t('common.admin_nav', { defaultValue: 'Admin' }) },
     ],
     [t]
+  );
+  const [role, setRole] = useState(getStoredUserRole());
+  useEffect(() => {
+    const handleAuthChange = () => setRole(getStoredUserRole());
+    window.addEventListener('auth:changed', handleAuthChange);
+    window.addEventListener('storage', handleAuthChange);
+    return () => {
+      window.removeEventListener('auth:changed', handleAuthChange);
+      window.removeEventListener('storage', handleAuthChange);
+    };
+  }, []);
+  const isAdmin = role === 'ADMIN';
+  const fullNavLinks = useMemo(
+    () =>
+      isAdmin
+        ? [...navLinks, { to: '/admin', label: t('common.admin_nav', { defaultValue: 'Admin' }) }]
+        : navLinks,
+    [isAdmin, navLinks, t]
   );
 
   useEffect(() => {
@@ -118,7 +148,7 @@ const AppLayout: React.FC = () => {
                   }}
                   aria-hidden="true"
                 />
-                {navLinks.map((link) => (
+                {fullNavLinks.map((link) => (
                   <NavLink
                     key={link.to}
                     to={link.to}
@@ -131,7 +161,18 @@ const AppLayout: React.FC = () => {
                 ))}
               </div>
             </nav>
-            <LanguageSwitcher />
+            <div className="flex items-center gap-3">
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => clearStoredAccessToken()}
+                  className="rounded-md border border-white/30 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white/80 hover:border-white hover:text-white"
+                >
+                  {t('auth.sign_out', { defaultValue: 'Sign Out' })}
+                </button>
+              )}
+              <LanguageSwitcher />
+            </div>
           </div>
         </header>
         <main className="flex-grow">
@@ -139,8 +180,23 @@ const AppLayout: React.FC = () => {
             <Route path="/" element={<PublicCatalogPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/products/:id" element={<ProductDetailPage />} />
-            <Route path="/admin" element={<AdminDashboardPage />} />
-            <Route path="/admin/categories" element={<AdminCategoriesPage />} />
+            <Route
+              path="/admin"
+              element={
+                <RequireAdmin redirectTo="/login?next=/admin">
+                  <AdminDashboardPage />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path="/admin/categories"
+              element={
+                <RequireAdmin redirectTo="/login?next=/admin/categories">
+                  <AdminCategoriesPage />
+                </RequireAdmin>
+              }
+            />
+            <Route path="/login" element={<LoginPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<TermsOfServicePage />} />

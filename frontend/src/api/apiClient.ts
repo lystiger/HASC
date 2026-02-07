@@ -15,8 +15,13 @@ export async function apiClient<T>(
 ): Promise<ApiResponse<T>> {
   const isFormData =
     typeof FormData !== 'undefined' && options?.body instanceof FormData;
+  const token =
+    typeof window !== 'undefined'
+      ? window.localStorage.getItem('access_token') || window.localStorage.getItem('token')
+      : null;
   const headers = {
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options?.headers,
   };
 

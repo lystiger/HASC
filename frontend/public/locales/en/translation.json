@@ -236,12 +236,38 @@
       "error_save": "Failed to save category.",
       "error_delete": "Failed to delete category.",
       "delete_confirm": "Delete this category?",
+      "error_code_required": "Code is required.",
+      "error_name_en_required": "English name is required.",
+      "error_name_vi_required": "Vietnamese name is required.",
+      "error_code_format": "Use uppercase letters, numbers, underscore.",
+      "denied_title": "Admin Access Required",
+      "denied_body": "You need an admin account to manage categories.",
       "code_help": "Uppercase letters, numbers, underscore.",
       "code_placeholder": "e.g., PACKAGING",
       "name_en_placeholder": "e.g., Packaging",
-      "name_vi_placeholder": "e.g., Bao bi"
+      "name_vi_placeholder": "e.g., Bao bi",
+      "import_title": "Bulk Import (CSV)",
+      "import_help": "Headers: code,name_en,name_vi",
+      "import_button": "Upload CSV",
+      "importing": "Importing...",
+      "import_error_empty": "CSV has no data rows.",
+      "import_error_header": "CSV header must include code,name_en,name_vi.",
+      "import_summary": "Imported {{created}}. Failed {{failed}}."
     },
     "error_title": "Missing information",
     "ok": "OK"
+  }
+  ,
+  "auth": {
+    "title": "Admin Login",
+    "subtitle": "Sign in to manage categories.",
+    "email": "Email",
+    "password": "Password",
+    "sign_in": "Sign In",
+    "sign_out": "Sign Out",
+    "signing_in": "Signing in...",
+    "error_required": "Email and password are required.",
+    "error_login": "Login failed.",
+    "error_not_admin": "This account is not an admin."
   }
 }

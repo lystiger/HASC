@@ -9,10 +9,52 @@ import {
   useCategories,
 } from '../api/categoryService';
 import type { Category } from '../types/category';
+import { getStoredUserRole } from '../utils/auth';
+import { Link } from 'react-router-dom';
 
 const normalizeCode = (value: string) => {
   const normalized = value.toUpperCase().replace(/[^A-Z0-9_]+/g, '_').replace(/_+/g, '_');
   return normalized.replace(/^_+|_+$/g, '');
+};
+
+const parseCsv = (content: string) => {
+  const rows: string[][] = [];
+  let current: string[] = [];
+  let field = '';
+  let inQuotes = false;
+  for (let i = 0; i < content.length; i += 1) {
+    const char = content[i];
+    const next = content[i + 1];
+    if (char === '"' && inQuotes && next === '"') {
+      field += '"';
+      i += 1;
+      continue;
+    }
+    if (char === '"') {
+      inQuotes = !inQuotes;
+      continue;
+    }
+    if (char === ',' && !inQuotes) {
+      current.push(field);
+      field = '';
+      continue;
+    }
+    if ((char === '\n' || char === '\r') && !inQuotes) {
+      if (field.length > 0 || current.length > 0) {
+        current.push(field);
+        rows.push(current);
+        current = [];
+        field = '';
+      }
+      continue;
+    }
+    field += char;
+  }
+  if (field.length > 0 || current.length > 0) {
+    current.push(field);
+    rows.push(current);
+  }
+  return rows.map((row) => row.map((cell) => cell.trim()));
 };
 
 const AdminCategoriesPage: React.FC = () => {
@@ -21,10 +63,16 @@ const AdminCategoriesPage: React.FC = () => {
   const { data: categories, isLoading, isError, error } = useCategories();
   const [formValues, setFormValues] = useState({ code: '', name_en: '', name_vi: '' });
   const [formError, setFormError] = useState('');
+  const [formFieldErrors, setFormFieldErrors] = useState<Record<string, string>>({});
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editValues, setEditValues] = useState({ name_en: '', name_vi: '' });
+  const [editFieldErrors, setEditFieldErrors] = useState<Record<string, string>>({});
   const [rowError, setRowError] = useState('');
+  const [importError, setImportError] = useState('');
+  const [importSummary, setImportSummary] = useState('');
+  const [isImporting, setIsImporting] = useState(false);
 
+  const isAdmin = getStoredUserRole() === 'ADMIN';
   const sortedCategories = useMemo(() => {
     return [...(categories ?? [])].sort((a, b) => a.code.localeCompare(b.code));
   }, [categories]);
@@ -35,6 +83,7 @@ const AdminCategoriesPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       setFormValues({ code: '', name_en: '', name_vi: '' });
       setFormError('');
+      setFormFieldErrors({});
     },
     onError: (err) => {
       setFormError((err as Error).message);
@@ -67,38 +116,61 @@ const AdminCategoriesPage: React.FC = () => {
 
   const handleCreate = (event: React.FormEvent) => {
     event.preventDefault();
+    setFormError('');
+    const nextErrors: Record<string, string> = {};
     const code = normalizeCode(formValues.code.trim());
     const nameEn = formValues.name_en.trim();
     const nameVi = formValues.name_vi.trim();
     if (!code || !nameEn || !nameVi) {
-      setFormError(t('admin.categories.error_save', { defaultValue: 'Failed to save category.' }));
+      if (!code) {
+        nextErrors.code = t('admin.categories.error_code_required', { defaultValue: 'Code is required.' });
+      }
+      if (!nameEn) {
+        nextErrors.name_en = t('admin.categories.error_name_en_required', { defaultValue: 'English name is required.' });
+      }
+      if (!nameVi) {
+        nextErrors.name_vi = t('admin.categories.error_name_vi_required', { defaultValue: 'Vietnamese name is required.' });
+      }
+      setFormFieldErrors(nextErrors);
       return;
     }
     if (!/^[A-Z0-9_]+$/.test(code)) {
-      setFormError(t('admin.categories.code_help', { defaultValue: 'Uppercase letters, numbers, underscore.' }));
+      nextErrors.code = t('admin.categories.error_code_format', { defaultValue: 'Use uppercase letters, numbers, underscore.' });
+      setFormFieldErrors(nextErrors);
       return;
     }
+    setFormFieldErrors({});
     createMutation.mutate({ code, name_en: nameEn, name_vi: nameVi });
   };
 
   const startEdit = (category: Category) => {
     setEditingId(category.id);
     setEditValues({ name_en: category.name_en, name_vi: category.name_vi });
+    setEditFieldErrors({});
     setRowError('');
   };
 
   const cancelEdit = () => {
     setEditingId(null);
+    setEditFieldErrors({});
     setRowError('');
   };
 
   const handleSave = (categoryId: number) => {
+    const nextErrors: Record<string, string> = {};
     const nameEn = editValues.name_en.trim();
     const nameVi = editValues.name_vi.trim();
     if (!nameEn || !nameVi) {
-      setRowError(t('admin.categories.error_save', { defaultValue: 'Failed to save category.' }));
+      if (!nameEn) {
+        nextErrors.name_en = t('admin.categories.error_name_en_required', { defaultValue: 'English name is required.' });
+      }
+      if (!nameVi) {
+        nextErrors.name_vi = t('admin.categories.error_name_vi_required', { defaultValue: 'Vietnamese name is required.' });
+      }
+      setEditFieldErrors(nextErrors);
       return;
     }
+    setEditFieldErrors({});
     updateMutation.mutate({ id: categoryId, payload: { name_en: nameEn, name_vi: nameVi } });
   };
 
@@ -111,6 +183,84 @@ const AdminCategoriesPage: React.FC = () => {
     }
     deleteMutation.mutate(categoryId);
   };
+
+  const handleCsvUpload = async (file: File) => {
+    setImportError('');
+    setImportSummary('');
+    setIsImporting(true);
+    try {
+      const content = await file.text();
+      const rows = parseCsv(content);
+      if (rows.length < 2) {
+        setImportError(t('admin.categories.import_error_empty', { defaultValue: 'CSV has no data rows.' }));
+        return;
+      }
+      const header = rows[0].map((cell) => cell.toLowerCase());
+      const codeIndex = header.indexOf('code');
+      const enIndex = header.indexOf('name_en');
+      const viIndex = header.indexOf('name_vi');
+      if (codeIndex === -1 || enIndex === -1 || viIndex === -1) {
+        setImportError(t('admin.categories.import_error_header', { defaultValue: 'CSV header must include code,name_en,name_vi.' }));
+        return;
+      }
+      let created = 0;
+      let failed = 0;
+      for (let i = 1; i < rows.length; i += 1) {
+        const row = rows[i];
+        if (row.length === 0 || row.every((cell) => cell === '')) {
+          continue;
+        }
+        const code = normalizeCode(row[codeIndex] ?? '');
+        const nameEn = (row[enIndex] ?? '').trim();
+        const nameVi = (row[viIndex] ?? '').trim();
+        if (!code || !nameEn || !nameVi) {
+          failed += 1;
+          continue;
+        }
+        try {
+          await createCategory({ code, name_en: nameEn, name_vi: nameVi });
+          created += 1;
+        } catch {
+          failed += 1;
+        }
+      }
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      setImportSummary(
+        t('admin.categories.import_summary', {
+          defaultValue: 'Imported {{created}}. Failed {{failed}}.',
+          created,
+          failed,
+        })
+      );
+    } catch (err) {
+      setImportError((err as Error).message);
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  if (!isAdmin) {
+    return (
+      <div className="container mx-auto px-6 py-10 max-w-screen-md font-sans">
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h1 className="text-2xl font-bold text-slate-900">
+            {t('admin.categories.denied_title', { defaultValue: 'Admin Access Required' })}
+          </h1>
+          <p className="mt-2 text-sm text-slate-600">
+            {t('admin.categories.denied_body', {
+              defaultValue: 'You need an admin account to manage categories.',
+            })}
+          </p>
+          <Link
+            to="/login?next=/admin/categories"
+            className="mt-4 inline-flex items-center justify-center rounded-md border border-orange-600 bg-orange-600 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white hover:border-orange-700 hover:bg-orange-700"
+          >
+            {t('auth.sign_in', { defaultValue: 'Sign In' })}
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-6 py-8 max-w-screen-xl font-sans">
@@ -159,6 +309,7 @@ const AdminCategoriesPage: React.FC = () => {
               placeholder={t('admin.categories.code_placeholder', { defaultValue: 'e.g., PACKAGING' })}
               className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
             />
+            {formFieldErrors.code && <span className="mt-1 block text-xs text-red-600">{formFieldErrors.code}</span>}
           </label>
           <label className="text-sm text-slate-600">
             {t('admin.categories.name_en', { defaultValue: 'English Name' })}
@@ -169,6 +320,9 @@ const AdminCategoriesPage: React.FC = () => {
               placeholder={t('admin.categories.name_en_placeholder', { defaultValue: 'e.g., Packaging' })}
               className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
             />
+            {formFieldErrors.name_en && (
+              <span className="mt-1 block text-xs text-red-600">{formFieldErrors.name_en}</span>
+            )}
           </label>
           <label className="text-sm text-slate-600">
             {t('admin.categories.name_vi', { defaultValue: 'Vietnamese Name' })}
@@ -179,12 +333,50 @@ const AdminCategoriesPage: React.FC = () => {
               placeholder={t('admin.categories.name_vi_placeholder', { defaultValue: 'e.g., Bao bi' })}
               className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
             />
+            {formFieldErrors.name_vi && (
+              <span className="mt-1 block text-xs text-red-600">{formFieldErrors.name_vi}</span>
+            )}
           </label>
         </div>
         {formError && (
           <p className="mt-3 text-xs text-red-600">{formError}</p>
         )}
       </form>
+
+      <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-base font-semibold text-slate-900">
+              {t('admin.categories.import_title', { defaultValue: 'Bulk Import (CSV)' })}
+            </h2>
+            <p className="mt-1 text-xs text-slate-400">
+              {t('admin.categories.import_help', {
+                defaultValue: 'Headers: code,name_en,name_vi',
+              })}
+            </p>
+          </div>
+          <label className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 hover:border-orange-300 hover:text-orange-600">
+            {isImporting
+              ? t('admin.categories.importing', { defaultValue: 'Importing...' })
+              : t('admin.categories.import_button', { defaultValue: 'Upload CSV' })}
+            <input
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) {
+                  handleCsvUpload(file);
+                }
+                event.currentTarget.value = '';
+              }}
+              disabled={isImporting}
+            />
+          </label>
+        </div>
+        {importError && <p className="mt-3 text-xs text-red-600">{importError}</p>}
+        {importSummary && <p className="mt-3 text-xs text-emerald-600">{importSummary}</p>}
+      </div>
 
       <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         {isLoading && (
@@ -223,28 +415,38 @@ const AdminCategoriesPage: React.FC = () => {
                       <td className="py-3 pr-4 font-semibold text-slate-700">{category.code}</td>
                       <td className="py-3 pr-4">
                         {isEditing ? (
-                          <input
-                            type="text"
-                            value={editValues.name_en}
-                            onChange={(event) =>
-                              setEditValues((prev) => ({ ...prev, name_en: event.target.value }))
-                            }
-                            className="w-full rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-700"
-                          />
+                          <div>
+                            <input
+                              type="text"
+                              value={editValues.name_en}
+                              onChange={(event) =>
+                                setEditValues((prev) => ({ ...prev, name_en: event.target.value }))
+                              }
+                              className="w-full rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-700"
+                            />
+                            {editFieldErrors.name_en && (
+                              <span className="mt-1 block text-xs text-red-600">{editFieldErrors.name_en}</span>
+                            )}
+                          </div>
                         ) : (
                           category.name_en
                         )}
                       </td>
                       <td className="py-3 pr-4">
                         {isEditing ? (
-                          <input
-                            type="text"
-                            value={editValues.name_vi}
-                            onChange={(event) =>
-                              setEditValues((prev) => ({ ...prev, name_vi: event.target.value }))
-                            }
-                            className="w-full rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-700"
-                          />
+                          <div>
+                            <input
+                              type="text"
+                              value={editValues.name_vi}
+                              onChange={(event) =>
+                                setEditValues((prev) => ({ ...prev, name_vi: event.target.value }))
+                              }
+                              className="w-full rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-700"
+                            />
+                            {editFieldErrors.name_vi && (
+                              <span className="mt-1 block text-xs text-red-600">{editFieldErrors.name_vi}</span>
+                            )}
+                          </div>
                         ) : (
                           category.name_vi
                         )}

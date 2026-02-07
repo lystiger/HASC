@@ -236,12 +236,38 @@
       "error_save": "Không thể lưu danh mục.",
       "error_delete": "Không thể xóa danh mục.",
       "delete_confirm": "Xóa danh mục này?",
+      "error_code_required": "Vui lòng nhập mã.",
+      "error_name_en_required": "Vui lòng nhập tên tiếng Anh.",
+      "error_name_vi_required": "Vui lòng nhập tên tiếng Việt.",
+      "error_code_format": "Chỉ chữ hoa, số và dấu gạch dưới.",
+      "denied_title": "Cần quyền quản trị",
+      "denied_body": "Bạn cần tài khoản quản trị để quản lý danh mục.",
       "code_help": "Chỉ chữ hoa, số và dấu gạch dưới.",
       "code_placeholder": "vd: PACKAGING",
       "name_en_placeholder": "vd: Packaging",
-      "name_vi_placeholder": "vd: Bao bi"
+      "name_vi_placeholder": "vd: Bao bi",
+      "import_title": "Nhập nhanh (CSV)",
+      "import_help": "Header: code,name_en,name_vi",
+      "import_button": "Tải CSV",
+      "importing": "Đang nhập...",
+      "import_error_empty": "CSV không có dữ liệu.",
+      "import_error_header": "CSV cần header code,name_en,name_vi.",
+      "import_summary": "Đã nhập {{created}}. Thất bại {{failed}}."
     },
     "error_title": "Thiếu thông tin",
     "ok": "OK"
+  }
+  ,
+  "auth": {
+    "title": "Đăng nhập quản trị",
+    "subtitle": "Đăng nhập để quản lý danh mục.",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "sign_in": "Đăng nhập",
+    "sign_out": "Đăng xuất",
+    "signing_in": "Đang đăng nhập...",
+    "error_required": "Vui lòng nhập email và mật khẩu.",
+    "error_login": "Đăng nhập thất bại.",
+    "error_not_admin": "Tài khoản này không có quyền quản trị."
   }
 }

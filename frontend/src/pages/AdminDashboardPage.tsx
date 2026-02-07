@@ -7,6 +7,7 @@ import { useCategories } from '../api/categoryService';
 import { updateProductById } from '../api/productService';
 import { getCategoryDisplayName } from '../utils/categoryDisplay';
 import { Link } from 'react-router-dom';
+import { getStoredUserRole } from '../utils/auth';
 
 const AdminDashboardPage: React.FC = () => {
   const { t, i18n } = useTranslation(); // Initialize useTranslation
@@ -25,6 +26,7 @@ const AdminDashboardPage: React.FC = () => {
   const [isPublishing, setIsPublishing] = useState(false);
   const umamiDashboardUrl = import.meta.env.VITE_UMAMI_DASHBOARD_URL as string | undefined;
   const { data: categories, isLoading: isLoadingCategories, isError: isErrorCategories } = useCategories();
+  const isAdmin = getStoredUserRole() === 'ADMIN';
 
   const handleUploadSuccess = (
     productId: string,
@@ -183,12 +185,14 @@ const AdminDashboardPage: React.FC = () => {
                     })}
                   </span>
                 )}
-                <Link
-                  to="/admin/categories"
-                  className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 hover:border-orange-300 hover:text-orange-600"
-                >
-                  {t('admin.categories_cta', { defaultValue: 'Manage Categories' })}
-                </Link>
+                {isAdmin && (
+                  <Link
+                    to="/admin/categories"
+                    className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 hover:border-orange-300 hover:text-orange-600"
+                  >
+                    {t('admin.categories_cta', { defaultValue: 'Manage Categories' })}
+                  </Link>
+                )}
               </div>
             </div>
           </div>

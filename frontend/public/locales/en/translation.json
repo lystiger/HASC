@@ -257,6 +257,7 @@
       "loading": "Loading categories...",
       "error_load": "Failed to load categories.",
       "error_save": "Failed to save category.",
+      "save_success": "Category saved.",
       "error_delete": "Failed to delete category.",
       "delete_confirm": "Delete this category?",
       "error_code_required": "Code is required.",

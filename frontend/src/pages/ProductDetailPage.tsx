@@ -137,15 +137,41 @@ const ProductDetailPage: React.FC = () => {
                 {t('common.specifications')}
               </h3>
               <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {Object.entries(product.specific_attributes).map(([key, value]) => (
-                  <div
-                    key={key}
-                    className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-gray-700"
-                  >
-                    <div className="text-xs uppercase text-gray-500">{key}</div>
-                    <div className="mt-1 font-medium">{String(value)}</div>
-                  </div>
-                ))}
+                {Array.isArray((product.specific_attributes as { items?: unknown }).items)
+                  ? (product.specific_attributes as { items: Array<Record<string, unknown>> }).items
+                      .map((item, index) => {
+                        const isVi = (i18n.resolvedLanguage ?? 'en') === 'vi';
+                        const key =
+                          (isVi ? item.key_vi : item.key_en) ??
+                          (isVi ? item.key_en : item.key_vi) ??
+                          '';
+                        const value =
+                          (isVi ? item.value_vi : item.value_en) ??
+                          (isVi ? item.value_en : item.value_vi) ??
+                          '';
+                        if (!key && !value) {
+                          return null;
+                        }
+                        return (
+                          <div
+                            key={`${String(key)}-${index}`}
+                            className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-gray-700"
+                          >
+                            <div className="text-xs uppercase text-gray-500">{String(key)}</div>
+                            <div className="mt-1 font-medium">{String(value)}</div>
+                          </div>
+                        );
+                      })
+                      .filter(Boolean)
+                  : Object.entries(product.specific_attributes as Record<string, unknown>).map(([key, value]) => (
+                      <div
+                        key={key}
+                        className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-gray-700"
+                      >
+                        <div className="text-xs uppercase text-gray-500">{key}</div>
+                        <div className="mt-1 font-medium">{String(value)}</div>
+                      </div>
+                    ))}
               </div>
             </div>
           )}

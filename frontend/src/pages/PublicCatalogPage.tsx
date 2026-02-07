@@ -182,7 +182,14 @@ const PublicCatalogPage: React.FC = () => {
     if (key.length > 0) {
       working = working.filter((product) => {
         const attributes = product.specific_attributes ?? {};
-        return attributes[key] !== undefined;
+        if (Array.isArray((attributes as { items?: unknown }).items)) {
+          return (attributes as { items: Array<Record<string, unknown>> }).items.some((item) => {
+            const keyEn = String(item.key_en ?? '').toLowerCase();
+            const keyVi = String(item.key_vi ?? '').toLowerCase();
+            return keyEn === key.toLowerCase() || keyVi === key.toLowerCase();
+          });
+        }
+        return (attributes as Record<string, unknown>)[key] !== undefined;
       });
     }
     return working;

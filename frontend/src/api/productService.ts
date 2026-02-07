@@ -1,7 +1,7 @@
 // frontend/src/api/productService.ts
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from './apiClient';
-import type { Product } from '../types/product';
+import type { Product, ProductSpecificAttributes } from '../types/product';
 
 interface FetchProductsParams {
   category?: string;
@@ -54,7 +54,7 @@ export interface ProductUpdatePayload {
   images?: Product['images'];
   category?: string;
   status?: Product['status'];
-  specific_attributes?: Record<string, unknown>;
+  specific_attributes?: ProductSpecificAttributes;
 }
 
 export const updateProductById = async (

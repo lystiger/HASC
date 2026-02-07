@@ -21,7 +21,7 @@ class ProductBase(BaseModel):
     description_vi: str
     category: str
     images: List[ImageInfo] = []  # Updated to List[ImageInfo]
-    specific_attributes: Dict[str, Any] = {}
+    specific_attributes: Any = {}
 
 
 class ProductCreate(ProductBase):
@@ -39,7 +39,7 @@ class ProductUpdate(BaseModel):
     category: Optional[str] = None
     status: Optional[ProductStatus] = None
     images: Optional[List[ImageInfo]] = None  # Updated to Optional[List[ImageInfo]]
-    specific_attributes: Optional[Dict[str, Any]] = None
+    specific_attributes: Optional[Any] = None
 
 
 class ProductInDBBase(ProductBase):

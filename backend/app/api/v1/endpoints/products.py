@@ -255,13 +255,7 @@ async def update_product(
     if "status" in update_data:
         product.status = update_data["status"]     # Already a ProductStatus enum
     if "specific_attributes" in update_data:
-        if product.specific_attributes:
-            # Merge existing attributes with new ones
-            existing_attributes = product.specific_attributes.copy()
-            existing_attributes.update(update_data["specific_attributes"])
-            product.specific_attributes = existing_attributes
-        else:
-            product.specific_attributes = update_data["specific_attributes"]
+        product.specific_attributes = update_data["specific_attributes"]
     if "images" in update_data:
         product.images = update_data["images"]
     

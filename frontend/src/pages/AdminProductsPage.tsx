@@ -59,6 +59,9 @@ const AdminProductsPage: React.FC = () => {
     status: '',
     images: [] as Product['images'],
   });
+  const [editAttributes, setEditAttributes] = useState<
+    Array<{ key_en: string; value_en: string; key_vi: string; value_vi: string }>
+  >([]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [editMessage, setEditMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -128,6 +131,20 @@ const AdminProductsPage: React.FC = () => {
   });
 
   const handleEdit = (product: Product) => {
+    const rawAttributes = product.specific_attributes ?? {};
+    const mappedAttributes = Array.isArray((rawAttributes as { items?: unknown }).items)
+      ? (rawAttributes as { items: Array<Record<string, unknown>> }).items.map((item) => ({
+          key_en: String(item.key_en ?? ''),
+          value_en: String(item.value_en ?? ''),
+          key_vi: String(item.key_vi ?? ''),
+          value_vi: String(item.value_vi ?? ''),
+        }))
+      : Object.entries(rawAttributes as Record<string, unknown>).map(([key, value]) => ({
+          key_en: String(key ?? ''),
+          value_en: String(value ?? ''),
+          key_vi: '',
+          value_vi: '',
+        }));
     setEditingProduct(product);
     setEditValues({
       sku: product.sku,
@@ -139,6 +156,7 @@ const AdminProductsPage: React.FC = () => {
       status: product.status,
       images: product.images || [],
     });
+    setEditAttributes(mappedAttributes);
     setActiveImageIndex(0);
     setEditMessage('');
     setSaveMessage('');
@@ -177,6 +195,16 @@ const AdminProductsPage: React.FC = () => {
         category: editValues.category,
         status: editValues.status as Product['status'],
         images: editValues.images,
+        specific_attributes: {
+          items: editAttributes
+            .map((item) => ({
+              key_en: item.key_en.trim(),
+              value_en: item.value_en.trim(),
+              key_vi: item.key_vi.trim(),
+              value_vi: item.value_vi.trim(),
+            }))
+            .filter((item) => item.key_en || item.value_en || item.key_vi || item.value_vi),
+        },
       });
       queryClient.invalidateQueries({ queryKey: ['products'] });
       setSaveMessage(t('admin.products.save_success', { defaultValue: 'Product updated.' }));
@@ -563,6 +591,104 @@ const AdminProductsPage: React.FC = () => {
                 rows={4}
               />
             </label>
+            <div className="md:col-span-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p className="text-sm font-semibold text-slate-700">
+                    {t('admin.products.spec_title', { defaultValue: 'Specifications' })}
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    {t('admin.products.spec_help', {
+                      defaultValue: 'These appear in the Technical Gallery under the description.',
+                    })}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditAttributes((prev) => [
+                      ...prev,
+                      { key_en: '', value_en: '', key_vi: '', value_vi: '' },
+                    ])
+                  }
+                  className="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 hover:border-orange-300 hover:text-orange-600"
+                >
+                  {t('admin.products.spec_add', { defaultValue: 'Add Spec' })}
+                </button>
+              </div>
+              <div className="mt-3 space-y-2">
+                {editAttributes.length === 0 && (
+                  <p className="text-xs text-slate-400">
+                    {t('admin.products.spec_empty', { defaultValue: 'No specifications yet.' })}
+                  </p>
+                )}
+                {editAttributes.map((item, index) => (
+                  <div key={`${item.key_en}-${index}`} className="flex flex-wrap items-center gap-2">
+                    <input
+                      type="text"
+                      value={item.key_en}
+                      onChange={(event) =>
+                        setEditAttributes((prev) =>
+                          prev.map((entry, idx) =>
+                            idx === index ? { ...entry, key_en: event.target.value } : entry
+                          )
+                        )
+                      }
+                      placeholder={t('admin.products.spec_key_en', { defaultValue: 'Spec name (EN)' })}
+                      className="w-full flex-1 rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                    />
+                    <input
+                      type="text"
+                      value={item.value_en}
+                      onChange={(event) =>
+                        setEditAttributes((prev) =>
+                          prev.map((entry, idx) =>
+                            idx === index ? { ...entry, value_en: event.target.value } : entry
+                          )
+                        )
+                      }
+                      placeholder={t('admin.products.spec_value_en', { defaultValue: 'Spec value (EN)' })}
+                      className="w-full flex-1 rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                    />
+                    <input
+                      type="text"
+                      value={item.key_vi}
+                      onChange={(event) =>
+                        setEditAttributes((prev) =>
+                          prev.map((entry, idx) =>
+                            idx === index ? { ...entry, key_vi: event.target.value } : entry
+                          )
+                        )
+                      }
+                      placeholder={t('admin.products.spec_key_vi', { defaultValue: 'Spec name (VI)' })}
+                      className="w-full flex-1 rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                    />
+                    <input
+                      type="text"
+                      value={item.value_vi}
+                      onChange={(event) =>
+                        setEditAttributes((prev) =>
+                          prev.map((entry, idx) =>
+                            idx === index ? { ...entry, value_vi: event.target.value } : entry
+                          )
+                        )
+                      }
+                      placeholder={t('admin.products.spec_value_vi', { defaultValue: 'Spec value (VI)' })}
+                      className="w-full flex-1 rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setEditAttributes((prev) => prev.filter((_, idx) => idx !== index))
+                      }
+                      className="rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 hover:border-red-300 hover:text-red-600"
+                    >
+                      {t('admin.products.spec_remove', { defaultValue: 'Remove' })}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
             <label className="text-sm text-slate-600">
               {t('admin.products.field_category', { defaultValue: 'Category' })}
               <select

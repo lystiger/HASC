@@ -6,6 +6,19 @@ export interface ImageInfo {
   thumb_url: string;
 }
 
+export interface ProductSpecItem {
+  key_en?: string;
+  value_en?: string;
+  key_vi?: string;
+  value_vi?: string;
+}
+
+export type ProductSpecificAttributes =
+  | Record<string, unknown>
+  | {
+      items: ProductSpecItem[];
+    };
+
 export interface Product {
   id: number;
   sku: string;
@@ -18,7 +31,7 @@ export interface Product {
   category: string;
   status: ProductStatus;
   images: ImageInfo[];
-  specific_attributes: Record<string, unknown>;
+  specific_attributes: ProductSpecificAttributes;
   created_at: string;
   updated_at: string;
 }

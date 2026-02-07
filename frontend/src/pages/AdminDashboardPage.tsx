@@ -23,6 +23,9 @@ const AdminDashboardPage: React.FC = () => {
     description_en: '',
     description_vi: '',
   });
+  const [specItems, setSpecItems] = useState<
+    Array<{ key_en: string; value_en: string; key_vi: string; value_vi: string }>
+  >([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [isSavingDetails, setIsSavingDetails] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -51,6 +54,7 @@ const AdminDashboardPage: React.FC = () => {
     setHasUploaded(true);
     setUploadedProductId(productId);
     setFormValues(details);
+    setSpecItems([]);
   };
 
 
@@ -325,6 +329,105 @@ const AdminDashboardPage: React.FC = () => {
                     placeholder="Mô tả sản phẩm, công dụng và thông số."
                   />
                 </label>
+                <div className="md:col-span-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-700">
+                        {t('admin.products.spec_title', { defaultValue: 'Specifications' })}{' '}
+                        <span className="text-xs font-normal text-slate-400">
+                          {t('admin.spec_optional', { defaultValue: 'Optional (tuy chon)' })}
+                        </span>
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {t('admin.products.spec_help', {
+                          defaultValue: 'These appear in the Technical Gallery under the description.',
+                        })}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSpecItems((prev) => [
+                          ...prev,
+                          { key_en: '', value_en: '', key_vi: '', value_vi: '' },
+                        ])
+                      }
+                      className="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 hover:border-orange-300 hover:text-orange-600"
+                    >
+                      {t('admin.products.spec_add', { defaultValue: 'Add Spec' })}
+                    </button>
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    {specItems.length === 0 && (
+                      <p className="text-xs text-slate-400">
+                        {t('admin.products.spec_empty', { defaultValue: 'No specifications yet.' })}
+                      </p>
+                    )}
+                    {specItems.map((item, index) => (
+                      <div key={`${item.key_en}-${index}`} className="flex flex-wrap items-center gap-2">
+                        <input
+                          type="text"
+                          value={item.key_en}
+                          onChange={(event) =>
+                            setSpecItems((prev) =>
+                              prev.map((entry, idx) =>
+                                idx === index ? { ...entry, key_en: event.target.value } : entry
+                              )
+                            )
+                          }
+                          placeholder={t('admin.products.spec_key_en', { defaultValue: 'Spec name (EN)' })}
+                          className="w-full flex-1 rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                        />
+                        <input
+                          type="text"
+                          value={item.value_en}
+                          onChange={(event) =>
+                            setSpecItems((prev) =>
+                              prev.map((entry, idx) =>
+                                idx === index ? { ...entry, value_en: event.target.value } : entry
+                              )
+                            )
+                          }
+                          placeholder={t('admin.products.spec_value_en', { defaultValue: 'Spec value (EN)' })}
+                          className="w-full flex-1 rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                        />
+                        <input
+                          type="text"
+                          value={item.key_vi}
+                          onChange={(event) =>
+                            setSpecItems((prev) =>
+                              prev.map((entry, idx) =>
+                                idx === index ? { ...entry, key_vi: event.target.value } : entry
+                              )
+                            )
+                          }
+                          placeholder={t('admin.products.spec_key_vi', { defaultValue: 'Spec name (VI)' })}
+                          className="w-full flex-1 rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                        />
+                        <input
+                          type="text"
+                          value={item.value_vi}
+                          onChange={(event) =>
+                            setSpecItems((prev) =>
+                              prev.map((entry, idx) =>
+                                idx === index ? { ...entry, value_vi: event.target.value } : entry
+                              )
+                            )
+                          }
+                          placeholder={t('admin.products.spec_value_vi', { defaultValue: 'Spec value (VI)' })}
+                          className="w-full flex-1 rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setSpecItems((prev) => prev.filter((_, idx) => idx !== index))}
+                          className="rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 hover:border-red-300 hover:text-red-600"
+                        >
+                          {t('admin.products.spec_remove', { defaultValue: 'Remove' })}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
               <div className="flex flex-wrap gap-3">
                 <button
@@ -365,6 +468,16 @@ const AdminDashboardPage: React.FC = () => {
                         category,
                         description_en,
                         description_vi,
+                        specific_attributes: {
+                          items: specItems
+                            .map((item) => ({
+                              key_en: item.key_en.trim(),
+                              value_en: item.value_en.trim(),
+                              key_vi: item.key_vi.trim(),
+                              value_vi: item.value_vi.trim(),
+                            }))
+                            .filter((item) => item.key_en || item.value_en || item.key_vi || item.value_vi),
+                        },
                       });
                       setCurrentStep(3);
                     } catch (err) {

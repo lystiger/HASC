@@ -401,7 +401,6 @@ const AdminProductsPage: React.FC = () => {
       </div>
 
       <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        {saveMessage && <p className="mb-3 text-xs text-emerald-600">{saveMessage}</p>}
         {isLoading && (
           <p className="text-sm text-slate-500">
             {t('admin.products.loading', { defaultValue: 'Loading products...' })}
@@ -700,6 +699,11 @@ const AdminProductsPage: React.FC = () => {
             </div>
           </div>
           {editMessage && <p className="mt-3 text-xs text-slate-500">{editMessage}</p>}
+        </div>
+      )}
+      {saveMessage && (
+        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700 shadow-lg">
+          {saveMessage}
         </div>
       )}
     </div>

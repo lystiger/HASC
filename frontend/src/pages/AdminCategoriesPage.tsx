@@ -1,5 +1,5 @@
 // frontend/src/pages/AdminCategoriesPage.tsx
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -68,6 +68,7 @@ const AdminCategoriesPage: React.FC = () => {
   const [editValues, setEditValues] = useState({ name_en: '', name_vi: '' });
   const [editFieldErrors, setEditFieldErrors] = useState<Record<string, string>>({});
   const [rowError, setRowError] = useState('');
+  const [saveMessage, setSaveMessage] = useState('');
   const [importError, setImportError] = useState('');
   const [importSummary, setImportSummary] = useState('');
   const [isImporting, setIsImporting] = useState(false);
@@ -84,6 +85,7 @@ const AdminCategoriesPage: React.FC = () => {
       setFormValues({ code: '', name_en: '', name_vi: '' });
       setFormError('');
       setFormFieldErrors({});
+      setSaveMessage(t('admin.categories.save_success', { defaultValue: 'Category saved.' }));
     },
     onError: (err) => {
       setFormError((err as Error).message);
@@ -97,6 +99,7 @@ const AdminCategoriesPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       setEditingId(null);
       setRowError('');
+      setSaveMessage(t('admin.categories.save_success', { defaultValue: 'Category saved.' }));
     },
     onError: (err) => {
       setRowError((err as Error).message);
@@ -194,6 +197,16 @@ const AdminCategoriesPage: React.FC = () => {
     }
     deleteMutation.mutate(categoryId);
   };
+
+  useEffect(() => {
+    if (!saveMessage) {
+      return;
+    }
+    const timeout = window.setTimeout(() => {
+      setSaveMessage('');
+    }, 4000);
+    return () => window.clearTimeout(timeout);
+  }, [saveMessage]);
 
   const handleCsvUpload = async (file: File) => {
     setImportError('');
@@ -521,6 +534,11 @@ const AdminCategoriesPage: React.FC = () => {
           <p className="mt-3 text-xs text-red-600">{rowError}</p>
         )}
       </div>
+      {saveMessage && (
+        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700 shadow-lg">
+          {saveMessage}
+        </div>
+      )}
     </div>
   );
 };

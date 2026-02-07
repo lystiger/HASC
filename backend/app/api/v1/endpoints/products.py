@@ -262,6 +262,8 @@ async def update_product(
             product.specific_attributes = existing_attributes
         else:
             product.specific_attributes = update_data["specific_attributes"]
+    if "images" in update_data:
+        product.images = update_data["images"]
     
     db.add(product) # Explicitly add the modified object to the session
     await db.commit()

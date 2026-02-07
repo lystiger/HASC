@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useProducts } from '../api/productService';
+import { updateProductById, useProducts } from '../api/productService';
 import { useCategories } from '../api/categoryService';
 import type { Product } from '../types/product';
 import { getCategoryDisplayNameByCode } from '../utils/categoryDisplay';
@@ -47,6 +47,20 @@ const AdminProductsPage: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editValues, setEditValues] = useState({
+    sku: '',
+    name_en: '',
+    name_vi: '',
+    description_en: '',
+    description_vi: '',
+    category: '',
+    status: '',
+    images: [] as Product['images'],
+  });
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [editMessage, setEditMessage] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const { data: products, isLoading, isError, error } = useProducts({
     category: categoryFilter || undefined,
@@ -97,6 +111,59 @@ const AdminProductsPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
   });
+
+  const handleEdit = (product: Product) => {
+    setEditingProduct(product);
+    setEditValues({
+      sku: product.sku,
+      name_en: product.name_en,
+      name_vi: product.name_vi,
+      description_en: product.description_en,
+      description_vi: product.description_vi,
+      category: product.category,
+      status: product.status,
+      images: product.images || [],
+    });
+    setActiveImageIndex(0);
+    setEditMessage('');
+  };
+
+  const handleSetMainImage = (index: number) => {
+    if (!editValues.images || editValues.images.length === 0) {
+      return;
+    }
+    const nextImages = [...editValues.images];
+    const [selected] = nextImages.splice(index, 1);
+    nextImages.unshift(selected);
+    setEditValues((prev) => ({ ...prev, images: nextImages }));
+    setActiveImageIndex(0);
+  };
+
+  const handleSave = async () => {
+    if (!editingProduct) {
+      return;
+    }
+    setIsSaving(true);
+    setEditMessage('');
+    try {
+      await updateProductById(String(editingProduct.id), {
+        sku: editValues.sku,
+        name_en: editValues.name_en,
+        name_vi: editValues.name_vi,
+        description_en: editValues.description_en,
+        description_vi: editValues.description_vi,
+        category: editValues.category,
+        status: editValues.status as Product['status'],
+        images: editValues.images,
+      });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      setEditMessage(t('admin.products.save_success', { defaultValue: 'Product updated.' }));
+    } catch (err) {
+      setEditMessage((err as Error).message || t('admin.products.save_error', { defaultValue: 'Failed to save.' }));
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const filteredProducts = products ?? [];
   const totalCount = filteredProducts.length;
@@ -283,13 +350,22 @@ const AdminProductsPage: React.FC = () => {
                       {new Date(product.updated_at).toLocaleDateString()}
                     </td>
                     <td className="py-3">
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(product.id)}
-                        className="rounded-md border border-red-200 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-red-600 hover:border-red-300"
-                      >
-                        {t('admin.products.delete', { defaultValue: 'Delete' })}
-                      </button>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(product)}
+                          className="rounded-md border border-slate-200 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 hover:border-orange-300 hover:text-orange-600"
+                        >
+                          {t('admin.products.edit', { defaultValue: 'Edit' })}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(product.id)}
+                          className="rounded-md border border-red-200 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-red-600 hover:border-red-300"
+                        >
+                          {t('admin.products.delete', { defaultValue: 'Delete' })}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -299,6 +375,161 @@ const AdminProductsPage: React.FC = () => {
         )}
         {errorMessage && <p className="mt-3 text-xs text-red-600">{errorMessage}</p>}
       </div>
+
+      {editingProduct && (
+        <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-900">
+                {t('admin.products.edit_title', { defaultValue: 'Edit Product' })} #{editingProduct.id}
+              </h2>
+              <p className="mt-1 text-xs text-slate-400">
+                {t('admin.products.edit_subtitle', { defaultValue: 'Update details and reorder images.' })}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="rounded-md border border-orange-600 bg-orange-600 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white hover:border-orange-700 hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {isSaving
+                  ? t('admin.products.saving', { defaultValue: 'Saving...' })
+                  : t('admin.products.save', { defaultValue: 'Save' })}
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditingProduct(null)}
+                className="rounded-md border border-slate-200 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 hover:border-slate-300"
+              >
+                {t('admin.products.cancel', { defaultValue: 'Cancel' })}
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <label className="text-sm text-slate-600">
+              {t('admin.products.field_name_en', { defaultValue: 'Product Name (EN)' })}
+              <input
+                type="text"
+                value={editValues.name_en}
+                onChange={(event) => setEditValues((prev) => ({ ...prev, name_en: event.target.value }))}
+                className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
+              />
+            </label>
+            <label className="text-sm text-slate-600">
+              {t('admin.products.field_name_vi', { defaultValue: 'Product Name (VI)' })}
+              <input
+                type="text"
+                value={editValues.name_vi}
+                onChange={(event) => setEditValues((prev) => ({ ...prev, name_vi: event.target.value }))}
+                className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
+              />
+            </label>
+            <label className="text-sm text-slate-600 md:col-span-2">
+              {t('admin.products.field_sku', { defaultValue: 'SKU' })}
+              <input
+                type="text"
+                value={editValues.sku}
+                onChange={(event) => setEditValues((prev) => ({ ...prev, sku: event.target.value }))}
+                className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
+              />
+            </label>
+            <label className="text-sm text-slate-600">
+              {t('admin.products.field_description_en', { defaultValue: 'Description (EN)' })}
+              <textarea
+                value={editValues.description_en}
+                onChange={(event) => setEditValues((prev) => ({ ...prev, description_en: event.target.value }))}
+                className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                rows={4}
+              />
+            </label>
+            <label className="text-sm text-slate-600">
+              {t('admin.products.field_description_vi', { defaultValue: 'Description (VI)' })}
+              <textarea
+                value={editValues.description_vi}
+                onChange={(event) => setEditValues((prev) => ({ ...prev, description_vi: event.target.value }))}
+                className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                rows={4}
+              />
+            </label>
+            <label className="text-sm text-slate-600">
+              {t('admin.products.field_category', { defaultValue: 'Category' })}
+              <select
+                value={editValues.category}
+                onChange={(event) => setEditValues((prev) => ({ ...prev, category: event.target.value }))}
+                className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
+              >
+                {categories?.map((category) => (
+                  <option key={category.id} value={category.code}>
+                    {getCategoryDisplayNameByCode(categories, category.code, i18n.resolvedLanguage ?? 'en')}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-sm text-slate-600">
+              {t('admin.products.field_status', { defaultValue: 'Status' })}
+              <select
+                value={editValues.status}
+                onChange={(event) => setEditValues((prev) => ({ ...prev, status: event.target.value }))}
+                className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
+              >
+                {statusOptions.map((status) => (
+                  <option key={status} value={status}>
+                    {t(`status.${status}`, { defaultValue: status })}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <div className="aspect-square w-full overflow-hidden rounded-md bg-white">
+                  <img
+                    src={resolveMediaUrl(editValues.images?.[activeImageIndex]?.web_url)}
+                    alt={editingProduct.name}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                {t('admin.products.images_title', { defaultValue: 'Images' })}
+              </p>
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                {editValues.images.map((img, idx) => (
+                  <button
+                    key={`${img.web_url}-${idx}`}
+                    type="button"
+                    onClick={() => setActiveImageIndex(idx)}
+                    className={`h-20 w-full overflow-hidden rounded-md border ${
+                      idx === activeImageIndex ? 'border-orange-500' : 'border-slate-200'
+                    }`}
+                  >
+                    <img
+                      src={resolveMediaUrl(img.thumb_url || img.web_url)}
+                      alt={`${editingProduct.name} ${idx + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => handleSetMainImage(activeImageIndex)}
+                className="mt-3 w-full rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 hover:border-orange-300 hover:text-orange-600"
+              >
+                {t('admin.products.set_main', { defaultValue: 'Set as Main' })}
+              </button>
+            </div>
+          </div>
+          {editMessage && <p className="mt-3 text-xs text-slate-500">{editMessage}</p>}
+        </div>
+      )}
     </div>
   );
 };

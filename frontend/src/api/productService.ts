@@ -51,6 +51,7 @@ export interface ProductUpdatePayload {
   name_vi?: string;
   description_en?: string | null;
   description_vi?: string | null;
+  images?: Product['images'];
   category?: string;
   status?: Product['status'];
   specific_attributes?: Record<string, unknown>;

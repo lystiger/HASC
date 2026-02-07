@@ -7,6 +7,7 @@ import { useProduct } from '../api/productService';
 import { useCategories } from '../api/categoryService';
 import { getCategoryDisplayNameByCode } from '../utils/categoryDisplay';
 import { resolveMediaUrl } from '../utils/media';
+import { getProductDisplayDescription, getProductDisplayName } from '../utils/productDisplay';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -112,14 +113,18 @@ const ProductDetailPage: React.FC = () => {
         </div>
 
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900">{product.name}</h2>
+          <h2 className="text-2xl font-semibold text-gray-900">
+            {getProductDisplayName(product, i18n.resolvedLanguage ?? 'en')}
+          </h2>
           <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-gray-600">
             <span>SKU: {product.sku}</span>
             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
               {getCategoryDisplayNameByCode(categories, product.category, i18n.resolvedLanguage ?? 'en')}
             </span>
           </div>
-          <p className="mt-4 text-gray-700">{product.description}</p>
+          <p className="mt-4 text-gray-700">
+            {getProductDisplayDescription(product, i18n.resolvedLanguage ?? 'en')}
+          </p>
 
           {product.specific_attributes && (
             <div className="mt-6">

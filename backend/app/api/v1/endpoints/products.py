@@ -30,9 +30,13 @@ os.makedirs(TEMP_UPLOAD_DIR, exist_ok=True)
 @router.post("/", response_model=Dict[str, Any], status_code=status.HTTP_202_ACCEPTED)
 async def create_product(
     sku: str = Form(...),
-    name: str = Form(...),
+    name: Optional[str] = Form(None),
+    name_en: Optional[str] = Form(None),
+    name_vi: Optional[str] = Form(None),
     category: str = Form(...),
     description: Optional[str] = Form(None),
+    description_en: Optional[str] = Form(None),
+    description_vi: Optional[str] = Form(None),
     specific_attributes: str = Form("{}"), # JSON string
     images: List[UploadFile] = File([]),
     db: AsyncSession = Depends(get_db),
@@ -48,6 +52,22 @@ async def create_product(
             detail=f"Invalid category. '{category}' does not exist.",
         )
 
+    # Normalize bilingual fields (fallback to legacy name/description if provided)
+    normalized_name_en = (name_en or name or "").strip()
+    normalized_name_vi = (name_vi or name or "").strip()
+    normalized_description_en = (description_en or description or "").strip()
+    normalized_description_vi = (description_vi or description or "").strip()
+    if not normalized_name_en or not normalized_name_vi:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Both English and Vietnamese names are required.",
+        )
+    if not normalized_description_en or not normalized_description_vi:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Both English and Vietnamese descriptions are required.",
+        )
+
     # Parse specific_attributes from JSON string
     try:
         parsed_specific_attributes = json.loads(specific_attributes)
@@ -59,9 +79,13 @@ async def create_product(
 
     product_in = ProductCreate(
         sku=sku,
-        name=name,
+        name=normalized_name_en,
+        description=normalized_description_en,
+        name_en=normalized_name_en,
+        name_vi=normalized_name_vi,
+        description_en=normalized_description_en,
+        description_vi=normalized_description_vi,
         category=category,
-        description=description,
         specific_attributes=parsed_specific_attributes,
         images=[] # Images will be handled by async process
     )
@@ -155,7 +179,9 @@ async def get_products(
     if sku:
         stmt = stmt.where(DBProduct.sku == sku)
     if name:
-        stmt = stmt.where(DBProduct.name.ilike(f"%{name}%"))
+        stmt = stmt.where(
+            DBProduct.name_en.ilike(f"%{name}%") | DBProduct.name_vi.ilike(f"%{name}%")
+        )
 
     result = await db.execute(stmt)
     products = result.scalars().all()
@@ -201,8 +227,20 @@ async def update_product(
     # Explicitly set attributes to ensure SQLAlchemy tracks changes
     if "name" in update_data:
         product.name = update_data["name"]
+        product.name_en = update_data["name"]
     if "description" in update_data:
         product.description = update_data["description"]
+        product.description_en = update_data["description"]
+    if "name_en" in update_data:
+        product.name_en = update_data["name_en"]
+        product.name = update_data["name_en"]
+    if "name_vi" in update_data:
+        product.name_vi = update_data["name_vi"]
+    if "description_en" in update_data:
+        product.description_en = update_data["description_en"]
+        product.description = update_data["description_en"]
+    if "description_vi" in update_data:
+        product.description_vi = update_data["description_vi"]
     if "category" in update_data:
         category_result = await db.execute(
             select(DBCategory).where(DBCategory.code == update_data["category"])

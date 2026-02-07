@@ -15,6 +15,10 @@ class ProductBase(BaseModel):
     sku: str
     name: str
     description: Optional[str] = None
+    name_en: str
+    name_vi: str
+    description_en: str
+    description_vi: str
     category: str
     images: List[ImageInfo] = []  # Updated to List[ImageInfo]
     specific_attributes: Dict[str, Any] = {}
@@ -28,6 +32,10 @@ class ProductUpdate(BaseModel):
     sku: Optional[str] = None
     name: Optional[str] = None
     description: str | None = Field(None) # Corrected description field
+    name_en: Optional[str] = None
+    name_vi: Optional[str] = None
+    description_en: Optional[str] = None
+    description_vi: Optional[str] = None
     category: Optional[str] = None
     status: Optional[ProductStatus] = None
     images: Optional[List[ImageInfo]] = None  # Updated to Optional[List[ImageInfo]]

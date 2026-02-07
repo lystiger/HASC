@@ -16,10 +16,12 @@ const AdminDashboardPage: React.FC = () => {
   const [hasUploaded, setHasUploaded] = useState(false);
   const [uploadedProductId, setUploadedProductId] = useState<string | null>(null);
   const [formValues, setFormValues] = useState({
-    name: '',
+    name_en: '',
+    name_vi: '',
     sku: '',
     category: '',
-    description: '',
+    description_en: '',
+    description_vi: '',
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [isSavingDetails, setIsSavingDetails] = useState(false);
@@ -32,7 +34,14 @@ const AdminDashboardPage: React.FC = () => {
   const handleUploadSuccess = (
     productId: string,
     taskIds: string[],
-    details: { name: string; sku: string; category: string; description: string }
+    details: {
+      name_en: string;
+      name_vi: string;
+      sku: string;
+      category: string;
+      description_en: string;
+      description_vi: string;
+    }
   ) => {
     // For simplicity, we'll assume one product_id maps to one primary monitoring task
     // and multiple task_ids can be internal to that product's processing.
@@ -242,16 +251,26 @@ const AdminDashboardPage: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <label className="text-sm text-slate-600">
-                  {t('admin.field_name', { defaultValue: 'Product Name' })}
+                  {t('admin.field_name_en', { defaultValue: 'Product Name (EN)' })}
                   <input
                     type="text"
-                    value={formValues.name}
-                    onChange={(event) => setFormValues((prev) => ({ ...prev, name: event.target.value }))}
+                    value={formValues.name_en}
+                    onChange={(event) => setFormValues((prev) => ({ ...prev, name_en: event.target.value }))}
                     className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
                     placeholder="e.g., Industrial Filter Cartridge"
                   />
                 </label>
                 <label className="text-sm text-slate-600">
+                  {t('admin.field_name_vi', { defaultValue: 'Product Name (VI)' })}
+                  <input
+                    type="text"
+                    value={formValues.name_vi}
+                    onChange={(event) => setFormValues((prev) => ({ ...prev, name_vi: event.target.value }))}
+                    className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                    placeholder="e.g., Lõi lọc công nghiệp"
+                  />
+                </label>
+                <label className="text-sm text-slate-600 md:col-span-2">
                   {t('admin.field_sku', { defaultValue: 'SKU' })}
                   <input
                     type="text"
@@ -286,14 +305,24 @@ const AdminDashboardPage: React.FC = () => {
                     </select>
                   )}
                 </label>
-                <label className="text-sm text-slate-600 md:col-span-2">
-                  {t('admin.field_description', { defaultValue: 'Description' })}
+                <label className="text-sm text-slate-600">
+                  {t('admin.field_description_en', { defaultValue: 'Description (EN)' })}
                   <textarea
-                    value={formValues.description}
-                    onChange={(event) => setFormValues((prev) => ({ ...prev, description: event.target.value }))}
+                    value={formValues.description_en}
+                    onChange={(event) => setFormValues((prev) => ({ ...prev, description_en: event.target.value }))}
                     className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
                     rows={4}
                     placeholder="Describe the product, usage, and key specs."
+                  />
+                </label>
+                <label className="text-sm text-slate-600">
+                  {t('admin.field_description_vi', { defaultValue: 'Description (VI)' })}
+                  <textarea
+                    value={formValues.description_vi}
+                    onChange={(event) => setFormValues((prev) => ({ ...prev, description_vi: event.target.value }))}
+                    className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                    rows={4}
+                    placeholder="Mô tả sản phẩm, công dụng và thông số."
                   />
                 </label>
               </div>
@@ -310,7 +339,7 @@ const AdminDashboardPage: React.FC = () => {
                   className="rounded-md border border-orange-600 bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:border-orange-700 hover:bg-orange-700"
                   disabled={isSavingDetails}
                   onClick={async () => {
-                    const { name, sku, category, description } = formValues;
+                    const { name_en, name_vi, sku, category, description_en, description_vi } = formValues;
                     if (!uploadedProductId) {
                       setErrorMessage(
                         t('admin.error_upload_first', {
@@ -319,7 +348,7 @@ const AdminDashboardPage: React.FC = () => {
                       );
                       return;
                     }
-                    if (!name || !sku || !category || !description) {
+                    if (!name_en || !name_vi || !sku || !category || !description_en || !description_vi) {
                       setErrorMessage(
                         t('admin.error_required', {
                           defaultValue: 'Please complete all required fields before continuing.',
@@ -330,10 +359,12 @@ const AdminDashboardPage: React.FC = () => {
                     setIsSavingDetails(true);
                     try {
                       await updateProductById(uploadedProductId, {
-                        name,
+                        name_en,
+                        name_vi,
                         sku,
                         category,
-                        description,
+                        description_en,
+                        description_vi,
                       });
                       setCurrentStep(3);
                     } catch (err) {
@@ -382,7 +413,7 @@ const AdminDashboardPage: React.FC = () => {
                   className="rounded-md border border-orange-600 bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:border-orange-700 hover:bg-orange-700"
                   disabled={isPublishing}
                   onClick={async () => {
-                    const { name, sku, category, description } = formValues;
+                    const { name_en, name_vi, sku, category, description_en, description_vi } = formValues;
                     if (!uploadedProductId) {
                       setErrorMessage(
                         t('admin.error_upload_publish', {
@@ -391,7 +422,7 @@ const AdminDashboardPage: React.FC = () => {
                       );
                       return;
                     }
-                    if (!name || !sku || !category || !description) {
+                    if (!name_en || !name_vi || !sku || !category || !description_en || !description_vi) {
                       setErrorMessage(
                         t('admin.error_required_publish', {
                           defaultValue: 'Please complete all required fields before publishing.',

@@ -55,6 +55,10 @@ const PublicCatalogPage: React.FC = () => {
       sku: 'DEMO-001',
       name: t('common.demo_product_name'),
       description: t('common.demo_product_description'),
+      name_en: t('common.demo_product_name'),
+      name_vi: t('common.demo_product_name'),
+      description_en: t('common.demo_product_description'),
+      description_vi: t('common.demo_product_description'),
       category: 'PE_FILM_PRINTED_LAMINATED',
       status: 'PUBLISHED',
       images: [
@@ -73,6 +77,10 @@ const PublicCatalogPage: React.FC = () => {
       sku: 'DEMO-002',
       name: `${t('common.demo_product_name')} 2`,
       description: t('common.demo_product_description'),
+      name_en: `${t('common.demo_product_name')} 2`,
+      name_vi: `${t('common.demo_product_name')} 2`,
+      description_en: t('common.demo_product_description'),
+      description_vi: t('common.demo_product_description'),
       category: 'FILTER_EQUIPMENT',
       status: 'PUBLISHED',
       images: [
@@ -91,6 +99,10 @@ const PublicCatalogPage: React.FC = () => {
       sku: 'DEMO-003',
       name: `${t('common.demo_product_name')} 3`,
       description: t('common.demo_product_description'),
+      name_en: `${t('common.demo_product_name')} 3`,
+      name_vi: `${t('common.demo_product_name')} 3`,
+      description_en: t('common.demo_product_description'),
+      description_vi: t('common.demo_product_description'),
       category: 'PAPER_CHEMICALS',
       status: 'PUBLISHED',
       images: [

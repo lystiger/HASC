@@ -47,6 +47,10 @@ export interface ProductUpdatePayload {
   sku?: string;
   name?: string;
   description?: string | null;
+  name_en?: string;
+  name_vi?: string;
+  description_en?: string | null;
+  description_vi?: string | null;
   category?: string;
   status?: Product['status'];
   specific_attributes?: Record<string, unknown>;

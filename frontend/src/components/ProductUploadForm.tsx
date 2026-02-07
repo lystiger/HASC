@@ -9,7 +9,14 @@ interface ProductUploadFormProps {
   onUploadSuccess: (
     productId: string,
     taskIds: string[],
-    details: { name: string; sku: string; category: string; description: string }
+    details: {
+      name_en: string;
+      name_vi: string;
+      sku: string;
+      category: string;
+      description_en: string;
+      description_vi: string;
+    }
   ) => void;
 }
 
@@ -17,9 +24,11 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
   const { t, i18n } = useTranslation(); // Initialize useTranslation
   const { data: categories, isLoading: isLoadingCategories, isError: isErrorCategories, error: categoriesError } = useCategories();
 
-  const [name, setName] = useState('');
+  const [nameEn, setNameEn] = useState('');
+  const [nameVi, setNameVi] = useState('');
   const [sku, setSku] = useState('');
-  const [description, setDescription] = useState('');
+  const [descriptionEn, setDescriptionEn] = useState('');
+  const [descriptionVi, setDescriptionVi] = useState('');
   const [categoryCode, setCategoryCode] = useState('');
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +39,7 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
     setError(null);
     setIsLoading(true);
 
-    if (!sku || !name || !description || !categoryCode || imageFiles.length === 0) {
+    if (!sku || !nameEn || !nameVi || !descriptionEn || !descriptionVi || !categoryCode || imageFiles.length === 0) {
       setError(t('common.fill_all_fields'));
       setIsLoading(false);
       return;
@@ -38,8 +47,10 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
 
     const formData = new FormData();
     formData.append('sku', sku);
-    formData.append('name', name);
-    formData.append('description', description);
+    formData.append('name_en', nameEn);
+    formData.append('name_vi', nameVi);
+    formData.append('description_en', descriptionEn);
+    formData.append('description_vi', descriptionVi);
     formData.append('category', categoryCode);
     formData.append('specific_attributes', JSON.stringify({}));
     imageFiles.forEach((file) => {
@@ -55,15 +66,19 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
 
       if (response.status === 202 && response.productId && response.taskIds) {
         onUploadSuccess(response.productId, response.taskIds, {
-          name,
+          name_en: nameEn,
+          name_vi: nameVi,
           sku,
           category: categoryCode,
-          description,
+          description_en: descriptionEn,
+          description_vi: descriptionVi,
         });
         // Clear form
         setSku('');
-        setName('');
-        setDescription('');
+        setNameEn('');
+        setNameVi('');
+        setDescriptionEn('');
+        setDescriptionVi('');
         setCategoryCode('');
         setImageFiles([]);
       } else if (response.message) {
@@ -82,21 +97,32 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold text-slate-industrial mb-6">{t('common.upload_new_product')}</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-            {t('common.product_name')}
+        <div className="grid gap-3 md:grid-cols-2">
+          <label htmlFor="name-en" className="block text-sm font-medium text-gray-700">
+            {t('common.product_name_en', { defaultValue: 'Product Name (EN)' })}
+            <input
+              type="text"
+              id="name-en"
+              value={nameEn}
+              onChange={(e) => setNameEn(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              required
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              {t('common.product_name_hint', { defaultValue: 'Use the official product name customers recognize.' })}
+            </p>
           </label>
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            required
-          />
-          <p className="mt-1 text-xs text-gray-500">
-            {t('common.product_name_hint', { defaultValue: 'Use the official product name customers recognize.' })}
-          </p>
+          <label htmlFor="name-vi" className="block text-sm font-medium text-gray-700">
+            {t('common.product_name_vi', { defaultValue: 'Product Name (VI)' })}
+            <input
+              type="text"
+              id="name-vi"
+              value={nameVi}
+              onChange={(e) => setNameVi(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              required
+            />
+          </label>
         </div>
         <div>
           <label htmlFor="sku" className="block text-sm font-medium text-gray-700">
@@ -114,21 +140,32 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
             {t('common.sku_hint', { defaultValue: 'Short unique code (e.g., HASC-2024-001).' })}
           </p>
         </div>
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-            {t('common.description')}
+        <div className="grid gap-3 md:grid-cols-2">
+          <label htmlFor="description-en" className="block text-sm font-medium text-gray-700">
+            {t('common.description_en', { defaultValue: 'Description (EN)' })}
+            <textarea
+              id="description-en"
+              value={descriptionEn}
+              onChange={(e) => setDescriptionEn(e.target.value)}
+              rows={3}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              required
+            ></textarea>
+            <p className="mt-1 text-xs text-gray-500">
+              {t('common.description_hint', { defaultValue: 'Include key specs, usage, and material details.' })}
+            </p>
           </label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            required
-          ></textarea>
-          <p className="mt-1 text-xs text-gray-500">
-            {t('common.description_hint', { defaultValue: 'Include key specs, usage, and material details.' })}
-          </p>
+          <label htmlFor="description-vi" className="block text-sm font-medium text-gray-700">
+            {t('common.description_vi', { defaultValue: 'Description (VI)' })}
+            <textarea
+              id="description-vi"
+              value={descriptionVi}
+              onChange={(e) => setDescriptionVi(e.target.value)}
+              rows={3}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              required
+            ></textarea>
+          </label>
         </div>
         <div>
           <label htmlFor="category" className="block text-sm font-medium text-gray-700">

@@ -11,6 +11,10 @@ export interface Product {
   sku: string;
   name: string;
   description?: string | null;
+  name_en: string;
+  name_vi: string;
+  description_en: string;
+  description_vi: string;
   category: string;
   status: ProductStatus;
   images: ImageInfo[];

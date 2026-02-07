@@ -6,6 +6,7 @@ import { useProducts } from '../api/productService';
 import { useCategories } from '../api/categoryService';
 import type { Product } from '../types/product';
 import { getCategoryDisplayNameByCode } from '../utils/categoryDisplay';
+import { getProductDisplayName } from '../utils/productDisplay';
 import { apiClient } from '../api/apiClient';
 import { resolveMediaUrl } from '../utils/media';
 import { Link } from 'react-router-dom';
@@ -113,7 +114,8 @@ const AdminProductsPage: React.FC = () => {
       [
         'id',
         'sku',
-        'name',
+        'name_en',
+        'name_vi',
         'category_code',
         'category_label',
         'status',
@@ -122,7 +124,8 @@ const AdminProductsPage: React.FC = () => {
       ...filteredProducts.map((product) => [
         product.id,
         product.sku,
-        product.name,
+        product.name_en,
+        product.name_vi,
         product.category,
         getCategoryDisplayNameByCode(categories, product.category, i18n.resolvedLanguage ?? 'en'),
         product.status,
@@ -264,7 +267,9 @@ const AdminProductsPage: React.FC = () => {
                         />
                       </div>
                     </td>
-                    <td className="py-3 pr-4 font-semibold text-slate-700">{product.name}</td>
+                    <td className="py-3 pr-4 font-semibold text-slate-700">
+                      {getProductDisplayName(product, i18n.resolvedLanguage ?? 'en')}
+                    </td>
                     <td className="py-3 pr-4">{product.sku}</td>
                     <td className="py-3 pr-4">
                       {getCategoryDisplayNameByCode(categories, product.category, i18n.resolvedLanguage ?? 'en')}

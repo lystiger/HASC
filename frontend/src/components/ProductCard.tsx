@@ -4,6 +4,7 @@ import type { Product, ProductStatus } from '../types/product';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
 import { Link } from 'react-router-dom';
 import { resolveMediaUrl } from '../utils/media';
+import { getProductDisplayDescription, getProductDisplayName } from '../utils/productDisplay';
 
 interface ProductCardProps {
   product: Product;
@@ -25,7 +26,7 @@ const getStatusBadgeClasses = (status: ProductStatus) => {
 };
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { t } = useTranslation(); // Initialize useTranslation
+  const { t, i18n } = useTranslation(); // Initialize useTranslation
   const isPubliclyVisible = product.status === 'PUBLISHED';
   const cardOpacity = isPubliclyVisible ? 'opacity-100' : 'opacity-60'; // Mute non-published cards
 
@@ -49,10 +50,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       </div>
       <div className="flex flex-1 flex-col p-4">
         <h3 className="text-lg font-semibold text-gray-900 truncate mb-1">
-          {product.name}
+          {getProductDisplayName(product, i18n.resolvedLanguage ?? 'en')}
         </h3>
         <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-          {product.description}
+          {getProductDisplayDescription(product, i18n.resolvedLanguage ?? 'en')}
         </p>
         <div className="flex justify-end items-center mt-auto">
           {isPubliclyVisible ? (

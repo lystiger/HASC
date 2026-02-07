@@ -29,6 +29,10 @@ class Product(Base):
     sku = Column(String, unique=True, index=True, nullable=False)
     name = Column(String, nullable=False)
     description = Column(Text)
+    name_en = Column(String, nullable=False)
+    name_vi = Column(String, nullable=False)
+    description_en = Column(Text, nullable=False)
+    description_vi = Column(Text, nullable=False)
 
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=False)
     status = Column(Enum(ProductStatus), nullable=False, default=ProductStatus.DRAFT)

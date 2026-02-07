@@ -105,12 +105,23 @@ const AdminCategoriesPage: React.FC = () => {
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteCategory(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
-      setRowError('');
+    onMutate: async (categoryId: number) => {
+      await queryClient.cancelQueries({ queryKey: ['categories'] });
+      const previous = queryClient.getQueryData<Category[]>(['categories']);
+      queryClient.setQueryData<Category[]>(
+        ['categories'],
+        (old) => old?.filter((item) => item.id !== categoryId) ?? []
+      );
+      return { previous };
     },
-    onError: (err) => {
+    onError: (err, _categoryId, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['categories'], context.previous);
+      }
       setRowError((err as Error).message);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
     },
   });
 

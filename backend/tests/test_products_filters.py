@@ -52,9 +52,9 @@ async def _seed_products(db_session):
     await db_session.execute(delete(DBCategory))
     await db_session.commit()
 
-    c1 = DBCategory(name="PACKAGING")
-    c2 = DBCategory(name="FILTERS")
-    c3 = DBCategory(name="CHEMICALS")
+    c1 = DBCategory(code="PACKAGING", name_en="Packaging", name_vi="Bao bì")
+    c2 = DBCategory(code="FILTERS", name_en="Filters", name_vi="Bộ lọc")
+    c3 = DBCategory(code="CHEMICALS", name_en="Chemicals", name_vi="Hóa chất")
     db_session.add_all([c1, c2, c3])
     await db_session.commit()
     await db_session.refresh(c1)

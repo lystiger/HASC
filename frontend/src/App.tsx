@@ -8,6 +8,7 @@ import TermsOfServicePage from './pages/TermsOfServicePage';
 import ShippingReturnsPage from './pages/ShippingReturnsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import AboutPage from './pages/AboutPage';
+import AdminCategoriesPage from './pages/AdminCategoriesPage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TaskMonitoringProvider } from './context/TaskMonitoringContext';
 import TaskMonitoringNotification from './components/TaskMonitoringNotification';
@@ -139,6 +140,7 @@ const AppLayout: React.FC = () => {
             <Route path="/about" element={<AboutPage />} />
             <Route path="/products/:id" element={<ProductDetailPage />} />
             <Route path="/admin" element={<AdminDashboardPage />} />
+            <Route path="/admin/categories" element={<AdminCategoriesPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<TermsOfServicePage />} />

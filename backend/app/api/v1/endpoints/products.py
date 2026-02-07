@@ -39,7 +39,7 @@ async def create_product(
     current_user: User = Depends(get_current_admin_user),
 ):
     category_result = await db.execute(
-        select(DBCategory).where(DBCategory.name == category)
+        select(DBCategory).where(DBCategory.code == category)
     )
     db_category = category_result.scalars().first()
     if not db_category:
@@ -149,7 +149,7 @@ async def get_products(
             return []
         status = ProductStatus.PUBLISHED
     if category is not None:
-        stmt = stmt.join(DBCategory).where(DBCategory.name == category)
+        stmt = stmt.join(DBCategory).where(DBCategory.code == category)
     if status is not None:
         stmt = stmt.where(DBProduct.status == status)
     if sku:
@@ -205,7 +205,7 @@ async def update_product(
         product.description = update_data["description"]
     if "category" in update_data:
         category_result = await db.execute(
-            select(DBCategory).where(DBCategory.name == update_data["category"])
+            select(DBCategory).where(DBCategory.code == update_data["category"])
         )
         db_category = category_result.scalars().first()
         if not db_category:

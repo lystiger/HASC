@@ -47,6 +47,9 @@ class ProductInDBBase(ProductBase):
     def normalize_category(cls, value):
         if isinstance(value, str) or value is None:
             return value
+        code = getattr(value, "code", None)
+        if code is not None:
+            return code
         name = getattr(value, "name", None)
         if name is not None:
             return name

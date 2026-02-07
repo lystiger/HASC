@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useCategories } from '../api/categoryService';
 import { apiClient } from '../api/apiClient';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
-import { getCategoryLabel } from '../utils/categoryLabels';
+import { getCategoryDisplayName } from '../utils/categoryDisplay';
 
 interface ProductUploadFormProps {
   onUploadSuccess: (
@@ -20,7 +20,7 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
   const [name, setName] = useState('');
   const [sku, setSku] = useState('');
   const [description, setDescription] = useState('');
-  const [categoryName, setCategoryName] = useState('');
+  const [categoryCode, setCategoryCode] = useState('');
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +30,7 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
     setError(null);
     setIsLoading(true);
 
-    if (!sku || !name || !description || !categoryName || imageFiles.length === 0) {
+    if (!sku || !name || !description || !categoryCode || imageFiles.length === 0) {
       setError(t('common.fill_all_fields'));
       setIsLoading(false);
       return;
@@ -40,7 +40,7 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
     formData.append('sku', sku);
     formData.append('name', name);
     formData.append('description', description);
-    formData.append('category', categoryName);
+    formData.append('category', categoryCode);
     formData.append('specific_attributes', JSON.stringify({}));
     imageFiles.forEach((file) => {
       formData.append('images', file);
@@ -57,14 +57,14 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
         onUploadSuccess(response.productId, response.taskIds, {
           name,
           sku,
-          category: categoryName,
+          category: categoryCode,
           description,
         });
         // Clear form
         setSku('');
         setName('');
         setDescription('');
-        setCategoryName('');
+        setCategoryCode('');
         setImageFiles([]);
       } else if (response.message) {
         setError(response.message);
@@ -132,15 +132,15 @@ const ProductUploadForm: React.FC<ProductUploadFormProps> = ({ onUploadSuccess }
           ) : (
             <select
               id="category"
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
+              value={categoryCode}
+              onChange={(e) => setCategoryCode(e.target.value)}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
               required
             >
               <option value="">{t('common.select_category')}</option>
               {categories?.map((cat) => (
-                <option key={cat.id} value={cat.name}>
-                  {getCategoryLabel(cat.name, i18n.resolvedLanguage ?? 'en')}
+                <option key={cat.id} value={cat.code}>
+                  {getCategoryDisplayName(cat, i18n.resolvedLanguage ?? 'en')}
                 </option>
               ))}
             </select>

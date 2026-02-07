@@ -18,10 +18,10 @@ async def _ensure_categories(db_session):
         return
     db_session.add_all(
         [
-            DBCategory(name="PACKAGING"),
-            DBCategory(name="FILTERS"),
-            DBCategory(name="CHEMICALS"),
-            DBCategory(name="EQUIPMENT"),
+            DBCategory(code="PACKAGING", name_en="Packaging", name_vi="Bao bì"),
+            DBCategory(code="FILTERS", name_en="Filters", name_vi="Bộ lọc"),
+            DBCategory(code="CHEMICALS", name_en="Chemicals", name_vi="Hóa chất"),
+            DBCategory(code="EQUIPMENT", name_en="Equipment", name_vi="Thiết bị"),
         ]
     )
     await db_session.commit()

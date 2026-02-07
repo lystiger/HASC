@@ -53,9 +53,9 @@ async def _seed_categories(db_session):
 
     db_session.add_all(
         [
-            DBCategory(name="PACKAGING"),
-            DBCategory(name="FILTERS"),
-            DBCategory(name="CHEMICALS"),
+            DBCategory(code="PACKAGING", name_en="Packaging", name_vi="Bao bì"),
+            DBCategory(code="FILTERS", name_en="Filters", name_vi="Bộ lọc"),
+            DBCategory(code="CHEMICALS", name_en="Chemicals", name_vi="Hóa chất"),
         ]
     )
     await db_session.commit()
@@ -64,7 +64,7 @@ async def _seed_categories(db_session):
 async def _seed_category_with_product(db_session):
     await _seed_categories(db_session)
     category = await db_session.execute(
-        DBCategory.__table__.select().where(DBCategory.name == "PACKAGING").limit(1)
+        DBCategory.__table__.select().where(DBCategory.code == "PACKAGING").limit(1)
     )
     row = category.first()
     category_id = row.id
@@ -89,24 +89,30 @@ async def test_list_categories(async_client_auth, db_session):
     resp = await async_client_auth.get("/api/v1/categories")
     assert resp.status_code == 200
     data = resp.json()
-    names = [c["name"] for c in data]
-    assert names == sorted(names)
-    assert set(names) == {"PACKAGING", "FILTERS", "CHEMICALS"}
+    codes = [c["code"] for c in data]
+    assert codes == sorted(codes)
+    assert set(codes) == {"PACKAGING", "FILTERS", "CHEMICALS"}
 
 
 @pytest.mark.asyncio
 async def test_create_category(async_client_auth, db_session):
     await _seed_categories(db_session)
-    resp = await async_client_auth.post("/api/v1/categories", json={"name": "EQUIPMENT"})
+    resp = await async_client_auth.post(
+        "/api/v1/categories",
+        json={"code": "EQUIPMENT", "name_en": "Equipment", "name_vi": "Thiết bị"},
+    )
     assert resp.status_code == 201
     data = resp.json()
-    assert data["name"] == "EQUIPMENT"
+    assert data["code"] == "EQUIPMENT"
 
 
 @pytest.mark.asyncio
 async def test_create_category_duplicate(async_client_auth, db_session):
     await _seed_categories(db_session)
-    resp = await async_client_auth.post("/api/v1/categories", json={"name": "PACKAGING"})
+    resp = await async_client_auth.post(
+        "/api/v1/categories",
+        json={"code": "PACKAGING", "name_en": "Packaging", "name_vi": "Bao bì"},
+    )
     assert resp.status_code == 409
 
 
@@ -129,10 +135,10 @@ async def test_update_category(async_client_auth, db_session):
 
     resp = await async_client_auth.put(
         f"/api/v1/categories/{category_id}",
-        json={"name": "PACKAGING-UPDATED"},
+        json={"name_en": "Packaging Updated"},
     )
     assert resp.status_code == 200
-    assert resp.json()["name"] == "PACKAGING-UPDATED"
+    assert resp.json()["name_en"] == "Packaging Updated"
 
 
 @pytest.mark.asyncio

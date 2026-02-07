@@ -5,7 +5,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class CategoryBase(BaseModel):
-    name: str = Field(..., min_length=1, max_length=100)
+    code: str = Field(..., min_length=1, max_length=50, pattern=r"^[A-Z0-9_]+$")
+    name_en: str = Field(..., min_length=1, max_length=100)
+    name_vi: str = Field(..., min_length=1, max_length=100)
 
 
 class CategoryCreate(CategoryBase):
@@ -13,7 +15,8 @@ class CategoryCreate(CategoryBase):
 
 
 class CategoryUpdate(BaseModel):
-    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    name_en: Optional[str] = Field(None, min_length=1, max_length=100)
+    name_vi: Optional[str] = Field(None, min_length=1, max_length=100)
 
 
 class Category(CategoryBase):

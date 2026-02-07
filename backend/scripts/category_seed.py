@@ -7,14 +7,42 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sess
 from app.core.config import settings
 from app.models.category import Category as DBCategory
 
-CATEGORY_NAMES = [
-    "Màng PE in, ghép, tráng keo",
-    "Màng co PE - Màng CPE",
-    "Thiết bị phun sơn(BELL CUP/BELL DISK-NOZZLE)",
-    "Màng PE màu",
-    "Túi bao gói sản phẩm",
-    "Hóa chất cho ngành giấy",
-    "Lọc (FILTER) - Thiết bị",
+CATEGORY_DEFAULTS = [
+    {
+        "code": "PE_FILM_PRINTED_LAMINATED",
+        "name_en": "Printed / laminated PE film with adhesive coating",
+        "name_vi": "Màng PE in, ghép, tráng keo",
+    },
+    {
+        "code": "PE_SHRINK_FILM",
+        "name_en": "PE shrink film - CPE film",
+        "name_vi": "Màng co PE - Màng CPE",
+    },
+    {
+        "code": "PAINT_SPRAY_EQUIPMENT",
+        "name_en": "Paint spray equipment (Bell Cup / Bell Disk - Nozzle)",
+        "name_vi": "Thiết bị phun sơn(BELL CUP/BELL DISK-NOZZLE)",
+    },
+    {
+        "code": "COLORED_PE_FILM",
+        "name_en": "Colored PE film",
+        "name_vi": "Màng PE màu",
+    },
+    {
+        "code": "PACKAGING_BAGS",
+        "name_en": "Product packaging bags",
+        "name_vi": "Túi bao gói sản phẩm",
+    },
+    {
+        "code": "PAPER_CHEMICALS",
+        "name_en": "Paper industry chemicals",
+        "name_vi": "Hóa chất cho ngành giấy",
+    },
+    {
+        "code": "FILTER_EQUIPMENT",
+        "name_en": "Filters (FILTER) - Equipment",
+        "name_vi": "Lọc (FILTER) - Thiết bị",
+    },
 ]
 
 
@@ -42,11 +70,19 @@ async def seed_categories(session: AsyncSession, replace: bool, delete_products:
         await session.execute(DBCategory.__table__.delete())
         await session.commit()
 
-    for name in CATEGORY_NAMES:
-        existing = await session.execute(select(DBCategory).where(DBCategory.name == name))
+    for category in CATEGORY_DEFAULTS:
+        existing = await session.execute(
+            select(DBCategory).where(DBCategory.code == category["code"])
+        )
         if existing.scalars().first():
             continue
-        session.add(DBCategory(name=name))
+        session.add(
+            DBCategory(
+                code=category["code"],
+                name_en=category["name_en"],
+                name_vi=category["name_vi"],
+            )
+        )
     await session.commit()
 
 

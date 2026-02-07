@@ -20,7 +20,7 @@ async def list_categories(
     db: AsyncSession = Depends(get_db),
     current_user: User | None = Depends(get_optional_user),
 ):
-    result = await db.execute(select(DBCategory).order_by(DBCategory.name))
+    result = await db.execute(select(DBCategory).order_by(DBCategory.code))
     categories = result.scalars().all()
     return [Category.model_validate(category) for category in categories]
 
@@ -32,7 +32,11 @@ async def create_category(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_admin_user),
 ):
-    db_category = DBCategory(name=category_in.name.strip())
+    db_category = DBCategory(
+        code=category_in.code.strip().upper(),
+        name_en=category_in.name_en.strip(),
+        name_vi=category_in.name_vi.strip(),
+    )
     db.add(db_category)
     try:
         await db.commit()
@@ -41,7 +45,7 @@ async def create_category(
         await db.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Category '{category_in.name}' already exists.",
+            detail=f"Category '{category_in.code}' already exists.",
         ) from exc
 
     return Category.model_validate(db_category)
@@ -72,9 +76,12 @@ async def update_category(
     if not category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
 
-    update_name = category_in.name.strip() if category_in.name is not None else None
-    if update_name:
-        category.name = update_name
+    update_name_en = category_in.name_en.strip() if category_in.name_en is not None else None
+    update_name_vi = category_in.name_vi.strip() if category_in.name_vi is not None else None
+    if update_name_en:
+        category.name_en = update_name_en
+    if update_name_vi:
+        category.name_vi = update_name_vi
 
     try:
         await db.commit()
@@ -83,7 +90,7 @@ async def update_category(
         await db.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Category '{update_name}' already exists.",
+            detail="Category update conflicts with an existing record.",
         ) from exc
 
     return Category.model_validate(category)

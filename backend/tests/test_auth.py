@@ -77,7 +77,7 @@ async def test_user_role_cannot_create_category(async_client_authless, db_sessio
 
     resp = await async_client_authless.post(
         f"{settings.API_V1_STR}/categories",
-        json={"name": "NEW-CAT"},
+        json={"code": "NEW_CAT", "name_en": "New Category", "name_vi": "Danh mục mới"},
         headers=headers,
     )
     assert resp.status_code == 403

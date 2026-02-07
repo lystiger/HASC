@@ -5,7 +5,8 @@ import { useTaskMonitoring } from '../context/TaskMonitoringContext';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
 import { useCategories } from '../api/categoryService';
 import { updateProductById } from '../api/productService';
-import { getCategoryLabel } from '../utils/categoryLabels';
+import { getCategoryDisplayName } from '../utils/categoryDisplay';
+import { Link } from 'react-router-dom';
 
 const AdminDashboardPage: React.FC = () => {
   const { t, i18n } = useTranslation(); // Initialize useTranslation
@@ -165,22 +166,30 @@ const AdminDashboardPage: React.FC = () => {
                   {t('admin.analytics_subtitle', { defaultValue: 'Open Umami dashboard for full insights.' })}
                 </p>
               </div>
-              {umamiDashboardUrl ? (
-                <a
-                  href={umamiDashboardUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center justify-center rounded-md border border-orange-600 bg-orange-600 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-white hover:border-orange-700 hover:bg-orange-700"
+              <div className="flex flex-wrap items-center gap-2">
+                {umamiDashboardUrl ? (
+                  <a
+                    href={umamiDashboardUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center rounded-md border border-orange-600 bg-orange-600 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-white hover:border-orange-700 hover:bg-orange-700"
+                  >
+                    {t('admin.analytics_cta', { defaultValue: 'Open Dashboard' })}
+                  </a>
+                ) : (
+                  <span className="text-xs text-slate-400">
+                    {t('admin.analytics_empty', {
+                      defaultValue: 'Set `VITE_UMAMI_DASHBOARD_URL` to enable.',
+                    })}
+                  </span>
+                )}
+                <Link
+                  to="/admin/categories"
+                  className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 hover:border-orange-300 hover:text-orange-600"
                 >
-                  {t('admin.analytics_cta', { defaultValue: 'Open Dashboard' })}
-                </a>
-              ) : (
-                <span className="text-xs text-slate-400">
-                  {t('admin.analytics_empty', {
-                    defaultValue: 'Set `VITE_UMAMI_DASHBOARD_URL` to enable.',
-                  })}
-                </span>
-              )}
+                  {t('admin.categories_cta', { defaultValue: 'Manage Categories' })}
+                </Link>
+              </div>
             </div>
           </div>
         </aside>
@@ -256,8 +265,8 @@ const AdminDashboardPage: React.FC = () => {
                     >
                       <option value="">{t('admin.select_category', { defaultValue: 'Select a category' })}</option>
                       {categories?.map((category) => (
-                        <option key={category.id} value={category.name}>
-                          {getCategoryLabel(category.name, i18n.resolvedLanguage ?? 'en')}
+                        <option key={category.id} value={category.code}>
+                          {getCategoryDisplayName(category, i18n.resolvedLanguage ?? 'en')}
                         </option>
                       ))}
                     </select>

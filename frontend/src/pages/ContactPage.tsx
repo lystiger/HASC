@@ -3,29 +3,23 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
 import { CONTACT_INFO } from '../constants/contactInfo';
 import { useCategories } from '../api/categoryService';
+import { getCategoryDisplayName } from '../utils/categoryDisplay';
 
 const ContactPage: React.FC = () => {
-  const { t } = useTranslation(); // Initialize useTranslation
+  const { t, i18n } = useTranslation(); // Initialize useTranslation
   const {
     data: categories = [],
     isLoading: categoriesLoading,
     error: categoriesError,
   } = useCategories();
-  const industryOptions = useMemo(() => {
-    const labelKeyMap: Record<string, string> = {
-      PACKAGING: 'contact.industry.packaging',
-      FILTERS: 'contact.industry.filters',
-      CHEMICALS: 'contact.industry.chemicals',
-      EQUIPMENT: 'contact.industry.equipment',
-    };
-    return categories.map((category) => {
-      const key = labelKeyMap[category.name];
-      return {
-        value: category.name,
-        label: key ? t(key, { defaultValue: category.name }) : category.name,
-      };
-    });
-  }, [categories, t]);
+  const industryOptions = useMemo(
+    () =>
+      categories.map((category) => ({
+        value: category.code,
+        label: getCategoryDisplayName(category, i18n.resolvedLanguage ?? 'en'),
+      })),
+    [categories, i18n.resolvedLanguage]
+  );
   const [formValues, setFormValues] = useState({
     name: '',
     company: '',

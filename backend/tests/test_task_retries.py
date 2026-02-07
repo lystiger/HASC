@@ -9,7 +9,7 @@ from app.worker import process_image_task
 @pytest.mark.asyncio
 async def test_task_retries_then_fails(db_session):
     # Seed category + product
-    category = DBCategory(name="PACKAGING")
+    category = DBCategory(code="PACKAGING", name_en="Packaging", name_vi="Bao bì")
     db_session.add(category)
     await db_session.commit()
     await db_session.refresh(category)

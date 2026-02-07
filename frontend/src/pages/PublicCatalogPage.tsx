@@ -6,10 +6,13 @@ import ProductCard from '../components/ProductCard';
 import CategoryFilterSidebar from '../components/CategoryFilterSidebar';
 import type { Product } from '../types/product';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
+import { useCategories } from '../api/categoryService';
+import { getCategoryDisplayNameByCode } from '../utils/categoryDisplay';
 
 const PublicCatalogPage: React.FC = () => {
-  const { t } = useTranslation(); // Initialize useTranslation
-  const [selectedCategoryNames, setSelectedCategoryNames] = useState<string[]>([]);
+  const { t, i18n } = useTranslation(); // Initialize useTranslation
+  const { data: categories } = useCategories();
+  const [selectedCategoryCodes, setSelectedCategoryCodes] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [skuQuery, setSkuQuery] = useState('');
   const [searchMode, setSearchMode] = useState<'name' | 'sku'>('name');
@@ -20,7 +23,7 @@ const PublicCatalogPage: React.FC = () => {
   const [debouncedSku, setDebouncedSku] = useState('');
   const normalizedSearch = debouncedSearch.trim();
   const normalizedSku = debouncedSku.trim();
-  const categoryParam = selectedCategoryNames.length === 1 ? selectedCategoryNames[0] : undefined;
+  const categoryParam = selectedCategoryCodes.length === 1 ? selectedCategoryCodes[0] : undefined;
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -42,8 +45,8 @@ const PublicCatalogPage: React.FC = () => {
     sku: searchMode === 'sku' && normalizedSku.length > 0 ? normalizedSku : undefined,
   });
 
-  const handleFilterChange = (newSelectedNames: string[]) => {
-    setSelectedCategoryNames(newSelectedNames);
+  const handleFilterChange = (newSelectedCodes: string[]) => {
+    setSelectedCategoryCodes(newSelectedCodes);
   };
 
   const demoProducts: Product[] = [
@@ -52,7 +55,7 @@ const PublicCatalogPage: React.FC = () => {
       sku: 'DEMO-001',
       name: t('common.demo_product_name'),
       description: t('common.demo_product_description'),
-      category: 'Màng PE in, ghép, tráng keo',
+      category: 'PE_FILM_PRINTED_LAMINATED',
       status: 'PUBLISHED',
       images: [
         {
@@ -70,7 +73,7 @@ const PublicCatalogPage: React.FC = () => {
       sku: 'DEMO-002',
       name: `${t('common.demo_product_name')} 2`,
       description: t('common.demo_product_description'),
-      category: 'Lọc (FILTER) - Thiết bị',
+      category: 'FILTER_EQUIPMENT',
       status: 'PUBLISHED',
       images: [
         {
@@ -88,7 +91,7 @@ const PublicCatalogPage: React.FC = () => {
       sku: 'DEMO-003',
       name: `${t('common.demo_product_name')} 3`,
       description: t('common.demo_product_description'),
-      category: 'Hóa chất cho ngành giấy',
+      category: 'PAPER_CHEMICALS',
       status: 'PUBLISHED',
       images: [
         {
@@ -160,8 +163,8 @@ const PublicCatalogPage: React.FC = () => {
 
   const filteredProducts = useMemo(() => {
     let working = products ?? [];
-    if (selectedCategoryNames.length > 1) {
-      working = working.filter((product) => selectedCategoryNames.includes(product.category));
+    if (selectedCategoryCodes.length > 1) {
+      working = working.filter((product) => selectedCategoryCodes.includes(product.category));
     }
     const key = attributeKey.trim();
     if (key.length > 0) {
@@ -171,12 +174,16 @@ const PublicCatalogPage: React.FC = () => {
       });
     }
     return working;
-  }, [products, selectedCategoryNames, attributeKey]);
+  }, [products, selectedCategoryCodes, attributeKey]);
 
   const activeFilters = [
     ...(searchMode === 'name' && normalizedSearch ? [`${t('common.search')}: ${normalizedSearch}`] : []),
     ...(searchMode === 'sku' && normalizedSku ? [`SKU: ${normalizedSku}`] : []),
-    ...(selectedCategoryNames.length > 0 ? selectedCategoryNames : []),
+    ...(selectedCategoryCodes.length > 0
+      ? selectedCategoryCodes.map((code) =>
+        getCategoryDisplayNameByCode(categories, code, i18n.resolvedLanguage ?? 'en')
+      )
+      : []),
     ...(attributeKey ? [`${attributeKey}`] : []),
   ];
 
@@ -278,7 +285,7 @@ const PublicCatalogPage: React.FC = () => {
                     setSearchQuery('');
                     setSkuQuery('');
                     setAttributeKey('');
-                    setSelectedCategoryNames([]);
+                    setSelectedCategoryCodes([]);
                   }}
                   className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-500 hover:border-orange-300 hover:text-orange-600"
                 >

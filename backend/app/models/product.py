@@ -46,4 +46,4 @@ class Product(Base):
     def category(self) -> str | None:
         if self.category_rel is None:
             return None
-        return self.category_rel.name
+        return self.category_rel.code

@@ -4,8 +4,6 @@ import PublicCatalogPage from './pages/PublicCatalogPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import ContactPage from './pages/ContactPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
-import TermsOfServicePage from './pages/TermsOfServicePage';
-import ShippingReturnsPage from './pages/ShippingReturnsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import AboutPage from './pages/AboutPage';
 import AdminCategoriesPage from './pages/AdminCategoriesPage';
@@ -50,6 +48,7 @@ const AppLayout: React.FC = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const umamiScriptUrl = import.meta.env.VITE_UMAMI_SCRIPT_URL as string | undefined;
   const umamiWebsiteId = import.meta.env.VITE_UMAMI_WEBSITE_ID as string | undefined;
+  const umamiEnabled = (import.meta.env.VITE_UMAMI_ENABLED as string | undefined) === 'true';
   const navRef = useRef<HTMLDivElement | null>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
   const location = useLocation();
@@ -94,7 +93,7 @@ const AppLayout: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!umamiScriptUrl || !umamiWebsiteId) {
+    if (!umamiEnabled || !umamiScriptUrl || !umamiWebsiteId) {
       return;
     }
     if (document.querySelector(`script[data-umami-script]`)) {
@@ -208,8 +207,6 @@ const AppLayout: React.FC = () => {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
-            <Route path="/terms" element={<TermsOfServicePage />} />
-            <Route path="/shipping" element={<ShippingReturnsPage />} />
             <Route path="*" element={<PublicCatalogPage />} />
           </Routes>
         </main>

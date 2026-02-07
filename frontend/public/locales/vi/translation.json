@@ -68,6 +68,8 @@
     "contact_intro": "Chúng tôi rất muốn nghe từ bạn! Vui lòng liên hệ với chúng tôi nếu có bất kỳ thắc mắc hoặc phản hồi nào.",
     "our_address": "Địa chỉ của chúng tôi",
     "business_hours": "Giờ làm việc",
+    "map_hint": "Bản đồ chỉ tải khi cần để tránh bị chặn.",
+    "map_load": "Tải bản đồ",
     "polling_failed_for_product": "Thăm dò sản phẩm {{productId}} thất bại:"
     ,
     "hero_kicker": "Đối tác vật tư công nghiệp",
@@ -191,7 +193,7 @@
     "analytics_heading": "Lưu lượng & lượt xem sản phẩm",
     "analytics_subtitle": "Mở bảng Umami để xem chi tiết.",
     "analytics_cta": "Mở bảng điều khiển",
-    "analytics_empty": "Thiết lập `VITE_UMAMI_DASHBOARD_URL` để bật.",
+    "analytics_empty": "Thiết lập `VITE_UMAMI_ENABLED=true` và `VITE_UMAMI_DASHBOARD_URL` để bật.",
     "upload_title": "Tải hình ảnh sản phẩm",
     "upload_subtitle": "Bắt đầu bằng hình ảnh chất lượng cao. Hệ thống sẽ tự tối ưu.",
     "details_title": "Thêm chi tiết sản phẩm",

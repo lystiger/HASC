@@ -1,11 +1,12 @@
 // frontend/src/components/Footer.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
 import { Link } from 'react-router-dom';
 import { CONTACT_INFO } from '../constants/contactInfo';
 
 const Footer: React.FC = () => {
   const { t } = useTranslation(); // Initialize useTranslation
+  const [showMap, setShowMap] = useState(false);
   return (
     <footer className="bg-slate-industrial text-white py-4 mt-6">
       <div className="container mx-auto px-6 max-w-screen-xl">
@@ -78,13 +79,26 @@ const Footer: React.FC = () => {
               </a>
             </div>
             <div className="flex-1 overflow-hidden rounded-lg border border-slate-200 bg-white/10">
-              <iframe
-                className="h-full w-full"
-                src={CONTACT_INFO.mapsEmbedUrl}
-                allowFullScreen
-                loading="lazy"
-                title="HASC VN Map"
-              />
+              {showMap ? (
+                <iframe
+                  className="h-full w-full"
+                  src={CONTACT_INFO.mapsEmbedUrl}
+                  allowFullScreen
+                  loading="lazy"
+                  title="HASC VN Map"
+                />
+              ) : (
+                <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center text-xs text-gray-300">
+                  <p>{t('common.map_hint', { defaultValue: 'Map loads on demand to avoid blockers.' })}</p>
+                  <button
+                    type="button"
+                    onClick={() => setShowMap(true)}
+                    className="rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-gray-200 transition-colors hover:border-orange-400 hover:text-white"
+                  >
+                    {t('common.map_load', { defaultValue: 'Load Map' })}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -94,12 +108,6 @@ const Footer: React.FC = () => {
             <div className="flex flex-wrap items-center gap-4 text-xs uppercase tracking-[0.2em] text-gray-400">
               <Link to="/privacy" className="hover:text-white transition-colors duration-200">
                 {t('common.privacy_policy')}
-              </Link>
-              <Link to="/terms" className="hover:text-white transition-colors duration-200">
-                {t('common.terms_of_service')}
-              </Link>
-              <Link to="/shipping" className="hover:text-white transition-colors duration-200">
-                {t('common.shipping_returns')}
               </Link>
             </div>
             <div className="text-xs text-gray-400">

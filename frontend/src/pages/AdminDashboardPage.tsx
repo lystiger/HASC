@@ -25,6 +25,7 @@ const AdminDashboardPage: React.FC = () => {
   const [isSavingDetails, setIsSavingDetails] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const umamiDashboardUrl = import.meta.env.VITE_UMAMI_DASHBOARD_URL as string | undefined;
+  const umamiEnabled = (import.meta.env.VITE_UMAMI_ENABLED as string | undefined) === 'true';
   const { data: categories, isLoading: isLoadingCategories, isError: isErrorCategories } = useCategories();
   const isAdmin = getStoredUserRole() === 'ADMIN';
 
@@ -170,7 +171,7 @@ const AdminDashboardPage: React.FC = () => {
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                {umamiDashboardUrl ? (
+                {umamiEnabled && umamiDashboardUrl ? (
                   <a
                     href={umamiDashboardUrl}
                     target="_blank"
@@ -182,7 +183,7 @@ const AdminDashboardPage: React.FC = () => {
                 ) : (
                   <span className="text-xs text-slate-400">
                     {t('admin.analytics_empty', {
-                      defaultValue: 'Set `VITE_UMAMI_DASHBOARD_URL` to enable.',
+                      defaultValue: 'Set `VITE_UMAMI_ENABLED=true` and `VITE_UMAMI_DASHBOARD_URL` to enable.',
                     })}
                   </span>
                 )}

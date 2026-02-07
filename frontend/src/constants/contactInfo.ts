@@ -1,7 +1,7 @@
 export const CONTACT_INFO = {
   address: 'Cạnh Gara Oto 360, Thôn như Quỳnh, TT Như Quỳnh, Văn Lâm, Hưng Yên',
   email: 'info@hascvn.com',
-  phone: '+1 (555) 123-4567',
+  phone: '+98 979068188',
   socials: {
     zalo: 'https://zalo.me/your-id',
     facebook: 'https://facebook.com/your-page',

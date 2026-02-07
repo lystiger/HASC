@@ -68,6 +68,8 @@
     "contact_intro": "We'd love to hear from you! Please feel free to reach out to us with any inquiries or feedback.",
     "our_address": "Our Address",
     "business_hours": "Business Hours",
+    "map_hint": "Map loads on demand to avoid blockers.",
+    "map_load": "Load Map",
     "polling_failed_for_product": "Polling for product {{productId}} failed:"
     ,
     "hero_kicker": "Industrial Supply Partner",
@@ -191,7 +193,7 @@
     "analytics_heading": "Traffic & Product Views",
     "analytics_subtitle": "Open Umami dashboard for full insights.",
     "analytics_cta": "Open Dashboard",
-    "analytics_empty": "Set `VITE_UMAMI_DASHBOARD_URL` to enable.",
+    "analytics_empty": "Set `VITE_UMAMI_ENABLED=true` and `VITE_UMAMI_DASHBOARD_URL` to enable.",
     "upload_title": "Upload Product Images",
     "upload_subtitle": "Start by uploading high-resolution product images. We will optimize them automatically.",
     "details_title": "Add Product Details",

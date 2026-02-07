@@ -246,7 +246,12 @@ async def delete_product(
     if not product:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
 
-    # If it exists, delete it
+    # Delete dependent tasks first to satisfy FK constraints
+    await db.execute(
+        delete(DBTask)
+        .where(DBTask.product_id == product_id)
+    )
+    # Then delete the product
     await db.execute(
         delete(DBProduct)
         .where(DBProduct.id == product_id)

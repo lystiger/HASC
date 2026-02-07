@@ -44,6 +44,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
         />
+        {product.images && product.images.length > 1 && (
+          <span className="absolute left-2 top-2 rounded-full bg-slate-900/80 px-2 py-1 text-[10px] font-semibold text-white">
+            +{product.images.length - 1}
+          </span>
+        )}
         <span className={`absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClasses(product.status)}`}>
           {t(`status.${product.status}`)} {/* Translate status */}
         </span>

@@ -9,6 +9,7 @@ import logging # Import logging
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy import select
+from sqlalchemy.orm.attributes import flag_modified
 from datetime import datetime
 
 from app.core.config import settings
@@ -112,11 +113,12 @@ async def process_image_task(db: AsyncSession, task: DBTask):
         # Update product's images list
         db_product = await db.get(DBProduct, product_id)
         if db_product:
-            if not db_product.images:
-                db_product.images = []
-            db_product.images.append(
+            current_images = list(db_product.images or [])
+            current_images.append(
                 {"original_name": original_filename, "web_url": web_url, "thumb_url": thumb_url}
             )
+            db_product.images = current_images
+            flag_modified(db_product, "images")
             db.add(db_product)
             await db.commit()
             await db.refresh(db_product)

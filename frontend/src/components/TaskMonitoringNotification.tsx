@@ -5,7 +5,7 @@ import { useProductPolling } from '../hooks/useProductPolling';
 import { ACTIVE_TASK_STATUSES, TASK_STATUS } from '../types/task';
 import type { MonitoringTask, TaskStatus } from '../types/task';
 import type { Product } from '../types/product';
-import { X, CheckCircle, AlertCircle, Loader, Archive } from 'lucide-react';
+import { X, CheckCircle, AlertCircle, Loader } from 'lucide-react';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
 
 // Utility to get icon based on task status
@@ -32,6 +32,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDismiss }) => {
   const { t } = useTranslation(); // Initialize useTranslation
   // Use polling for products that are still pending or in progress
   const shouldPoll = ACTIVE_TASK_STATUSES.includes(task.status);
+  const [dismissAt, setDismissAt] = useState<number | null>(null);
+  const [remainingMs, setRemainingMs] = useState(0);
+  const dismissAfterMs = 10000;
 
   useProductPolling({
     productId: task.productId,
@@ -46,6 +49,29 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDismiss }) => {
     },
   });
 
+  useEffect(() => {
+    if (task.status !== TASK_STATUS.COMPLETED && task.status !== TASK_STATUS.FAILED) {
+      setDismissAt(null);
+      setRemainingMs(0);
+      return;
+    }
+    const expiresAt = Date.now() + dismissAfterMs;
+    setDismissAt(expiresAt);
+    setRemainingMs(dismissAfterMs);
+    const timeout = window.setTimeout(() => {
+      onDismiss(task.id);
+    }, dismissAfterMs);
+    const interval = window.setInterval(() => {
+      setRemainingMs(Math.max(0, expiresAt - Date.now()));
+    }, 100);
+    return () => {
+      window.clearTimeout(timeout);
+      window.clearInterval(interval);
+    };
+  }, [task.status, task.id, onDismiss]);
+
+  const showCountdown = dismissAt !== null && remainingMs > 0;
+
   return (
     <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm mb-2">
       <div className="flex items-center space-x-2">
@@ -56,9 +82,29 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDismiss }) => {
         </div>
       </div>
       {(task.status === TASK_STATUS.COMPLETED || task.status === TASK_STATUS.FAILED) && (
-        <button onClick={() => onDismiss(task.id)} className="text-gray-400 hover:text-gray-600">
-          <X size={16} />
-        </button>
+        <div className="flex items-center gap-2">
+          {showCountdown && (
+            <span className="relative flex h-5 w-5 items-center justify-center text-[9px] font-semibold text-slate-600">
+              <span
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: `conic-gradient(#10b981 ${
+                    Math.round((remainingMs / dismissAfterMs) * 360)
+                  }deg, rgba(16, 185, 129, 0.2) ${
+                    Math.round((remainingMs / dismissAfterMs) * 360)
+                  }deg)`,
+                }}
+              />
+              <span className="absolute inset-0 rounded-full border border-emerald-200" />
+              <span className="relative z-10">
+                {Math.max(0, Math.ceil(remainingMs / 1000))}
+              </span>
+            </span>
+          )}
+          <button onClick={() => onDismiss(task.id)} className="text-gray-400 hover:text-gray-600">
+            <X size={16} />
+          </button>
+        </div>
       )}
     </div>
   );
@@ -67,7 +113,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDismiss }) => {
 
 const TaskMonitoringNotification: React.FC = () => {
   const { t } = useTranslation(); // Initialize useTranslation
-  const { tasks, updateTaskStatus } = useTaskMonitoring();
+  const { tasks } = useTaskMonitoring();
   const [visibleTasks, setVisibleTasks] = useState<MonitoringTask[]>([]);
 
   useEffect(() => {

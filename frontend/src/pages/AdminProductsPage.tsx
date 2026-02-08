@@ -1,5 +1,5 @@
 // frontend/src/pages/AdminProductsPage.tsx
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchProductById, updateProductById, useProducts } from '../api/productService';
@@ -72,6 +72,7 @@ const AdminProductsPage: React.FC = () => {
   const [showProcessingIndicator, setShowProcessingIndicator] = useState(false);
   const [processingCountdownMs, setProcessingCountdownMs] = useState(0);
   const processingDisplayMs = 10000;
+  const editSectionRef = useRef<HTMLDivElement | null>(null);
 
   const { data: products, isLoading, isError, error } = useProducts({
     category: categoryFilter || undefined,
@@ -166,6 +167,16 @@ const AdminProductsPage: React.FC = () => {
     setShowProcessingIndicator(false);
     setProcessingCountdownMs(0);
   };
+
+  useEffect(() => {
+    if (!editingProduct) {
+      return;
+    }
+    const handle = window.requestAnimationFrame(() => {
+      editSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    return () => window.cancelAnimationFrame(handle);
+  }, [editingProduct]);
 
   const handleSetMainImage = (index: number) => {
     if (!editValues.images || editValues.images.length === 0) {
@@ -514,7 +525,7 @@ const AdminProductsPage: React.FC = () => {
       </div>
 
       {editingProduct && (
-        <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div ref={editSectionRef} className="mt-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <h2 className="text-xl font-semibold text-slate-900">

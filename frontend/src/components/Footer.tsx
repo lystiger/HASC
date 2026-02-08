@@ -5,8 +5,10 @@ import { Link } from 'react-router-dom';
 import { CONTACT_INFO } from '../constants/contactInfo';
 
 const Footer: React.FC = () => {
-  const { t } = useTranslation(); // Initialize useTranslation
+  const { t, i18n } = useTranslation(); // Initialize useTranslation
   const [showMap, setShowMap] = useState(false);
+  const contactAddress =
+    i18n.resolvedLanguage?.startsWith('en') ? CONTACT_INFO.address_en : CONTACT_INFO.address_vi;
   return (
     <footer className="bg-slate-industrial text-white py-4 mt-6">
       <div className="container mx-auto px-6 max-w-screen-xl">
@@ -38,10 +40,26 @@ const Footer: React.FC = () => {
             <div className="flex-1 rounded-lg border border-slate-200 bg-white/10 p-4">
               <h3 className="text-lg font-semibold mb-3">{t('common.contact')}</h3>
               <p className="text-sm text-gray-300">
-                {t('common.email')}: {CONTACT_INFO.email}
+                {t('common.email')}:
+                <span className="ml-2">
+                  {CONTACT_INFO.emails.map((email, index) => (
+                    <span key={email}>
+                      {email}
+                      {index < CONTACT_INFO.emails.length - 1 ? ', ' : ''}
+                    </span>
+                  ))}
+                </span>
               </p>
               <p className="text-sm text-gray-300">
-                {t('common.phone')}: {CONTACT_INFO.phone}
+                {t('common.phone')}:
+                <span className="ml-2">
+                  {CONTACT_INFO.phones.map((phone, index) => (
+                    <span key={phone}>
+                      {phone}
+                      {index < CONTACT_INFO.phones.length - 1 ? ', ' : ''}
+                    </span>
+                  ))}
+                </span>
               </p>
               <div className="mt-3 flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-gray-300">
                 <span>{t('common.find_us', { defaultValue: 'Find us' })}</span>
@@ -74,7 +92,7 @@ const Footer: React.FC = () => {
                 </div>
               </div>
               <p className="mt-3 text-sm text-gray-300 font-mono">
-                {CONTACT_INFO.address}
+                {contactAddress}
               </p>
               <a
                 href={CONTACT_INFO.mapsUrl}

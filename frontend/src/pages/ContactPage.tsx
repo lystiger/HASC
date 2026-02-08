@@ -7,6 +7,8 @@ import { getCategoryDisplayName } from '../utils/categoryDisplay';
 
 const ContactPage: React.FC = () => {
   const { t, i18n } = useTranslation(); // Initialize useTranslation
+  const contactAddress =
+    i18n.resolvedLanguage?.startsWith('en') ? CONTACT_INFO.address_en : CONTACT_INFO.address_vi;
   const {
     data: categories = [],
     isLoading: categoriesLoading,
@@ -226,20 +228,32 @@ const ContactPage: React.FC = () => {
                 {t('common.our_address')}
               </p>
               <p className="mt-2 text-sm text-slate-700">
-                {CONTACT_INFO.address}
+                {contactAddress}
               </p>
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
                 {t('common.phone')}
               </p>
-              <p className="mt-2 mono-data text-sm text-slate-700">{CONTACT_INFO.phone}</p>
+              <div className="mt-2 space-y-1 text-sm text-slate-700">
+                {CONTACT_INFO.phones.map((phone) => (
+                  <p key={phone} className="mono-data">
+                    {phone}
+                  </p>
+                ))}
+              </div>
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
                 {t('common.email')}
               </p>
-              <p className="mt-2 mono-data text-sm text-slate-700">{CONTACT_INFO.email}</p>
+              <div className="mt-2 space-y-1 text-sm text-slate-700">
+                {CONTACT_INFO.emails.map((email) => (
+                  <p key={email} className="mono-data">
+                    {email}
+                  </p>
+                ))}
+              </div>
               <p className="mt-4 text-xs uppercase tracking-[0.3em] text-slate-400">
                 {t('common.find_us', { defaultValue: 'Find us' })}
               </p>

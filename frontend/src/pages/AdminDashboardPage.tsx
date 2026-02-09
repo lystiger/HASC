@@ -36,7 +36,7 @@ const AdminDashboardPage: React.FC = () => {
 
   const handleUploadSuccess = (
     productId: string,
-    taskIds: string[],
+    _taskIds: string[],
     details: {
       name_en: string;
       name_vi: string;

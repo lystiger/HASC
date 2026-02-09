@@ -64,6 +64,44 @@ services:
       - db
       - backend # Depend on backend to ensure migrations might have run if that's how it's setup
 
+  frontend-public:
+    build:
+      context: ./frontend
+      args:
+        VITE_SITE_MODE: public
+        VITE_UMAMI_ENABLED: "true"
+        VITE_UMAMI_SCRIPT_URL: https://umami.hascvn.id.vn/script.js
+        VITE_UMAMI_WEBSITE_ID: REPLACE_PUBLIC_WEBSITE_ID
+        VITE_UMAMI_DASHBOARD_URL: https://umami.hascvn.id.vn
+        VITE_API_BASE_URL: http://localhost:8000
+    depends_on:
+      - backend
+      - umami
+
+  frontend-admin:
+    build:
+      context: ./frontend
+      args:
+        VITE_SITE_MODE: admin
+        VITE_UMAMI_ENABLED: "true"
+        VITE_UMAMI_SCRIPT_URL: https://umami.hascvn.id.vn/script.js
+        VITE_UMAMI_WEBSITE_ID: REPLACE_ADMIN_WEBSITE_ID
+        VITE_UMAMI_DASHBOARD_URL: https://umami.hascvn.id.vn
+        VITE_API_BASE_URL: http://localhost:8000
+    depends_on:
+      - backend
+      - umami
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend-public
+      - frontend-admin
+
 volumes:
   postgres_data:
   umami_data:

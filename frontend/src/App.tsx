@@ -46,6 +46,8 @@ const RequireAdmin: React.FC<{ children: React.ReactElement; redirectTo: string 
 const AppLayout: React.FC = () => {
   const { t } = useTranslation();
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const siteMode = (import.meta.env.VITE_SITE_MODE as string | undefined) || 'public';
+  const isAdminSite = siteMode === 'admin';
   const umamiScriptUrl = import.meta.env.VITE_UMAMI_SCRIPT_URL as string | undefined;
   const umamiWebsiteId = import.meta.env.VITE_UMAMI_WEBSITE_ID as string | undefined;
   const umamiEnabled = (import.meta.env.VITE_UMAMI_ENABLED as string | undefined) === 'true';
@@ -53,14 +55,16 @@ const AppLayout: React.FC = () => {
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
   const location = useLocation();
 
-  const navLinks = useMemo(
-    () => [
+  const navLinks = useMemo(() => {
+    if (isAdminSite) {
+      return [{ to: '/admin', label: t('common.admin_nav', { defaultValue: 'Admin' }) }];
+    }
+    return [
       { to: '/', label: t('common.products') },
       { to: '/contact', label: t('common.contact_us_link') },
       { to: '/about', label: t('common.about_nav', { defaultValue: 'About' }) },
-    ],
-    [t]
-  );
+    ];
+  }, [isAdminSite, t]);
   const [role, setRole] = useState(getStoredUserRole());
   useEffect(() => {
     const handleAuthChange = () => setRole(getStoredUserRole());
@@ -72,13 +76,14 @@ const AppLayout: React.FC = () => {
     };
   }, []);
   const isAdmin = role === 'ADMIN';
-  const fullNavLinks = useMemo(
-    () =>
-      isAdmin
-        ? [...navLinks, { to: '/admin', label: t('common.admin_nav', { defaultValue: 'Admin' }) }]
-        : navLinks,
-    [isAdmin, navLinks, t]
-  );
+  const fullNavLinks = useMemo(() => {
+    if (isAdminSite) {
+      return navLinks;
+    }
+    return isAdmin
+      ? [...navLinks, { to: '/admin', label: t('common.admin_nav', { defaultValue: 'Admin' }) }]
+      : navLinks;
+  }, [isAdmin, isAdminSite, navLinks, t]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -177,37 +182,48 @@ const AppLayout: React.FC = () => {
         </header>
         <main className="flex-grow">
           <Routes>
-            <Route path="/" element={<PublicCatalogPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/products/:id" element={<ProductDetailPage />} />
-            <Route
-              path="/admin"
-              element={
-                <RequireAdmin redirectTo="/login?next=/admin">
-                  <AdminDashboardPage />
-                </RequireAdmin>
-              }
-            />
-            <Route
-              path="/admin/categories"
-              element={
-                <RequireAdmin redirectTo="/login?next=/admin/categories">
-                  <AdminCategoriesPage />
-                </RequireAdmin>
-              }
-            />
-            <Route
-              path="/admin/products"
-              element={
-                <RequireAdmin redirectTo="/login?next=/admin/products">
-                  <AdminProductsPage />
-                </RequireAdmin>
-              }
-            />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/privacy" element={<PrivacyPolicyPage />} />
-            <Route path="*" element={<PublicCatalogPage />} />
+            {isAdminSite ? (
+              <>
+                <Route path="/" element={<Navigate to="/admin" replace />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <RequireAdmin redirectTo="/login?next=/admin">
+                      <AdminDashboardPage />
+                    </RequireAdmin>
+                  }
+                />
+                <Route
+                  path="/admin/categories"
+                  element={
+                    <RequireAdmin redirectTo="/login?next=/admin/categories">
+                      <AdminCategoriesPage />
+                    </RequireAdmin>
+                  }
+                />
+                <Route
+                  path="/admin/products"
+                  element={
+                    <RequireAdmin redirectTo="/login?next=/admin/products">
+                      <AdminProductsPage />
+                    </RequireAdmin>
+                  }
+                />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="*" element={<Navigate to="/admin" replace />} />
+              </>
+            ) : (
+              <>
+                <Route path="/" element={<PublicCatalogPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/products/:id" element={<ProductDetailPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                <Route path="/admin/*" element={<Navigate to="/" replace />} />
+                <Route path="/login" element={<Navigate to="/" replace />} />
+                <Route path="*" element={<PublicCatalogPage />} />
+              </>
+            )}
           </Routes>
         </main>
         <TaskMonitoringNotification />

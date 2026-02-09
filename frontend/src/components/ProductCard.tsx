@@ -8,6 +8,7 @@ import { getProductDisplayDescription, getProductDisplayName } from '../utils/pr
 
 interface ProductCardProps {
   product: Product;
+  showStatus?: boolean;
 }
 
 const getStatusBadgeClasses = (status: ProductStatus) => {
@@ -25,18 +26,14 @@ const getStatusBadgeClasses = (status: ProductStatus) => {
   }
 };
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, showStatus = false }) => {
   const { t, i18n } = useTranslation(); // Initialize useTranslation
   const isPubliclyVisible = product.status === 'PUBLISHED';
   const cardOpacity = isPubliclyVisible ? 'opacity-100' : 'opacity-60'; // Mute non-published cards
+  const cardClassName = `group relative flex h-full flex-col rounded-lg bg-white shadow-md transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl ${cardOpacity}`;
 
-  const CardWrapper = isPubliclyVisible ? Link : 'div';
-
-  return (
-    <CardWrapper
-      {...(isPubliclyVisible ? { to: `/products/${product.id}` } : {})}
-      className={`group relative flex h-full flex-col rounded-lg bg-white shadow-md transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl ${cardOpacity}`}
-    >
+  const content = (
+    <>
       <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
         <img
           src={resolveMediaUrl(product.images?.[0]?.web_url) || '/placeholder.png'}
@@ -49,9 +46,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             +{product.images.length - 1}
           </span>
         )}
-        <span className={`absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClasses(product.status)}`}>
-          {t(`status.${product.status}`)} {/* Translate status */}
-        </span>
+        {showStatus && (
+          <span
+            className={`absolute top-2 right-2 rounded-full px-3 py-1 text-xs font-semibold ${getStatusBadgeClasses(product.status)}`}
+          >
+            {t(`status.${product.status}`)}
+          </span>
+        )}
       </div>
       <div className="flex flex-1 flex-col p-4">
         <h3 className="text-lg font-semibold text-gray-900 truncate mb-1">
@@ -76,8 +77,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           )}
         </div>
       </div>
-    </CardWrapper>
+    </>
   );
+
+  if (isPubliclyVisible) {
+    return (
+      <Link to={`/products/${product.id}`} className={cardClassName}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className={cardClassName}>{content}</div>;
 };
 
 export default ProductCard;

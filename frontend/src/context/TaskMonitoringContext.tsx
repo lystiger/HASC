@@ -1,5 +1,6 @@
 // frontend/src/context/TaskMonitoringContext.tsx
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import type { ReactNode } from 'react';
 import { TASK_STATUS } from '../types/task';
 import type { MonitoringTask, TaskStatus } from '../types/task';
 

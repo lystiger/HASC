@@ -35,7 +35,7 @@ export const useProductPolling = ({ productId, taskId, onSuccess, onError }: Pro
     onErrorRef.current = onError;
   }, [onError]);
 
-  const { data: product, status, error, isSuccess, isError, isFetchedAfterMount } = useQuery<Product, Error>({
+  const { data: product, status, error, isError, isFetchedAfterMount } = useQuery<Product, Error>({
     queryKey: ['productStatus', productId],
     queryFn: () => fetchProductStatus(productId),
     enabled: !!productId, // Only enable if productId is available

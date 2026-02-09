@@ -2,9 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTaskMonitoring } from '../context/TaskMonitoringContext';
 import { useProductPolling } from '../hooks/useProductPolling';
-import { ACTIVE_TASK_STATUSES, TASK_STATUS } from '../types/task';
+import { TASK_STATUS } from '../types/task';
 import type { MonitoringTask, TaskStatus } from '../types/task';
-import type { Product } from '../types/product';
 import { X, CheckCircle, AlertCircle, Loader } from 'lucide-react';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
 
@@ -30,8 +29,6 @@ interface TaskItemProps {
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, onDismiss }) => {
   const { t } = useTranslation(); // Initialize useTranslation
-  // Use polling for products that are still pending or in progress
-  const shouldPoll = ACTIVE_TASK_STATUSES.includes(task.status);
   const [dismissAt, setDismissAt] = useState<number | null>(null);
   const [remainingMs, setRemainingMs] = useState(0);
   const dismissAfterMs = 10000;
@@ -39,11 +36,6 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onDismiss }) => {
   useProductPolling({
     productId: task.productId,
     taskId: task.id,
-    onSuccess: (product: Product) => {
-      // Invalidate specific product query in public catalog
-      // This is already done inside useProductPolling's useEffect,
-      // but if we needed to trigger something else here, we could.
-    },
     onError: (error: Error) => {
       console.error(t('common.polling_failed_for_product', { productId: task.productId }), error); // Translated
     },

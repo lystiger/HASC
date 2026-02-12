@@ -56,14 +56,16 @@ const AppLayout: React.FC = () => {
   const location = useLocation();
 
   const navLinks = useMemo(() => {
-    if (isAdminSite) {
-      return [{ to: '/admin', label: t('common.admin_nav', { defaultValue: 'Admin' }) }];
-    }
-    return [
+    const baseLinks = [
       { to: '/', label: t('common.products') },
       { to: '/contact', label: t('common.contact_us_link') },
       { to: '/about', label: t('common.about_nav', { defaultValue: 'About' }) },
     ];
+    const adminLink = { to: '/admin', label: t('common.admin_nav', { defaultValue: 'Admin' }) };
+    if (isAdminSite) {
+      return [adminLink, ...baseLinks];
+    }
+    return baseLinks;
   }, [isAdminSite, t]);
   const [role, setRole] = useState(getStoredUserRole());
   useEffect(() => {
@@ -80,9 +82,11 @@ const AppLayout: React.FC = () => {
     if (isAdminSite) {
       return navLinks;
     }
-    return isAdmin
-      ? [...navLinks, { to: '/admin', label: t('common.admin_nav', { defaultValue: 'Admin' }) }]
-      : navLinks;
+    if (isAdmin) {
+      const adminLink = { to: '/admin', label: t('common.admin_nav', { defaultValue: 'Admin' }) };
+      return [adminLink, ...navLinks];
+    }
+    return navLinks;
   }, [isAdmin, isAdminSite, navLinks, t]);
 
   useEffect(() => {
@@ -184,7 +188,11 @@ const AppLayout: React.FC = () => {
           <Routes>
             {isAdminSite ? (
               <>
-                <Route path="/" element={<Navigate to="/admin" replace />} />
+                <Route path="/" element={<PublicCatalogPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/products/:id" element={<ProductDetailPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/privacy" element={<PrivacyPolicyPage />} />
                 <Route
                   path="/admin"
                   element={
@@ -210,7 +218,7 @@ const AppLayout: React.FC = () => {
                   }
                 />
                 <Route path="/login" element={<LoginPage />} />
-                <Route path="*" element={<Navigate to="/admin" replace />} />
+                <Route path="*" element={<PublicCatalogPage />} />
               </>
             ) : (
               <>

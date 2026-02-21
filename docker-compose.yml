@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:16
+    image: postgres:13
     restart: unless-stopped
     volumes:
       - postgres_data:/var/lib/postgresql/data/
@@ -10,14 +10,14 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
 
   umami-db:
-    image: postgres:16
+    image: postgres:13
     restart: unless-stopped
     volumes:
       - umami_data:/var/lib/postgresql/data/
     environment:
-      - UMAMI_POSTGRES_USER=${UMAMI_POSTGRES_USER}
-      - UMAMI_POSTGRES_PASSWORD=${UMAMI_POSTGRES_PASSWORD}
-      - UMAMI_POSTGRES_DB=${UMAMI_POSTGRES_DB}
+      - POSTGRES_USER=${UMAMI_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${UMAMI_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${UMAMI_POSTGRES_DB}
 
   umami:
     image: ghcr.io/umami-software/umami:postgresql-latest

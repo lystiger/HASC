@@ -26,4 +26,4 @@ Create two separate Railway services from this repository.
 
 ## Notes
 - `VITE_*` values are compiled at build time. Redeploy the service after changing them.
-- Keep backend as a separate Railway service (already configured via `railway.toml` + `Dockerfile.railway`).
+- Keep backend as a separate Railway service — see [railway-deployment.md](railway-deployment.md) for the full setup (backend, volume, env vars, seeding).

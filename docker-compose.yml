@@ -41,6 +41,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - UPLOAD_DIR=${UPLOAD_DIR}
       - TEMP_UPLOAD_DIR=${TEMP_UPLOAD_DIR}
+      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-}
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).read()\""]
       interval: 30s

@@ -36,7 +36,7 @@ Path(PERMANENT_UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
 Path(TEMP_UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
 
 # Async database engine and session for the worker
-engine = create_async_engine(settings.DATABASE_URL, echo=True)
+engine = create_async_engine(settings.DATABASE_URL, echo=False, pool_pre_ping=True)
 AsyncSessionLocal = async_sessionmaker(
     autocommit=False,
     autoflush=False,

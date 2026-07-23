@@ -17,6 +17,34 @@ Thumbs.db
 !.env.example
 
 # =====================
+# TLS certificates / private keys
+# (mount real certs at deploy time; never commit them)
+# =====================
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+nginx/certs/*
+!nginx/certs/README.md
+
+# =====================
+# SQLite databases (dev/test artifacts, regenerated on demand)
+# =====================
+*.db
+*.sqlite
+*.sqlite3
+
+# =====================
+# Uploaded / generated media (served from a volume in production)
+# =====================
+uploads/
+temp_uploads/
+backend/uploads/
+backend/temp_uploads/
+
+# =====================
 # Dependencies
 # =====================
 node_modules/

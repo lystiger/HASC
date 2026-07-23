@@ -8,6 +8,12 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   umami-db:
     image: postgres:13
@@ -18,6 +24,12 @@ services:
       - POSTGRES_USER=${UMAMI_POSTGRES_USER}
       - POSTGRES_PASSWORD=${UMAMI_POSTGRES_PASSWORD}
       - POSTGRES_DB=${UMAMI_POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${UMAMI_POSTGRES_USER} -d $${UMAMI_POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   umami:
     image: ghcr.io/umami-software/umami:postgresql-latest
@@ -28,7 +40,23 @@ services:
       - HASH_SALT=${UMAMI_HASH_SALT}
       - ALLOW_EMBEDDING=1
     depends_on:
-      - umami-db
+      umami-db:
+        condition: service_healthy
+
+  # One-shot service that applies Alembic migrations and exits. Runs the same
+  # image as the backend (no Railway-specific Dockerfile) so migrations happen
+  # deterministically, exactly once, before the API or worker start. Dependents
+  # gate on `service_completed_successfully`.
+  migrate:
+    build: ./backend
+    command: alembic upgrade head
+    restart: "no"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY must be set (see .env.example)}
+    depends_on:
+      db:
+        condition: service_healthy
 
   backend:
     build: ./backend
@@ -39,16 +67,22 @@ services:
       - temp_uploads_data:/app/temp_uploads
     environment:
       - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY must be set (see .env.example)}
       - UPLOAD_DIR=${UPLOAD_DIR}
       - TEMP_UPLOAD_DIR=${TEMP_UPLOAD_DIR}
       - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-}
     healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).read()\""]
+      # Gate dependents on readiness (DB reachable + uploads writable), not just liveness.
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=2).read()\""]
       interval: 30s
       timeout: 5s
       retries: 5
+      start_period: 20s
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
   worker:
     build: ./backend
@@ -59,11 +93,18 @@ services:
       - temp_uploads_data:/app/temp_uploads
     environment:
       - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY must be set (see .env.example)}
       - UPLOAD_DIR=${UPLOAD_DIR}
       - TEMP_UPLOAD_DIR=${TEMP_UPLOAD_DIR}
+    # Do not start the worker until Postgres is healthy, migrations have completed,
+    # and the backend reports ready.
     depends_on:
-      - db
-      - backend # Depend on backend to ensure migrations might have run if that's how it's setup
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      backend:
+        condition: service_healthy
 
   frontend-public:
     build:

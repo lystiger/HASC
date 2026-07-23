@@ -1,3 +1,10 @@
+import os
+
+# The application intentionally has no built-in SECRET_KEY fallback and refuses to
+# import without one. Provide a throwaway value for the test suite *before* any app
+# module is imported. setdefault means a real exported SECRET_KEY still wins.
+os.environ.setdefault("SECRET_KEY", "test-secret-key-not-for-production-use")
+
 import pytest
 import pytest_asyncio # Import pytest_asyncio
 from typing import AsyncGenerator

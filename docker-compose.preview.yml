@@ -1,0 +1,68 @@
+# Local preview of the production (Railway) build artifacts.
+#
+# Builds the same images that ship to Railway (Dockerfile.railway and
+# Dockerfile.railway.frontend-public), wires them to a local Postgres, and
+# exposes the public site at http://localhost:8080 so the final product can be
+# reviewed before shipping. The umami/nginx/TLS pieces of docker-compose.yml are
+# intentionally omitted here — they require production domains and certificates.
+#
+#   docker compose -f docker-compose.preview.yml up -d --build
+#   docker compose -f docker-compose.preview.yml down -v   # tear down + wipe data
+
+services:
+  preview-db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: hasc
+      POSTGRES_PASSWORD: hasc
+      POSTGRES_DB: hasc_db
+    volumes:
+      - preview_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hasc -d hasc_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  preview-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.railway
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://hasc:hasc@preview-db:5432/hasc_db
+      RUN_EMBEDDED_WORKER: "true"
+      UPLOAD_DIR: /data/uploads
+      TEMP_UPLOAD_DIR: /data/temp_uploads
+      BACKEND_CORS_ORIGINS: http://localhost:8080,http://127.0.0.1:8080
+      PORT: "8000"
+    ports:
+      - "18000:8000"
+    volumes:
+      - preview_uploads:/data
+    depends_on:
+      preview-db:
+        condition: service_healthy
+
+  preview-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.railway.frontend-public
+      args:
+        VITE_API_BASE_URL: http://localhost:18000
+        VITE_UMAMI_ENABLED: "false"
+        VITE_UMAMI_SCRIPT_URL: ""
+        VITE_UMAMI_WEBSITE_ID: ""
+        VITE_UMAMI_DASHBOARD_URL: ""
+    restart: unless-stopped
+    environment:
+      PORT: "80"
+    ports:
+      - "8080:80"
+    depends_on:
+      - preview-backend
+
+volumes:
+  preview_db:
+  preview_uploads:

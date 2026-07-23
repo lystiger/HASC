@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# SQLite databases (dev/test artifacts)
+*.db
+*.sqlite
+*.sqlite3
+
+# Runtime upload directories (served from a mounted volume in production)
+uploads/
+temp_uploads/

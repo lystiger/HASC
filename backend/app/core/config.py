@@ -58,6 +58,18 @@ class Settings(BaseSettings):
     TEMP_UPLOAD_DIR: str = os.getenv("TEMP_UPLOAD_DIR", "backend/temp_uploads")
     WORKER_POLL_INTERVAL: int = 5 # seconds
 
+    # Upload / image-processing limits (Phase 3 hardening). Conservative defaults
+    # sized for high-resolution industrial product photographs. These are the
+    # single source of truth for the API; nginx client_max_body_size is the outer
+    # guard and should be >= MAX_IMAGES_PER_REQUEST * MAX_UPLOAD_SIZE_MB (+ overhead).
+    MAX_UPLOAD_SIZE_MB: int = 10          # per-file size cap (megabytes)
+    MAX_IMAGES_PER_REQUEST: int = 8       # per-request image-count cap
+    MAX_IMAGE_PIXELS: int = 40_000_000    # ~40 MP decompression-bomb / dimension guard
+
+    @property
+    def max_upload_size_bytes(self) -> int:
+        return self.MAX_UPLOAD_SIZE_MB * 1024 * 1024
+
     # Run the image-processing worker inside the API process (single-service deployments
     # such as Railway, where the uploads volume can only be attached to one service).
     RUN_EMBEDDED_WORKER: bool = os.getenv("RUN_EMBEDDED_WORKER", "false").lower() in ("1", "true", "yes")

@@ -49,11 +49,32 @@ async def get_db_session() -> AsyncSession:
     async with AsyncSessionLocal() as session:
         yield session
 
+def _safe_remove_file(path: str | None) -> None:
+    """Idempotently remove a temporary file.
+
+    Never raises: a failed cleanup must not lose an already-produced WebP/thumbnail
+    or crash the worker. Safe to call multiple times for the same path.
+    """
+    if not path:
+        return
+    try:
+        os.remove(path)
+        logger.info(f"Removed temporary original image: {path}")
+    except FileNotFoundError:
+        pass
+    except OSError as e:
+        logger.warning(f"Could not remove temporary original image {path}: {e}")
+
+
 def _process_image_file(
     image_path: Path, product_id: int, original_filename: str
 ) -> Tuple[str, str]:
     """Processes an image: resizes, converts to WebP, and creates a thumbnail.
     Returns relative paths to webp and thumbnail images.
+
+    Note: the temporary original file is NOT removed here. Removal is handled by
+    ``process_image_task`` in a ``finally`` block once the task reaches a terminal
+    state, so a retryable failure keeps the original for the next attempt.
     """
     logger.info(f"Processing image file: {image_path} for product {product_id}")
     img = Image.open(image_path)
@@ -73,10 +94,6 @@ def _process_image_file(
     img.save(thumbnail_path, "WEBP", quality=WEBP_QUALITY)
     logger.info(f"Saved thumbnail to: {thumbnail_path}")
 
-    # Remove the original raw image after processing
-    os.remove(image_path)
-    logger.info(f"Removed original image: {image_path}")
-
     # Return public URL paths served by FastAPI static mount
     return f"/uploads/{web_image_filename}", f"/uploads/{thumbnail_filename}"
 
@@ -86,6 +103,12 @@ async def process_image_task(db: AsyncSession, task: DBTask):
     Processes a single image task.
     """
     logger.info(f"Starting process_image_task for task {task.id}, product {task.metadata_['product_id']}")
+    # Capture metadata into locals up-front so we never touch expired ORM
+    # attributes (e.g. after a rollback, which would trigger an illegal
+    # lazy-load on the async session).
+    original_image_path = (task.metadata_ or {}).get("original_image_path")
+    product_id_for_log = (task.metadata_ or {}).get("product_id", "N/A")
+    is_terminal = False
     try:
         task.status = TaskStatus.IN_PROGRESS
         task.attempts = (task.attempts or 0) + 1
@@ -134,28 +157,42 @@ async def process_image_task(db: AsyncSession, task: DBTask):
         db.add(task)
         await db.commit()
         await db.refresh(task)
+        is_terminal = True
         logger.info(f"Task {task.id} (product {product_id}) completed successfully.")
 
     except Exception as e:
-        logger.error(f"Task {task.id} (product {task.metadata_.get('product_id', 'N/A')}) failed with exception: {e}", exc_info=True)
+        logger.error(f"Task {task.id} (product {product_id_for_log}) failed with exception: {e}", exc_info=True)
         await db.rollback()
+        # Rollback expired the task; reload the committed attempt count before
+        # reading it (async sessions cannot lazy-load on attribute access).
+        await db.refresh(task)
         task.error_message = str(e)
         if task.attempts < task.max_attempts:
             task.status = TaskStatus.PENDING
             logger.info(
-                f"Task {task.id} (product {task.metadata_.get('product_id', 'N/A')}) re-queued "
+                f"Task {task.id} (product {product_id_for_log}) re-queued "
                 f"for retry {task.attempts}/{task.max_attempts}."
             )
         else:
             task.status = TaskStatus.FAILED
             task.completed_at = datetime.now()
+            is_terminal = True
             logger.info(
-                f"Task {task.id} (product {task.metadata_.get('product_id', 'N/A')}) "
+                f"Task {task.id} (product {product_id_for_log}) "
                 "status set to FAILED (max attempts reached)."
             )
         db.add(task)
         await db.commit()
         await db.refresh(task)
+    finally:
+        # Clean up the temporary original once the task has reached a terminal
+        # state (success or permanent failure). On a retry the task is PENDING
+        # again, so the original is kept for the next attempt. Cleanup is
+        # idempotent and only ever touches the temp original — never the produced
+        # WebP/thumbnail outputs. `is_terminal` is a plain local so this never
+        # triggers an ORM load in the finally.
+        if is_terminal:
+            _safe_remove_file(original_image_path)
 
 
 async def check_and_update_product_status(db: AsyncSession, product_id: int):

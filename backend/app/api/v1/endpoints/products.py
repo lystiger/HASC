@@ -4,8 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import json
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
-import uuid
-import os
 from sqlalchemy.exc import IntegrityError
 from asyncpg.exceptions import UniqueViolationError # Import UniqueViolationError
 
@@ -19,13 +17,52 @@ from app.models.user import User
 from app.models.user import UserRole
 from app.models.task import Task as DBTask, TaskStatus, TaskType
 from app.schemas.task import TaskCreate as TaskSchemaCreate
+from app.services.uploads import stage_images, remove_files
 
 router = APIRouter()
 
-# Define a temporary directory for raw image uploads
-TEMP_UPLOAD_DIR = settings.TEMP_UPLOAD_DIR
-# Ensure the temporary upload directory exists
-os.makedirs(TEMP_UPLOAD_DIR, exist_ok=True)
+
+async def _create_image_tasks(
+    db: AsyncSession, product_id: int, staged_images: List[Dict[str, Any]]
+) -> List[int]:
+    """Create one IMAGE_PROCESSING task per already-staged image.
+
+    Each staged temp file is owned by a task as soon as that task is persisted;
+    if task creation fails partway through, only the temp files whose tasks were
+    not persisted are cleaned up (files already handed to a task are left for the
+    worker to process and clean up).
+    """
+    task_ids: List[int] = []
+    handed_off: List[str] = []
+    try:
+        for item in staged_images:
+            task_metadata = {
+                "product_id": product_id,
+                "original_image_path": item["original_image_path"],
+                "original_filename": item["original_filename"],
+                "content_type": item["content_type"],
+            }
+            task_in = TaskSchemaCreate(
+                product_id=product_id,
+                task_type=TaskType.IMAGE_PROCESSING,
+                status=TaskStatus.PENDING,
+                metadata_=task_metadata,
+            )
+            db_task = DBTask(**task_in.model_dump())
+            db.add(db_task)
+            await db.commit()
+            await db.refresh(db_task)
+            task_ids.append(db_task.id)
+            handed_off.append(item["original_image_path"])
+        return task_ids
+    except Exception:
+        orphans = [
+            item["original_image_path"]
+            for item in staged_images
+            if item["original_image_path"] not in handed_off
+        ]
+        remove_files(orphans)
+        raise
 
 @router.post("/", response_model=Dict[str, Any], status_code=status.HTTP_202_ACCEPTED)
 async def create_product(
@@ -77,6 +114,11 @@ async def create_product(
             detail="Specific attributes must be a valid JSON string."
         )
 
+    # Validate + stage uploaded images BEFORE creating the product, so an invalid
+    # or oversized upload is rejected up-front (413/400) and never leaves an
+    # orphaned product row. stage_images cleans up its own partial files on failure.
+    staged_images = await stage_images(images)
+
     product_in = ProductCreate(
         sku=sku,
         name=normalized_name_en,
@@ -95,7 +137,7 @@ async def create_product(
         category_id=db_category.id,
         status=ProductStatus.DRAFT # Initial status is DRAFT
     )
-    
+
     try:
         db.add(db_product)
         await db.commit()
@@ -103,6 +145,8 @@ async def create_product(
         new_product_id = db_product.id # Capture the ID here
     except IntegrityError as e:
         await db.rollback()
+        # The product was not created; remove the staged temp files to avoid orphans.
+        remove_files([item["original_image_path"] for item in staged_images])
         if isinstance(e.orig, UniqueViolationError):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -116,40 +160,7 @@ async def create_product(
             detail="An unexpected database error occurred."
         ) from e
 
-
-    task_ids = []
-    # Save original images to a temporary location and create tasks
-    for image in images:
-        # Save raw image to a temporary file
-        file_extension = image.filename.split(".")[-1] if "." in image.filename else "tmp"
-        temp_filename = f"temp_original_{uuid.uuid4().hex}_{new_product_id}.{file_extension}"
-        
-        # This is the full path inside the container where the file will be written
-        container_full_temp_file_path = os.path.join(TEMP_UPLOAD_DIR, temp_filename)
-
-
-        with open(container_full_temp_file_path, "wb") as buffer:
-            buffer.write(await image.read())
-
-        # The path stored in metadata should be the path accessible by the worker,
-        # which is the absolute path within the container.
-        task_metadata = {
-            "product_id": new_product_id,
-            "original_image_path": container_full_temp_file_path, # Store the full container path
-            "original_filename": image.filename,
-            "content_type": image.content_type
-        }
-        task_in = TaskSchemaCreate(
-            product_id=new_product_id,
-            task_type=TaskType.IMAGE_PROCESSING,
-            status=TaskStatus.PENDING,
-            metadata_=task_metadata
-        )
-        db_task = DBTask(**task_in.model_dump())
-        db.add(db_task)
-        await db.commit()
-        await db.refresh(db_task)
-        task_ids.append(db_task.id)
+    task_ids = await _create_image_tasks(db, new_product_id, staged_images)
 
     return {"product_id": new_product_id, "task_ids": task_ids, "message": "Product created and image processing tasks initiated."}
 
@@ -308,31 +319,8 @@ async def add_product_images(
     if not product:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
 
-    task_ids = []
-    for image in images:
-        file_extension = image.filename.split(".")[-1] if "." in image.filename else "tmp"
-        temp_filename = f"temp_original_{uuid.uuid4().hex}_{product_id}.{file_extension}"
-        container_full_temp_file_path = os.path.join(TEMP_UPLOAD_DIR, temp_filename)
-
-        with open(container_full_temp_file_path, "wb") as buffer:
-            buffer.write(await image.read())
-
-        task_metadata = {
-            "product_id": product_id,
-            "original_image_path": container_full_temp_file_path,
-            "original_filename": image.filename,
-            "content_type": image.content_type,
-        }
-        task_in = TaskSchemaCreate(
-            product_id=product_id,
-            task_type=TaskType.IMAGE_PROCESSING,
-            status=TaskStatus.PENDING,
-            metadata_=task_metadata,
-        )
-        db_task = DBTask(**task_in.model_dump())
-        db.add(db_task)
-        await db.commit()
-        await db.refresh(db_task)
-        task_ids.append(db_task.id)
+    # Validate + stage uploads (413/400 on rejection, partial files cleaned up).
+    staged_images = await stage_images(images)
+    task_ids = await _create_image_tasks(db, product_id, staged_images)
 
     return {"product_id": product_id, "task_ids": task_ids, "message": "Image upload queued."}

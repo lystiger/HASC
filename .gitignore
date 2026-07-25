@@ -37,6 +37,12 @@ nginx/certs/*
 *.sqlite3
 
 # =====================
+# Backups (database dumps + upload archives) — never commit
+# =====================
+/backups/
+*.sql.gz
+
+# =====================
 # Uploaded / generated media (served from a volume in production)
 # =====================
 uploads/

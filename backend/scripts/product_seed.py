@@ -70,7 +70,7 @@ PRODUCT_DEFAULTS = [
             "Chén xoay gia công chính xác cho thiết bị phun sơn tĩnh điện, "
             "cân bằng động cho tốc độ quay cao và phun sơn đều."
         ),
-        "images": ["bellcup/1.webp", "bellcup/2.webp", "bellcup/3.webp"],
+        "images": ["bellcup/1.webp", "bellcup/2.webp", "bellcup/3.webp", "bellcup/4.webp"],
     },
     {
         "sku": "SPRAY-PARTS-001",
@@ -86,6 +86,21 @@ PRODUCT_DEFAULTS = [
             "cho hệ thống phun sơn và thiết bị công nghiệp."
         ),
         "images": ["technical/1.webp", "technical/2.webp", "technical/3.webp"],
+    },
+    {
+        "sku": "PE-SHRINK-001",
+        "category": "PE_SHRINK_FILM",
+        "name_en": "Industrial PE shrink film & CPE packaging film",
+        "name_vi": "Màng co nhiệt PE & màng CPE công nghiệp",
+        "description_en": (
+            "High-clarity, high-tensile industrial PE heat shrink film and CPE cast polyethylene film rolls "
+            "for multi-pack bundling and pallet wrapping."
+        ),
+        "description_vi": (
+            "Màng co nhiệt PE và cuộn màng CPE chất lượng cao, độ dẻo dai và trong suốt vượt trội, "
+            "chuyên dụng cho đóng gói lốc sản phẩm và quấn pallet."
+        ),
+        "images": ["shrinkfilm/1.webp", "shrinkfilm/2.webp", "shrinkfilm/3.webp"],
     },
     {
         "sku": "PACK-BAG-001",
@@ -115,7 +130,7 @@ PRODUCT_DEFAULTS = [
             "Chất phá bọt công nghiệp cho ngành giấy, cung cấp dạng bồn IBC 1000 kg, "
             "kiểm soát bọt trong dây chuyền sản xuất giấy."
         ),
-        "images": ["chemical/1.webp", "chemical/2.webp", "chemical/3.webp"],
+        "images": ["chemical/1.webp", "chemical/2.webp", "chemical/3.webp", "chemical/4.webp"],
     },
     {
         "sku": "FILTER-001",
@@ -130,7 +145,7 @@ PRODUCT_DEFAULTS = [
             "Lõi lọc và thiết bị lọc công nghiệp cho dây chuyền sản xuất, "
             "đóng gói an toàn cho vận chuyển và lưu kho."
         ),
-        "images": [f"filder/{i}.webp" for i in range(1, 5)],
+        "images": [f"filder/{i}.webp" for i in range(1, 6)],
     },
 ]
 
@@ -155,6 +170,11 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=300,
         help="Seconds to wait for image processing to publish each product (default: 300)",
+    )
+    parser.add_argument(
+        "--replace",
+        action="store_true",
+        help="Delete existing products before seeding (useful to refresh upscaled images)",
     )
     return parser.parse_args()
 
@@ -245,6 +265,15 @@ def main() -> None:
     with httpx.Client(base_url=args.api_base_url.rstrip("/"), timeout=120.0) as client:
         token = login(client, args.email, args.password)
         client.headers["Authorization"] = f"Bearer {token}"
+
+        if args.replace:
+            print("Cleaning up existing products before re-seeding...")
+            existing_resp = client.get("/api/v1/products")
+            if existing_resp.status_code == 200:
+                for p in existing_resp.json():
+                    del_resp = client.delete(f"/api/v1/products/{p['id']}")
+                    if del_resp.status_code == 204:
+                        print(f"Deleted product {p['sku']} (id={p['id']})")
 
         created: list[tuple[int, str]] = []
         for product in PRODUCT_DEFAULTS:

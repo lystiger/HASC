@@ -176,8 +176,12 @@ def product_exists(client: httpx.Client, sku: str) -> bool:
 
 
 def create_product(client: httpx.Client, product: dict, images_root: Path) -> int:
+    all_images = product["images"]
+    first_batch = all_images[:8]
+    extra_images = all_images[8:]
+
     files = []
-    for relative_path in product["images"]:
+    for relative_path in first_batch:
         image_path = images_root / relative_path
         if not image_path.is_file():
             raise SystemExit(f"Image not found: {image_path}")
@@ -202,7 +206,25 @@ def create_product(client: httpx.Client, product: dict, images_root: Path) -> in
         raise SystemExit(
             f"Failed to create product {product['sku']} ({response.status_code}): {response.text}"
         )
-    return response.json()["product_id"]
+    product_id = response.json()["product_id"]
+
+    for i in range(0, len(extra_images), 8):
+        chunk = extra_images[i : i + 8]
+        chunk_files = []
+        for relative_path in chunk:
+            image_path = images_root / relative_path
+            if not image_path.is_file():
+                raise SystemExit(f"Image not found: {image_path}")
+            chunk_files.append(
+                ("images", (image_path.name, image_path.read_bytes(), "image/webp"))
+            )
+        resp = client.post(f"/api/v1/products/{product_id}/images", files=chunk_files)
+        if resp.status_code != 202:
+            raise SystemExit(
+                f"Failed to add images to product {product['sku']} ({resp.status_code}): {resp.text}"
+            )
+
+    return product_id
 
 
 def wait_for_publish(client: httpx.Client, product_id: int, sku: str, timeout: int) -> str:

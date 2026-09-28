@@ -121,6 +121,7 @@ jobs:
 
           echo "=== Updating containers ==="
           docker compose up -d
+          docker compose restart nginx
 
           echo "=== Verifying health status ==="
           sleep 10

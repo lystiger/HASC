@@ -105,33 +105,26 @@ jobs:
 
   deploy:
     name: Continuous Deployment
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, hasc-vm]
     needs: [backend-test, frontend-check, docker-verification]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
-      - name: Deploy to Cloud Server via SSH
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.VM_SSH_KEY }}
-          port: ${{ secrets.VM_PORT }}
-          script_stop: true
-          script: |
-            echo "=== Pulling latest changes on VM ==="
-            cd /srv/hasc
-            git fetch origin main
-            git reset --hard origin/main
+      - name: Deploy to Cloud Server
+        run: |
+          echo "=== Pulling latest changes on VM ==="
+          cd /srv/hasc
+          git fetch origin main
+          git reset --hard origin/main
 
-            echo "=== Building application images ==="
-            docker compose build backend frontend-public frontend-admin
+          echo "=== Building application images ==="
+          docker compose build backend frontend-public frontend-admin
 
-            echo "=== Updating containers ==="
-            docker compose up -d
+          echo "=== Updating containers ==="
+          docker compose up -d
 
-            echo "=== Verifying health status ==="
-            sleep 10
-            docker compose ps
-            docker compose exec -T backend python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/health/ready').read().decode())"
+          echo "=== Verifying health status ==="
+          sleep 10
+          docker compose ps
+          docker compose exec -T backend python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/health/ready').read().decode())"
 
-            echo "=== Deployment completed successfully ==="
+          echo "=== Deployment completed successfully ==="

@@ -73,6 +73,10 @@ async def _seed_category_with_product(db_session):
         DBProduct(
             sku="SKU-LOCK-001",
             name="Locked Product",
+            name_en="Locked Product",
+            name_vi="Sản phẩm bị khóa",
+            description_en="Locked Product Description",
+            description_vi="Mô tả sản phẩm bị khóa",
             category_id=category_id,
             status=ProductStatus.DRAFT,
             images=[],
@@ -161,5 +165,8 @@ async def test_delete_category_in_use_returns_409(async_client_auth, db_session)
 @pytest.mark.asyncio
 async def test_categories_require_auth(async_client_noauth, db_session):
     await _seed_categories(db_session)
-    resp = await async_client_noauth.get("/api/v1/categories")
+    resp = await async_client_noauth.post(
+        "/api/v1/categories",
+        json={"code": "NEWCAT", "name_en": "New Category", "name_vi": "Danh mục mới"},
+    )
     assert resp.status_code == 401

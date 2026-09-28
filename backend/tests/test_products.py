@@ -9,6 +9,10 @@ from app.models.category import Category as DBCategory
 from app.models.product import Product as DBProduct, ProductStatus
 from app.core.config import settings
 
+from sqlalchemy import select
+from app.models.task import Task as DBTask, TaskStatus
+from app.worker import process_image_task
+
 # Helper function to create a product for testing
 async def _ensure_categories(db_session):
     existing = await db_session.execute(
@@ -40,8 +44,12 @@ async def create_test_product(async_client: AsyncClient, db_session, sku_suffix:
     form_data = {
         "sku": test_sku,
         "name": test_name,
+        "name_en": test_name,
+        "name_vi": test_name,
         "category": test_category,
         "description": test_description,
+        "description_en": test_description,
+        "description_vi": test_description,
         "specific_attributes": json.dumps(test_specific_attributes)
     }
 
@@ -68,17 +76,12 @@ async def get_product(async_client: AsyncClient, product_id: int):
     assert response.status_code == 200
     return response.json()
 
-async def wait_for_product(async_client: AsyncClient, product_id: int, timeout=3, poll_interval=0.1):
-    start_time = asyncio.get_event_loop().time()
-    while True:
-        product = await get_product(async_client, product_id)
-        if product["status"] == ProductStatus.PUBLISHED.value:
-            return product
-        # If the product status indicates a non-draft state (e.g., in processing, or if a FAILED state is eventually added),
-        # we might want to check for it here. For now, assuming only PUBLISHED is a successful terminal state.
-        if asyncio.get_event_loop().time() - start_time > timeout:
-            raise TimeoutError(f"Product {product_id} processing timed out after {timeout} seconds. Current status: {product['status']}")
-        await asyncio.sleep(poll_interval)
+async def wait_for_product(async_client: AsyncClient, db_session, product_id: int):
+    stmt = select(DBTask).where(DBTask.product_id == product_id, DBTask.status == TaskStatus.PENDING)
+    tasks = (await db_session.execute(stmt)).scalars().all()
+    for task in tasks:
+        await process_image_task(db_session, task)
+    return await get_product(async_client, product_id)
 
 
 @pytest.mark.asyncio
@@ -165,19 +168,18 @@ async def test_get_product_by_id(async_client: AsyncClient, db_session):
     create_resp = await create_test_product(async_client, db_session, "001")
     product_id = create_resp["product_id"]
 
-    product_data = await wait_for_product(async_client, product_id)
+    product_data = await wait_for_product(async_client, db_session, product_id)
 
     assert product_data["id"] == product_id
     assert product_data["sku"] == "TEST-SKU-001"
     assert "images" in product_data
     assert len(product_data["images"]) > 0
-    # Clean up generated files (assuming processing creates files)
-    os.remove(Path(product_data["images"][0]["web_url"]))
-    os.remove(Path(product_data["images"][0]["thumb_url"]))
-    # The original_image_path is not directly available in product_data,
-    # but it was stored in the task metadata. For simplicity in test cleanup,
-    # we might need to fetch the task or make an assumption about its naming.
-    # For now, we assume the worker cleans up the original temp file.
+    # Clean up generated files
+    for img_info in product_data.get("images", []):
+        for key in ("web_url", "thumb_url"):
+            path = Path(settings.UPLOAD_DIR) / os.path.basename(img_info[key])
+            if path.exists():
+                path.unlink()
 
 
 @pytest.mark.asyncio
@@ -186,7 +188,7 @@ async def test_update_product(async_client: AsyncClient, db_session):
     create_resp = await create_test_product(async_client, db_session, "002")
     product_id = create_resp["product_id"]
 
-    product = await wait_for_product(async_client, product_id)
+    product = await wait_for_product(async_client, db_session, product_id)
 
     # Prepare update data
     updated_name = "Updated Test Product Name"
@@ -209,10 +211,8 @@ async def test_update_product(async_client: AsyncClient, db_session):
     assert updated_product["id"] == product_id
     assert updated_product["name"] == updated_name
     assert updated_product["description"] == updated_description
-    # Assert that specific_attributes are merged/updated
-    expected_specific_attributes = product["specific_attributes"]
-    expected_specific_attributes.update(updated_specific_attributes)
-    assert updated_product["specific_attributes"] == expected_specific_attributes
+    # Assert that specific_attributes are updated
+    assert updated_product["specific_attributes"] == updated_specific_attributes
     assert updated_product["status"] == ProductStatus.PUBLISHED.value
     
     # Verify in DB
@@ -220,9 +220,12 @@ async def test_update_product(async_client: AsyncClient, db_session):
     assert db_product is not None
     assert db_product.name == updated_name
     assert db_product.description == updated_description
-    assert db_product.specific_attributes == expected_specific_attributes
+    assert db_product.specific_attributes == updated_specific_attributes
     assert db_product.status == ProductStatus.PUBLISHED
 
-    # Clean up generated files (assuming processing creates files)
-    os.remove(Path(updated_product["images"][0]["web_url"]))
-    os.remove(Path(updated_product["images"][0]["thumb_url"]))
+    # Clean up generated files
+    for img_info in updated_product.get("images", []):
+        for key in ("web_url", "thumb_url"):
+            path = Path(settings.UPLOAD_DIR) / os.path.basename(img_info[key])
+            if path.exists():
+                path.unlink()

@@ -17,6 +17,10 @@ async def test_task_retries_then_fails(db_session):
     product = DBProduct(
         sku="RETRY-TEST-001",
         name="Retry Test Product",
+        name_en="Retry Test Product",
+        name_vi="Sản phẩm thử lại",
+        description_en="Retry test description",
+        description_vi="Mô tả sản phẩm thử lại",
         category_id=category.id,
         status=ProductStatus.DRAFT,
         images=[],

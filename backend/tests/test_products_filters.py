@@ -4,7 +4,7 @@ from httpx import AsyncClient, ASGITransport
 from sqlalchemy import delete
 
 from app.main import app
-from app.api.deps import get_db, get_current_user
+from app.api.deps import get_db, get_current_user, get_optional_user
 from app.models.category import Category as DBCategory
 from app.models.product import Product as DBProduct, ProductStatus
 from app.models.user import User, UserRole
@@ -16,6 +16,7 @@ async def async_client_noauth(db_session) -> AsyncClient:
 
     # Ensure no auth override leaks into this fixture
     app.dependency_overrides.pop(get_current_user, None)
+    app.dependency_overrides.pop(get_optional_user, None)
     app.dependency_overrides[get_db] = override_get_db
 
     async with AsyncClient(base_url="http://test", transport=ASGITransport(app=app)) as client:
@@ -28,17 +29,23 @@ async def async_client_auth(db_session) -> AsyncClient:
     async def override_get_db():
         yield db_session
 
+    admin_user = User(
+        id=1,
+        email="test@example.com",
+        hashed_password="not-used",
+        full_name="Test Admin",
+        role=UserRole.ADMIN,
+    )
+
     async def override_get_current_user():
-        return User(
-            id=1,
-            email="test@example.com",
-            hashed_password="not-used",
-            full_name="Test Admin",
-            role=UserRole.ADMIN,
-        )
+        return admin_user
+
+    async def override_get_optional_user():
+        return admin_user
 
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[get_current_user] = override_get_current_user
+    app.dependency_overrides[get_optional_user] = override_get_optional_user
 
     async with AsyncClient(base_url="http://test", transport=ASGITransport(app=app)) as client:
         yield client
@@ -64,6 +71,10 @@ async def _seed_products(db_session):
     p1 = DBProduct(
         sku="SKU-001",
         name="Packaging Film",
+        name_en="Packaging Film",
+        name_vi="Màng đóng gói",
+        description_en="Packaging Film Description",
+        description_vi="Mô tả màng đóng gói",
         category_id=c1.id,
         status=ProductStatus.PUBLISHED,
         images=[],
@@ -72,6 +83,10 @@ async def _seed_products(db_session):
     p2 = DBProduct(
         sku="SKU-002",
         name="Filter Paper",
+        name_en="Filter Paper",
+        name_vi="Giấy lọc",
+        description_en="Filter Paper Description",
+        description_vi="Mô tả giấy lọc",
         category_id=c2.id,
         status=ProductStatus.DRAFT,
         images=[],
@@ -80,6 +95,10 @@ async def _seed_products(db_session):
     p3 = DBProduct(
         sku="SKU-003",
         name="Chemical Solvent",
+        name_en="Chemical Solvent",
+        name_vi="Dung môi hóa chất",
+        description_en="Chemical Solvent Description",
+        description_vi="Mô tả dung môi hóa chất",
         category_id=c3.id,
         status=ProductStatus.PUBLISHED,
         images=[],
